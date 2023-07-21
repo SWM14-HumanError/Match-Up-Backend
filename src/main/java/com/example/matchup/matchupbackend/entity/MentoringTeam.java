@@ -8,7 +8,7 @@ import lombok.Getter;
 @Table(name = "mentoring_team")
 public class MentoringTeam {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mentoring_team_id")
     private Long id;
 

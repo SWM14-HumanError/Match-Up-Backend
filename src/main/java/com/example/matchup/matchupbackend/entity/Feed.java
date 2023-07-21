@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 public class Feed {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_id")
     private Long id;
 

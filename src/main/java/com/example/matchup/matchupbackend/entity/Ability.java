@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 public class Ability {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ability_id")
     private Long id;
     private String position;
