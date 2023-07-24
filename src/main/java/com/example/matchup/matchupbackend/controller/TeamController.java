@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
-    @GetMapping("/api/v1/team")
+    @GetMapping("/api/v1/list/team")
     public SliceTeamResponse showTeams(TeamSearchRequest teamSearchRequest, Pageable pageable)
     {
         return teamService.TeamSearchListToSliceTeam(teamSearchRequest, pageable);
