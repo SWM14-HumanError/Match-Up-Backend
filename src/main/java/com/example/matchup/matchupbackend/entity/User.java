@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-public class User extends BaseTimeEntity{
+@Table(name = "user")
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -34,4 +37,11 @@ public class User extends BaseTimeEntity{
     private String expertize;
     private String expYear;
     private String certificateURL;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<TeamUser> teamUserList = new ArrayList<>();
+
+//    public void addTeamUser(TeamUser teamUser) {
+//        teamUserList.add(teamUser);
+//        teamUser.setTag(this);
+//    }
 }
