@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.repository;
+package com.example.matchup.matchupbackend.repository.team;
 
 import com.example.matchup.matchupbackend.dto.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.TeamSearchRequest;
