@@ -1,20 +1,16 @@
 package com.example.matchup.matchupbackend.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "team_user")
-public class TeamUser {
-
+@Table(name = "team_tag")
+public class TeamTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_user_id")
+    @Column(name = "team_tag_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -22,12 +18,11 @@ public class TeamUser {
     private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User user;
-
+    @JoinColumn(name = "tag_id")
+    private Tag tag;
     @Builder
-    public TeamUser(Team team, User user) {
+    public TeamTag(Team team, Tag tag) {
         this.team = team;
-        this.user = user;
+        this.tag = tag;
     }
 }
