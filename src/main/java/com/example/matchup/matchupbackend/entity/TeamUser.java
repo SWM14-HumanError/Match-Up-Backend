@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,6 +18,12 @@ public class TeamUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_user_id")
     private Long id;
+    @Column(name = "role")
+    private String role;
+    @Column(name = "stacks")
+    private String stacks; //어떻게 할지 결정(stack 테이블 만들어야하는지)
+    @Column(name = "count")
+    private Long count;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
@@ -26,7 +34,10 @@ public class TeamUser {
     private User user;
 
     @Builder
-    public TeamUser(Team team, User user) {
+    public TeamUser(String role, String stacks, Long count, Team team, User user) {
+        this.role = role;
+        this.stacks = stacks;
+        this.count = count;
         this.team = team;
         this.user = user;
     }
