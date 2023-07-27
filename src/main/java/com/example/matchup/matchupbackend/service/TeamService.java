@@ -13,6 +13,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class TeamService {
@@ -38,6 +41,9 @@ public class TeamService {
                 .detailType(teamCreateRequest.getType().getDetailType())
                 .thumbnailUrl(teamCreateRequest.getThumbnailUrl())
                 .like(0L)
+                .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
+                .city(teamCreateRequest.getMeetingSpot().getCity())
+                .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
                 .recruitFinish("NF")
                 .build();
 
@@ -74,6 +80,27 @@ public class TeamService {
                 team.addTeamTagList(newTeamTag);
             }
         }
+    }
+
+    @Transactional
+    public Long updateTeam(Long teamID, TeamCreateRequest teamCreateRequest)
+    {
+        Team team = teamRepository.findById(teamID).orElse(null);
+        return team.updateTeam(teamCreateRequest);
+    }
+
+    public boolean isUpdatable(Long teamID, TeamCreateRequest teamCreateRequest) {
+        Team team = teamRepository.findById(teamID).orElse(null);
+        if(team == null) return false;
+        for (TeamUser teamUser : team.getTeamUserList()) {
+            for (Member member : teamCreateRequest.getMemberList()) {
+                if (teamUser.getRole() == member.getRole()
+                        && teamUser.getCount() > member.getCount()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
 
