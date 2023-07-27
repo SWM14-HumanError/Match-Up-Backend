@@ -1,0 +1,9 @@
+package com.example.matchup.matchupbackend.repository.teamtag;
+
+import com.example.matchup.matchupbackend.entity.TeamTag;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface TeamTagRepository extends JpaRepository<TeamTag, Long> {
+
+}
