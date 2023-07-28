@@ -45,10 +45,13 @@ public class Team extends BaseTimeEntity {
     private String detailSpot;
     @Column(name = "recruit_finish")
     private String recruitFinish;
+    @Column(name = "is_deleted")
+    private Long isDeleted;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamTag> teamTagList = new ArrayList<>();
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
+
     @Builder //신규로 팀을 만들때 사용
     public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish) {
         this.title = title;
@@ -61,23 +64,29 @@ public class Team extends BaseTimeEntity {
         this.city = city;
         this.detailSpot = detailSpot;
         this.recruitFinish = recruitFinish;
+        this.isDeleted = 0L;
     }
+
     //== 연관관계 메서드 ==//
-    public void addTeamTagList(TeamTag teamTag)
-    {
+    public void addTeamTagList(TeamTag teamTag) {
         teamTagList.add(teamTag);
 
     }
+
     //== 비즈니스 로직 ==//
-    public Long updateTeam(TeamCreateRequest teamCreateRequest)
-    {
-        this.thumbnailUrl= teamCreateRequest.getThumbnailUrl();
+    public Long updateTeam(TeamCreateRequest teamCreateRequest) {
+        this.thumbnailUrl = teamCreateRequest.getThumbnailUrl();
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
-        this.detailType=teamCreateRequest.getType().getDetailType();
-        this.onOffline=teamCreateRequest.getMeetingSpot().getOnOffline();
-        this.city=teamCreateRequest.getMeetingSpot().getCity();
-        this.detailSpot=teamCreateRequest.getMeetingSpot().getDetailSpot();
+        this.detailType = teamCreateRequest.getType().getDetailType();
+        this.onOffline = teamCreateRequest.getMeetingSpot().getOnOffline();
+        this.city = teamCreateRequest.getMeetingSpot().getCity();
+        this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();
+        return this.id;
+    }
+
+    public Long deleteTeam() {
+        isDeleted = 1L;
         return this.id;
     }
 }

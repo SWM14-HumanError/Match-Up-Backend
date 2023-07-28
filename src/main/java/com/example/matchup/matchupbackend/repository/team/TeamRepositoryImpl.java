@@ -38,15 +38,15 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .from(team)
                 .where(typeEq(teamSearchRequest.getType()),
                         categoryEq(teamSearchRequest.getCategory()),
-                        searchEq(teamSearchRequest.getSearch()))
+                        searchEq(teamSearchRequest.getSearch()),
+                        team.isDeleted.eq(0L))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         boolean hasNext = false;
-        if(content.size()>pageable.getPageSize())
-        {
-            hasNext=true;
+        if (content.size() > pageable.getPageSize()) {
+            hasNext = true;
             content.remove(pageable.getPageSize());
         }
 
@@ -57,9 +57,10 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     private BooleanExpression searchEq(String search) {
         return (search != null) ? team.title.contains(search) : null;
     }
-// tag 중 하나라도 있으면 가져옴
+
+    // tag 중 하나라도 있으면 가져옴
     private BooleanExpression categoryEq(String category) {
-        if(category != null){ //태그 안에 카테고리가 있는지 찾아야함
+        if (category != null) { //태그 안에 카테고리가 있는지 찾아야함
             return team.teamTagList.any().tag.name.eq(category); // any하면 리스트를 통째로 들고 온다
         } //error 확인!
         else return null;
