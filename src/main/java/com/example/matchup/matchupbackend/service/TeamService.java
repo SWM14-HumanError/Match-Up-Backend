@@ -8,6 +8,7 @@ import com.example.matchup.matchupbackend.repository.teamtag.TeamTagRepository;
 import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
@@ -83,15 +85,14 @@ public class TeamService {
     }
 
     @Transactional
-    public Long updateTeam(Long teamID, TeamCreateRequest teamCreateRequest)
-    {
+    public Long updateTeam(Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
         return team.updateTeam(teamCreateRequest);
     }
 
     public boolean isUpdatable(Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
-        if(team == null) return false;
+        if (team == null) return false;
         for (TeamUser teamUser : team.getTeamUserList()) {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole() == member.getRole()
@@ -101,6 +102,11 @@ public class TeamService {
             }
         }
         return true;
+    }
+    @Transactional
+    public void deleteTeam(Long teamID) {
+        Team team = teamRepository.findById(teamID).orElse(null);
+        log.info("deleted team ID : " + team.deleteTeam().toString());
     }
 }
 
