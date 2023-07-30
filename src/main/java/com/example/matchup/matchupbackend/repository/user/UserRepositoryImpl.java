@@ -41,7 +41,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                         stackEq(userSearchRequest.getTechStack()),
                         positionEq(userSearchRequest.getPosition())
                 )
-                .orderBy(orderByEq(userSearchRequest.getOrderBy()))
+                .orderBy(orderByTo(userSearchRequest.getOrderBy()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -81,12 +81,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return (position != null) ? user.position.eq(position) : null;
     }
 
-    private OrderSpecifier<?> orderByEq(String orderBy) {
-        if (orderBy == "reviewScore") {
-            return new OrderSpecifier<>(Order.DESC, user.reviewScore);
-        } else if (orderBy == "likes") {
-            return new OrderSpecifier<>(Order.DESC, user.likes);
-        } else return new OrderSpecifier<>(Order.DESC, user.createTime);
+    private OrderSpecifier<?> orderByTo(String orderBy) {
+        Order order = Order.DESC;
+        if ("reviewScore".equals(orderBy)) {
+            return new OrderSpecifier<>(order, user.reviewScore);
+        } else if ("likes".equals(orderBy)) {
+            return new OrderSpecifier<>(order, user.likes);
+        } else return new OrderSpecifier<>(order, user.createTime);
     }
     //정렬 조건을 많이 하면 성능 이슈
 }
