@@ -3,6 +3,8 @@ package com.example.matchup.matchupbackend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,5 +26,11 @@ public class TeamTag {
     public TeamTag(Team team, Tag tag) {
         this.team = team;
         this.tag = tag;
+    }
+
+    //== 비즈니스 로직 ==//
+    private List<String> returnTagList()
+    {
+        return tag.returnTeamTagList();
     }
 }

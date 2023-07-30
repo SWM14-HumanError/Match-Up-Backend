@@ -1,5 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,10 +22,10 @@ public class TeamUser {
     private Long id;
     @Column(name = "role")
     private String role;
-    @Column(name = "stacks")
-    private String stacks; //어떻게 할지 결정(stack 테이블 만들어야하는지)
     @Column(name = "count")
     private Long count;
+    @Column(name = "approve")
+    private Boolean approve; //0은 미승인 1은 승인됨
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
@@ -34,11 +36,13 @@ public class TeamUser {
     private User user;
 
     @Builder
-    public TeamUser(String role, String stacks, Long count, Team team, User user) {
+    public TeamUser(String role, Long count, Team team, User user) {
         this.role = role;
-        this.stacks = stacks;
         this.count = count;
         this.team = team;
         this.user = user;
     }
+
+    //== 비즈니스 로직 ==//
+
 }
