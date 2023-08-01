@@ -40,9 +40,9 @@ public class TeamService {
                 .detailType(teamCreateRequest.getType().getDetailType())
                 .thumbnailUrl(teamCreateRequest.getThumbnailUrl())
                 .like(0L)
-                .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
-                .city(teamCreateRequest.getMeetingSpot().getCity())
-                .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
+                .onOffline(teamCreateRequest.getTeamMeetingSpot().getOnOffline())
+                .city(teamCreateRequest.getTeamMeetingSpot().getCity())
+                .detailSpot(teamCreateRequest.getTeamMeetingSpot().getDetailSpot())
                 .recruitFinish("NF")
                 .leaderID(teamCreateRequest.getLeaderID())
                 .build();
@@ -108,7 +108,7 @@ public class TeamService {
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
 
-    public MeetingSpot getTeamMeetingSpot(Long teamID) {
+    public TeamMeetingSpot getTeamMeetingSpot(Long teamID) {
         return teamRepository.findMeetingSpotByTeamId(teamID);
     }
 

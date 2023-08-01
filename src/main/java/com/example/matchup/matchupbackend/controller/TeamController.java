@@ -82,7 +82,15 @@ public class TeamController {
     @GetMapping("/team/{teamID}/spot")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 모임 장소 API")
-    public MeetingSpot showTeamMeetingSpot(@PathVariable Long teamID)
+    public TeamMeetingSpot showTeamMeetingSpot(@PathVariable Long teamID)
+    {
+        return teamService.getTeamMeetingSpot(teamID);
+    }
+
+    @GetMapping("/team/{teamID}/mentoring")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "팀 상세페이지의 멘토링 API")
+    public List<MentoringCardResponse> showTeamMentoringList(@PathVariable Long teamID)
     {
         return teamService.getTeamMeetingSpot(teamID);
     }

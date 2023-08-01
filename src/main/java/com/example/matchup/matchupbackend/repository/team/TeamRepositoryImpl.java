@@ -81,9 +81,9 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     @Override
-    public MeetingSpot findMeetingSpotByTeamId(Long teamID) {
-        MeetingSpot content = queryFactory
-                .select(Projections.bean(MeetingSpot.class,
+    public TeamMeetingSpot findMeetingSpotByTeamId(Long teamID) {
+        TeamMeetingSpot content = queryFactory
+                .select(Projections.bean(TeamMeetingSpot.class,
                 team.onOffline,
                 team.city,
                 team.detailSpot
