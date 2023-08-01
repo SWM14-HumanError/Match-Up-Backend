@@ -12,7 +12,7 @@ public class TeamCreateRequest {
     private String name;
     private TeamType type;
     private String description;
-    private TeamMeetingSpot teamMeetingSpot;
+    private MeetingSpot meetingSpot;
     private List<Member> memberList;
     private Long leaderID;
 
