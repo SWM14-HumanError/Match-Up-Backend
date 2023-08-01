@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +44,9 @@ public class TeamService {
                 .detailType(teamCreateRequest.getType().getDetailType())
                 .thumbnailUrl(teamCreateRequest.getThumbnailUrl())
                 .like(0L)
-                .onOffline(teamCreateRequest.getTeamMeetingSpot().getOnOffline())
-                .city(teamCreateRequest.getTeamMeetingSpot().getCity())
-                .detailSpot(teamCreateRequest.getTeamMeetingSpot().getDetailSpot())
+                .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
+                .city(teamCreateRequest.getMeetingSpot().getCity())
+                .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
                 .recruitFinish("NF")
                 .leaderID(teamCreateRequest.getLeaderID())
                 .build();
@@ -113,12 +112,11 @@ public class TeamService {
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
 
-    public TeamMeetingSpot getTeamMeetingSpot(Long teamID) {
+    public MeetingSpot getTeamMeetingSpot(Long teamID) {
         return teamRepository.findMeetingSpotByTeamId(teamID);
     }
 
-    public List<MentoringCardResponse> getTeamMentoringCardList(Long teamID)
-    {
+    public List<MentoringCardResponse> getTeamMentoringCardList(Long teamID) {
         List<TeamMentoring> teamMentoringList = teamRepository.findTeamMentoringListByTeamId(teamID);
         List<MentoringCardResponse> teamMentoringCards = new ArrayList<>();
         teamMentoringList.stream().forEach(
@@ -139,6 +137,15 @@ public class TeamService {
                 }
         );
         return teamMentoringCards;
+    }
+
+    public List<String> getTeamTagStringList(Long teamID) {
+        List<TeamTag> teamTags = teamRepository.findTeamTagByTeamId(teamID);
+        List<String> teamTagNames = new ArrayList<>();
+        teamTags.stream().forEach(teamTag -> {
+            teamTagNames.add(teamTag.getTag().getName());
+        });
+        return teamTagNames;
     }
     /**
      * 여기 밑에서 부터 다시 만들어야 해

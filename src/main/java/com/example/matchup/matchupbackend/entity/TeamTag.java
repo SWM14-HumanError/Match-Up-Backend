@@ -29,8 +29,4 @@ public class TeamTag {
     }
 
     //== 비즈니스 로직 ==//
-    private List<String> returnTagList()
-    {
-        return tag.returnTeamTagList();
-    }
 }

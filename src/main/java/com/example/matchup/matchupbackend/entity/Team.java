@@ -84,9 +84,9 @@ public class Team extends BaseTimeEntity {
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
         this.detailType = teamCreateRequest.getType().getDetailType();
-        this.onOffline = teamCreateRequest.getTeamMeetingSpot().getOnOffline();
-        this.city = teamCreateRequest.getTeamMeetingSpot().getCity();
-        this.detailSpot = teamCreateRequest.getTeamMeetingSpot().getDetailSpot();
+        this.onOffline = teamCreateRequest.getMeetingSpot().getOnOffline();
+        this.city = teamCreateRequest.getMeetingSpot().getCity();
+        this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();
         return this.id;
     }
 
