@@ -14,9 +14,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,7 +24,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
 
-    public SliceTeamResponse SearchSliceTeamList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
+    public SliceTeamResponse searchSliceTeamList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<TeamSearchResponse> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
         SliceTeamResponse sliceTeamResponse = new SliceTeamResponse(teamSliceByTeamRequest.getContent(), teamSliceByTeamRequest.getSize(), teamSliceByTeamRequest.hasNext());
         return sliceTeamResponse;
@@ -47,6 +44,7 @@ public class TeamService {
                 .city(teamCreateRequest.getMeetingSpot().getCity())
                 .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
                 .recruitFinish("NF")
+                .leaderID(teamCreateRequest.getLeaderID())
                 .build();
 
         makeNewTeamTag(teamCreateRequest, team);
@@ -92,7 +90,7 @@ public class TeamService {
 
     public boolean isUpdatable(Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
-        if (team == null) return false;
+        if (team == null || team.getIsDeleted() == 1L) return false;
         for (TeamUser teamUser : team.getTeamUserList()) {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole() == member.getRole()
@@ -103,10 +101,39 @@ public class TeamService {
         }
         return true;
     }
+
     @Transactional
     public void deleteTeam(Long teamID) {
         Team team = teamRepository.findById(teamID).orElse(null);
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
+
+    public MeetingSpot getTeamMeetingSpot(Long teamID) {
+        return teamRepository.findMeetingSpotByTeamId(teamID);
+    }
+
+    /**
+     * 여기 밑에서 부터 다시 만들어야 해
+     * @param teamID
+     * @return
+     */
+    public TeamDetailResponse showTeamDetail(Long teamID)
+    {
+        Team team = teamRepository.findById(teamID).orElse(null);
+        if(isDeleted(team) == true) {
+            return null;
+        }
+        return teamRepository.findTeamDetailByTeamID(teamID);
+    }
+
+    public boolean isDeleted(Team team)
+    {
+        if(team.getIsDeleted() == 1L){
+            return true;
+        }
+        return false;
+    }
+
+
 }
 

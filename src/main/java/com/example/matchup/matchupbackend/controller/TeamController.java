@@ -78,4 +78,12 @@ public class TeamController {
     {
         return teamUserService.getTeamUserCard(teamID);
     }
+
+    @GetMapping("/team/{teamID}/spot")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "팀 상세페이지의 모임 장소 API")
+    public MeetingSpot showTeamMeetingSpot(@PathVariable Long teamID)
+    {
+        return teamService.getTeamMeetingSpot(teamID);
+    }
 }

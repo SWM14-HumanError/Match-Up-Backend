@@ -1,9 +1,10 @@
 package com.example.matchup.matchupbackend.repository.team;
 
-import com.example.matchup.matchupbackend.dto.TeamSearchRequest;
-import com.example.matchup.matchupbackend.dto.TeamSearchResponse;
+import com.example.matchup.matchupbackend.dto.*;
+import com.example.matchup.matchupbackend.entity.QMentoringTeam;
 import com.example.matchup.matchupbackend.entity.QTeam;
 import com.example.matchup.matchupbackend.entity.QTeamTag;
+import com.example.matchup.matchupbackend.entity.QTeamUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.entity.QMentoringTeam.*;
 import static com.example.matchup.matchupbackend.entity.QTeam.*;
 import static com.example.matchup.matchupbackend.entity.QTeamTag.teamTag;
+import static com.example.matchup.matchupbackend.entity.QTeamUser.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,6 +27,8 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private QTeam qTeam = team;
     private QTeamTag qTeamTag = teamTag;
+    private QTeamUser qTeamUser = teamUser;
+    private QMentoringTeam qMentoringTeam = mentoringTeam;
 
     @Override
     public Slice<TeamSearchResponse> findTeamSliceByTeamRequest(TeamSearchRequest teamSearchRequest, Pageable pageable) {
@@ -54,6 +59,11 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    @Override
+    public TeamDetailResponse findTeamDetailByTeamID(Long teamID) {
+        return null;
+    }
+
     private BooleanExpression searchEq(String search) {
         return (search != null) ? team.title.contains(search) : null;
     }
@@ -70,4 +80,71 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         return (type != null) ? team.type.eq(type) : null;
     }
 
+    @Override
+    public MeetingSpot findMeetingSpotByTeamId(Long teamID) {
+        MeetingSpot content = queryFactory
+                .select(Projections.bean(MeetingSpot.class,
+                team.onOffline,
+                team.city,
+                team.detailSpot
+                ))
+                .from(team)
+                .where(team.id.eq(teamID))
+                .fetchOne();
+        return content;
+    }
+
+    /*
+    @Override
+    public TeamDetailResponse findTeamDetailByTeamID(Long teamID) {
+        TeamDetailResponse content = queryFactory
+                .select(Projections.bean(TeamDetailResponse.class,
+                        team.id,
+                        team.title,
+                        team.description,
+                        team.leaderID,
+                        //"teamUserCardList"
+                        Projections.list(Projections.bean(TeamUserCardResponse.class,
+                                teamUser.user.id,
+                                teamUser.user.pictureUrl,
+                                teamUser.user.userLevel,
+                                teamUser.user.name,
+                                //"position"
+                                Projections.bean(Position.class,
+                                        teamUser.user.position,
+                                        teamUser.user.positionLevel),
+                                //!!!!!!!!!!!!!!!!!teamUser.user.reviewAverage,
+                                teamUser.user.likes,
+                                //"stacks"
+                                Projections.list(
+                                        teamUser.user.userTagList.),
+                                teamUser.role,
+                                teamUser.approve
+                                )),
+                        Projections.bean(MeetingSpot.class,
+                                team.onOffline,
+                                team.city,
+                                team.detailSpot),
+                        Projections.list(Projections.bean(MentoringCardResponse.class,
+                                mentoringTeam.mentoring.thumbnailURL,
+                                mentoringTeam.mentoring.title,
+                                //"position"
+                                Projections.bean(Position.class,
+                                        mentoringTeam.mentoring.user.position,
+                                        mentoringTeam.mentoring.user.positionLevel),
+                                mentoringTeam.mentoring.user.pictureUrl,
+                                mentoringTeam.mentoring.user.name,
+                                //mentoringTeam.mentoring.reviewAverage,
+                                mentoringTeam.mentoring.likes
+                                )),
+                        Projections.list(team.teamTagList)
+                ))
+                .from(team)
+                .leftJoin(teamUser).fetchJoin().on(teamUser.id.eq(teamID))
+                .leftJoin(mentoringTeam).fetchJoin().on(mentoringTeam.id.eq(teamID))
+                .where(team.id.eq(teamID)) //approve 된 애들만 return
+                .fetchOne();
+        return content;
+    }
+     */
 }
