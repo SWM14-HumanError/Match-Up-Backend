@@ -6,7 +6,7 @@ import lombok.Getter;
 @Entity
 @Getter
 @Table(name = "mentoring_team")
-public class MentoringTeam {
+public class TeamMentoring {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mentoring_team_id")

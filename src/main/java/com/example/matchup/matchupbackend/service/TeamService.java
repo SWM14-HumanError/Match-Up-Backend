@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.*;
+import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -13,6 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,11 +117,37 @@ public class TeamService {
         return teamRepository.findMeetingSpotByTeamId(teamID);
     }
 
+    public List<MentoringCardResponse> getTeamMentoringCardList(Long teamID)
+    {
+        List<TeamMentoring> teamMentoringList = teamRepository.findTeamMentoringListByTeamId(teamID);
+        List<MentoringCardResponse> teamMentoringCards = new ArrayList<>();
+        teamMentoringList.stream().forEach(
+                teamMentoring -> {
+                    Mentoring mentoring = teamMentoring.getMentoring();
+                    teamMentoringCards.add(MentoringCardResponse.builder()
+                            .mentoringID(mentoring.getId())
+                            .thumbnailURL(mentoring.getThumbnailURL())
+                            .title(mentoring.getTitle())
+                            .positionName(mentoring.getMentor().getPosition())
+                            .positionLevel(mentoring.getMentor().getPositionLevel())
+                            .mentorProfileURL(mentoring.getMentor().getPictureUrl())
+                            .mentorNickname(mentoring.getMentor().getName())
+                            .score(mentoring.returnMentoringReviewAverage())
+                            .like(mentoring.getLikes())
+                            .build()
+                    );
+                }
+        );
+        return teamMentoringCards;
+    }
     /**
      * 여기 밑에서 부터 다시 만들어야 해
      * @param teamID
      * @return
      */
+    /*
+
+
     public TeamDetailResponse showTeamDetail(Long teamID)
     {
         Team team = teamRepository.findById(teamID).orElse(null);
@@ -134,6 +165,6 @@ public class TeamService {
         return false;
     }
 
-
+ */
 }
 

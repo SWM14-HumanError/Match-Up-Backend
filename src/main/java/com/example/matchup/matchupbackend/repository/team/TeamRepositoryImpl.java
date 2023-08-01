@@ -1,10 +1,9 @@
 package com.example.matchup.matchupbackend.repository.team;
 
 import com.example.matchup.matchupbackend.dto.*;
-import com.example.matchup.matchupbackend.entity.QMentoringTeam;
-import com.example.matchup.matchupbackend.entity.QTeam;
-import com.example.matchup.matchupbackend.entity.QTeamTag;
-import com.example.matchup.matchupbackend.entity.QTeamUser;
+import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
+import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.entity.QTeamMentoring;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,7 +15,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.example.matchup.matchupbackend.entity.QMentoringTeam.*;
+import static com.example.matchup.matchupbackend.entity.QMentoring.mentoring;
+import static com.example.matchup.matchupbackend.entity.QTeamMentoring.*;
 import static com.example.matchup.matchupbackend.entity.QTeam.*;
 import static com.example.matchup.matchupbackend.entity.QTeamTag.teamTag;
 import static com.example.matchup.matchupbackend.entity.QTeamUser.*;
@@ -28,8 +28,8 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     private QTeam qTeam = team;
     private QTeamTag qTeamTag = teamTag;
     private QTeamUser qTeamUser = teamUser;
-    private QMentoringTeam qMentoringTeam = mentoringTeam;
-
+    private QTeamMentoring qTeamMentoring = teamMentoring;
+    private QMentoring qMentoring = mentoring;
     @Override
     public Slice<TeamSearchResponse> findTeamSliceByTeamRequest(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         List<TeamSearchResponse> content = queryFactory
@@ -57,11 +57,6 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
 
 
         return new SliceImpl<>(content, pageable, hasNext);
-    }
-
-    @Override
-    public TeamDetailResponse findTeamDetailByTeamID(Long teamID) {
-        return null;
     }
 
     private BooleanExpression searchEq(String search) {
@@ -93,6 +88,15 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .fetchOne();
         return content;
     }
+    @Override
+    public List<TeamMentoring> findTeamMentoringListByTeamId(Long teamID) {
+        List<TeamMentoring> content = queryFactory
+                .selectFrom(teamMentoring)
+                .where(teamMentoring.team.id.eq(teamID))
+                .fetch();
+        return content;
+    }
+
 
     /*
     @Override

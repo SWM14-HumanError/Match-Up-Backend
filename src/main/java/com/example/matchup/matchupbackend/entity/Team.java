@@ -54,9 +54,7 @@ public class Team extends BaseTimeEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
-    private List<MentoringTeam> mentoringTeamList = new ArrayList<>();
-    @Transient
-    private List<String> tagNames = returnTagList();
+    private List<TeamMentoring> teamMentoringList = new ArrayList<>();
 
 
     @Builder //신규로 팀을 만들때 사용
@@ -86,22 +84,14 @@ public class Team extends BaseTimeEntity {
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
         this.detailType = teamCreateRequest.getType().getDetailType();
-        this.onOffline = teamCreateRequest.getMeetingSpot().getOnOffline();
-        this.city = teamCreateRequest.getMeetingSpot().getCity();
-        this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();
+        this.onOffline = teamCreateRequest.getTeamMeetingSpot().getOnOffline();
+        this.city = teamCreateRequest.getTeamMeetingSpot().getCity();
+        this.detailSpot = teamCreateRequest.getTeamMeetingSpot().getDetailSpot();
         return this.id;
     }
 
     public Long deleteTeam() {
         isDeleted = 1L;
         return this.id;
-    }
-
-    public List<String> returnTagList() {
-        List<String> teamTagList = new ArrayList<>();
-        for (int i = 0; i < this.teamTagList.size(); i++) {
-            teamTagList.add(this.teamTagList.get(i).getTag().getName());
-        }
-        return teamTagList;
     }
 }

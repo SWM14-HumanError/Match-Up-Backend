@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.*;
+import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.service.TeamService;
 import com.example.matchup.matchupbackend.service.TeamUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,6 +59,8 @@ public class TeamController {
         return ResponseEntity.ok("팀 삭제 완료");
     }
 
+/*
+
 
     @GetMapping("/team/{teamID}")
     @Operation(description = "팀 세부 정보 불러오기") //인증
@@ -70,7 +73,7 @@ public class TeamController {
 //        }
         return ResponseEntity.ok(teamDetailResponse);
     }
-
+ */
     @GetMapping("/team/{teamID}/member")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 유저 API")
@@ -92,6 +95,6 @@ public class TeamController {
     @Operation(description = "팀 상세페이지의 멘토링 API")
     public List<MentoringCardResponse> showTeamMentoringList(@PathVariable Long teamID)
     {
-        return teamService.getTeamMeetingSpot(teamID);
+        return teamService.getTeamMentoringCardList(teamID);
     }
 }
