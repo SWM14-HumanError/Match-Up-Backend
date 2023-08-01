@@ -32,7 +32,7 @@ public class TeamUserService {
                             .nickname(user.getName())
                             .positionName(user.getPosition())
                             .positionLevel(user.getPositionLevel())
-                            .score(user.returnReviewAverage())
+                            .score(user.returnUserReviewAverage())
                             .like(user.getLikes())
                             .stacks(user.returnTagList())
                             .role((teamUser.getRole()))
