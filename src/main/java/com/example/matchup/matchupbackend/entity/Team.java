@@ -46,14 +46,19 @@ public class Team extends BaseTimeEntity {
     @Column(name = "recruit_finish")
     private String recruitFinish;
     @Column(name = "is_deleted")
-    private Long isDeleted;
+    private Long isDeleted =0L;
+    @Column(name = "leader_id")
+    private Long leaderID;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamTag> teamTagList = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    private List<TeamMentoring> teamMentoringList = new ArrayList<>();
+
 
     @Builder //신규로 팀을 만들때 사용
-    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish) {
+    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -64,7 +69,7 @@ public class Team extends BaseTimeEntity {
         this.city = city;
         this.detailSpot = detailSpot;
         this.recruitFinish = recruitFinish;
-        this.isDeleted = 0L;
+        this.leaderID = leaderID;
     }
 
     //== 연관관계 메서드 ==//

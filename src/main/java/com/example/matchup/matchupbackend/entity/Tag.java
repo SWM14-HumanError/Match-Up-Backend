@@ -25,6 +25,9 @@ public class Tag {
 
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
     private List<TeamTag> teamTagList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
+    private List<UserTag> userTagList = new ArrayList<>();
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id")
 //    private User user;
@@ -40,4 +43,9 @@ public class Tag {
     public Tag(String name) {
         this.name = name;
     }
+
+    //== 비즈니스 로직 ==//
+
+
+
 }
