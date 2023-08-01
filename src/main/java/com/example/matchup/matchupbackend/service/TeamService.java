@@ -112,6 +112,10 @@ public class TeamService {
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
 
+    public TeamDetailResponse getTeamInfo(Long teamID) {
+        return teamRepository.findTeamInfoByTeamId(teamID);
+    }
+
     public MeetingSpot getTeamMeetingSpot(Long teamID) {
         return teamRepository.findMeetingSpotByTeamId(teamID);
     }

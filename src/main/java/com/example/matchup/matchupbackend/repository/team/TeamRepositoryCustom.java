@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface TeamRepositoryCustom {
     Slice<TeamSearchResponse> findTeamSliceByTeamRequest(TeamSearchRequest teamSearchRequest, Pageable pageable);
+    TeamDetailResponse findTeamInfoByTeamId(Long teamID);
     MeetingSpot findMeetingSpotByTeamId(Long teamID);
     List<TeamMentoring> findTeamMentoringListByTeamId(Long teamID);
 }

@@ -21,28 +21,26 @@ import java.util.List;
 public class TeamController {
     private final TeamService teamService;
     private final TeamUserService teamUserService;
+
     @GetMapping("/list/team")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "메인 페이지 API")
-    public SliceTeamResponse showTeams(TeamSearchRequest teamSearchRequest, Pageable pageable)
-    {
+    public SliceTeamResponse showTeams(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         return teamService.searchSliceTeamList(teamSearchRequest, pageable);
     }
 
     @PostMapping("/team")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
-    public Long makeTeam(@RequestBody TeamCreateRequest teamCreateRequest)
-    {
+    public Long makeTeam(@RequestBody TeamCreateRequest teamCreateRequest) {
         return teamService.makeNewTeam(teamCreateRequest);
     }
 
     //팀 내용 업데이트
     @PutMapping("/team/{teamID}")
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
-    public ResponseEntity<String> updateTeam(@PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest)
-    {
-        if(teamService.isUpdatable(teamID, teamCreateRequest) == false) //업데이트 불가능
+    public ResponseEntity<String> updateTeam(@PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest) {
+        if (teamService.isUpdatable(teamID, teamCreateRequest) == false) //업데이트 불가능
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("기존 팀원 인원수 보다 높게 인원수를 설정하세요");
@@ -53,8 +51,7 @@ public class TeamController {
 
     @DeleteMapping("/team/{teamID}")
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
-    public ResponseEntity<String> deleteTeam(@PathVariable Long teamID)
-    {
+    public ResponseEntity<String> deleteTeam(@PathVariable Long teamID) {
         teamService.deleteTeam(teamID);
         return ResponseEntity.ok("팀 삭제 완료");
     }
@@ -74,35 +71,40 @@ public class TeamController {
         return ResponseEntity.ok(teamDetailResponse);
     }
  */
+
+    @GetMapping("/team/{teamID}/info")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "팀 상세페이지의 제목,상세설명 API")
+    public TeamDetailResponse showTeamInfo(@PathVariable Long teamID) {
+        return teamService.getTeamInfo(teamID);
+    }
+
     @GetMapping("/team/{teamID}/member")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 유저 API")
-    public List<TeamUserCardResponse> showTeamUsers(@PathVariable Long teamID)
-    {
+    public List<TeamUserCardResponse> showTeamUsers(@PathVariable Long teamID) {
         return teamUserService.getTeamUserCard(teamID);
     }
 
     @GetMapping("/team/{teamID}/spot")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 모임 장소 API")
-    public MeetingSpot showTeamMeetingSpot(@PathVariable Long teamID)
-    {
+    public MeetingSpot showTeamMeetingSpot(@PathVariable Long teamID) {
         return teamService.getTeamMeetingSpot(teamID);
     }
 
     @GetMapping("/team/{teamID}/mentoring")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 멘토링 API")
-    public List<MentoringCardResponse> showTeamMentoringList(@PathVariable Long teamID)
-    {
+    public List<MentoringCardResponse> showTeamMentoringList(@PathVariable Long teamID) {
         return teamService.getTeamMentoringCardList(teamID);
     }
 
     @GetMapping("/team/{teamID}/stacks")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 개발 스택 API")
-    public List<String> showTeamTagList(@PathVariable Long teamID)
-    {
+    public List<String> showTeamTagList(@PathVariable Long teamID) {
         return teamService.getTeamTagStringList(teamID);
     }
+
 }

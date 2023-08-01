@@ -75,6 +75,20 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     @Override
+    public TeamDetailResponse findTeamInfoByTeamId(Long teamID) {
+        TeamDetailResponse content = queryFactory
+                .select(Projections.bean(TeamDetailResponse.class,
+                        team.id.as("teamID"),
+                        team.title,
+                        team.description,
+                        team.leaderID))
+                .from(team)
+                .where(team.id.eq(teamID))
+                .fetchOne();
+        return content;
+    }
+
+    @Override
     public MeetingSpot findMeetingSpotByTeamId(Long teamID) {
         MeetingSpot content = queryFactory
                 .select(Projections.bean(MeetingSpot.class,
