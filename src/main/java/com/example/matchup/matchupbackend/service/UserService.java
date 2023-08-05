@@ -18,11 +18,11 @@ public class UserService {
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable)
     {
-        Slice<UserCardResponse> userCardSliceByUserRequest = userRepository.findUserCardSliceByUserRequest(userSearchRequest, pageable);
+        Slice<UserCardResponse> userCardListByUserRequest = userRepository.findUserCardListByUserRequest(userSearchRequest, pageable);
         SliceUserCardResponse sliceUserCardResponse = SliceUserCardResponse.builder()
-                .userCardResponses(userCardSliceByUserRequest.getContent())
-                .size(userCardSliceByUserRequest.getSize())
-                .hasNextSlice(userCardSliceByUserRequest.hasNext())
+                .userCardResponses(userCardListByUserRequest.getContent())
+                .size(userCardListByUserRequest.getSize())
+                .hasNextSlice(userCardListByUserRequest.hasNext())
                 .build();
         return sliceUserCardResponse;
     }

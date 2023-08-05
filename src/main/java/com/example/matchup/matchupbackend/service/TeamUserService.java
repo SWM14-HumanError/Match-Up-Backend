@@ -33,7 +33,7 @@ public class TeamUserService {
                             .positionLevel(user.getPositionLevel())
                             .score(user.getReviewScore())
                             .like(user.getLikes())
-                            .stacks(user.returnTagList())
+                            .TechStacks(user.returnStackList())
                             .role((teamUser.getRole()))
                             .approve(teamUser.getApprove())
                             .build();

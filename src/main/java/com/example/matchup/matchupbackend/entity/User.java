@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -77,6 +78,15 @@ public class User extends BaseTimeEntity {
         return userTagList.stream().map(
                 userTag -> userTag.getTag().getName()
         ).collect(Collectors.toList());
+    }
+
+    public List<TechStack> returnStackList(){
+        List<TechStack> techStacks = new ArrayList<>();
+        userTagList.stream().forEach(userTag -> {
+            techStacks.add(TechStack.builder().tagID(userTag.getId())
+                    .tagName(userTag.getTagName()).build());
+        });
+        return techStacks;
     }
 }
 
