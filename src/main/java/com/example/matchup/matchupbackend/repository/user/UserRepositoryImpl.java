@@ -51,7 +51,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             hasNext = true;
             content.remove(pageable.getPageSize());
         }
-        return new SliceImpl<>(userAndUserTagTo(content), pageable, hasNext);
+        List<UserCardResponse> value = userAndUserTagTo(content);
+        return new SliceImpl<>(value, pageable, hasNext);
     }
 
 
