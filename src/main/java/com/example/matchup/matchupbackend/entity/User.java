@@ -40,6 +40,11 @@ public class User extends BaseTimeEntity {
     private String positionLevel;
     @Column(name = "likes")
     private Long likes;
+    @Column(name = "total_reviews")
+    private Integer totalReviews = 0;
+    @Column(name = "review_score")
+    private Double reviewScore = 0.0;
+    @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> userReviewList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -60,14 +65,13 @@ public class User extends BaseTimeEntity {
 //        teamUser.setTag(this);
 //    }
     //== 비즈니스 로직 ==//
-public Double returnUserReviewAverage() {
-    Double totalScore = 0.0;
-    for (Review userReview : userReviewList) {
-        totalScore += userReview.getScore();
+
+    public double addUserReview(double score) {
+        double totalScore = (this.reviewScore) * (this.totalReviews);
+        this.totalReviews++;
+        this.reviewScore = (totalScore + score) / this.totalReviews;
+        return this.reviewScore;
     }
-    if (userReviewList.size() == 0) return 0.0;
-    return totalScore / userReviewList.size();
-}
 
     public List<String> returnTagList() {
         return userTagList.stream().map(
@@ -75,3 +79,13 @@ public Double returnUserReviewAverage() {
         ).collect(Collectors.toList());
     }
 }
+
+/*
+public Double returnUserReviewAverage() {
+    Double totalScore = 0.0;
+    for (Review userReview : userReviewList) {
+        totalScore += userReview.getScore();
+    }
+    if (userReviewList.size() == 0) return 0.0;
+    return totalScore / userReviewList.size();
+}*/
