@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.QUser;
 import com.example.matchup.matchupbackend.entity.QUserTag;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,12 +16,11 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.matchup.matchupbackend.entity.QUser.*;
 import static com.example.matchup.matchupbackend.entity.QUserTag.*;
-import static com.querydsl.core.group.GroupBy.groupBy;
-import static com.querydsl.core.types.Projections.list;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,20 +31,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     @Override
     public Slice<UserCardResponse> findUserCardListByUserRequest(UserSearchRequest userSearchRequest, Pageable pageable) {
-        List<UserCardResponse> content = queryFactory
-                .select(Projections.bean(UserCardResponse.class,
-                        user.id.as("userID"),
-                        user.pictureUrl.as("profileImageURL"),
-                        user.userLevel.as("memberLevel"),
-                        user.name.as("nickname"),
-                        Projections.bean(Position.class, user.position.as("positionName"),
-                                user.positionLevel.as("positionLevel")).as("position"),
-                        user.reviewScore.as("score"),
-                        user.likes.as("like"),
-                        list(Projections.bean(TechStack.class,
-                                userTag.id.as("tagID"),
-                                userTag.tagName.as("tagName")).as("TechStacks"))
-                ))
+        List<Tuple> content = queryFactory
+                .select(user, userTag)
                 .from(user)
                 .leftJoin(userTag).fetchJoin().on(user.id.eq(userTag.user.id))
                 .where(
@@ -63,7 +51,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             hasNext = true;
             content.remove(pageable.getPageSize());
         }
-        return new SliceImpl<>(content, pageable, hasNext);
+        return new SliceImpl<>(userAndUserTagTo(content), pageable, hasNext);
     }
 
 
@@ -82,6 +70,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         } //error 확인!
         else return null;
     }
+
     private BooleanExpression positionEq(String position) {
         return (position != null) ? user.position.eq(position) : null;
     }
@@ -92,6 +81,37 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         } else if (orderBy == 1) {
             return new OrderSpecifier<>(Order.DESC, user.likes);
         } else return new OrderSpecifier<>(Order.DESC, user.createTime);
+    }
+
+    public List<UserCardResponse> userAndUserTagTo(List<Tuple> userAndUserTagList) {
+        List<UserCardResponse> userCardResponseList = new ArrayList<>();
+        userAndUserTagList.stream().forEach(tuple -> {
+            userCardResponseList.add(UserCardResponse.builder()
+                    .userID(tuple.get(user.id))
+                    .profileImageURL(tuple.get(user.pictureUrl))
+                    .memberLevel(tuple.get(user.pictureUrl))
+                    .nickname(tuple.get(user.name))
+                    .position(makePosition(tuple.get(user.position), tuple.get(user.positionLevel)))
+                    .score(tuple.get(user.reviewScore))
+                    .like(tuple.get(user.likes))
+                    .TechStacks(techStackList(userAndUserTagList, tuple.get(user.id)))
+                    .build());
+        });
+        return userCardResponseList;
+    }
+
+    public List<TechStack> techStackList(List<Tuple> userAndUserTagList, Long userId) {
+        List<TechStack> techStacks = new ArrayList<>();
+        for (Tuple userAndTag : userAndUserTagList) {
+            if (userAndTag.get(user.id) == userId) {
+                techStacks.add(new TechStack(userAndTag.get(userTag.id), userAndTag.get(userTag.tagName)));
+            }
+        }
+        return techStacks;
+    }
+
+    public static Position makePosition(String positionName, String positionLevel){
+        return new Position(positionName, positionLevel);
     }
 }
 

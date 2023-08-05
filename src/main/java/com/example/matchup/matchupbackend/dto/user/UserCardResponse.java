@@ -11,6 +11,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@SuperBuilder
 public class UserCardResponse{
     private Long userID;
     private String profileImageURL;

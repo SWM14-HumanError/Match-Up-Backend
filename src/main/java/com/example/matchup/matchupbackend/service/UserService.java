@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
 
-    public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable)
-    {
+    public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<UserCardResponse> userCardListByUserRequest = userRepository.findUserCardListByUserRequest(userSearchRequest, pageable);
         SliceUserCardResponse sliceUserCardResponse = SliceUserCardResponse.builder()
                 .userCardResponses(userCardListByUserRequest.getContent())
@@ -26,6 +25,4 @@ public class UserService {
                 .build();
         return sliceUserCardResponse;
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamUser;
@@ -29,8 +30,7 @@ public class TeamUserService {
                             .profileImageURL(user.getPictureUrl())
                             .memberLevel(user.getUserLevel())
                             .nickname(user.getName())
-                            .positionName(user.getPosition())
-                            .positionLevel(user.getPositionLevel())
+                            .position(makePosition(user.getPosition(), user.getUserLevel()))
                             .score(user.getReviewScore())
                             .like(user.getLikes())
                             .TechStacks(user.returnStackList())
@@ -39,5 +39,8 @@ public class TeamUserService {
                             .build();
                 }
         ).collect(Collectors.toList());
+    }
+    public static Position makePosition(String positionName, String positionLevel){
+        return new Position(positionName, positionLevel);
     }
 }
