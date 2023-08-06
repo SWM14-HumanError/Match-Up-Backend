@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -4,8 +4,7 @@ import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.user.TechStack;
 import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
-import com.example.matchup.matchupbackend.entity.QUser;
-import com.example.matchup.matchupbackend.entity.QUserTag;
+import com.example.matchup.matchupbackend.entity.*;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,7 +16,10 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.example.matchup.matchupbackend.entity.QUser.*;
 import static com.example.matchup.matchupbackend.entity.QUserTag.*;
@@ -51,7 +53,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             hasNext = true;
             content.remove(pageable.getPageSize());
         }
-        List<UserCardResponse> value = userAndUserTagTo(content);
+        List<UserCardResponse> value = userAndUserTagToUserCard(content);
         return new SliceImpl<>(value, pageable, hasNext);
     }
 
@@ -77,35 +79,42 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     private OrderSpecifier<?> orderByEq(Long orderBy) {
-        if (orderBy == 0) {
+        if (orderBy == 1) {
             return new OrderSpecifier<>(Order.DESC, user.reviewScore);
-        } else if (orderBy == 1) {
+        } else if (orderBy == 2) {
             return new OrderSpecifier<>(Order.DESC, user.likes);
         } else return new OrderSpecifier<>(Order.DESC, user.createTime);
     }
 
-    public List<UserCardResponse> userAndUserTagTo(List<Tuple> userAndUserTagList) {
+    public List<UserCardResponse> userAndUserTagToUserCard(List<Tuple> userAndUserTagList) {
         List<UserCardResponse> userCardResponseList = new ArrayList<>();
+
         userAndUserTagList.stream().forEach(tuple -> {
+            User user= tuple.get(0, User.class);
+            UserTag userTag= tuple.get(1, UserTag.class);
             userCardResponseList.add(UserCardResponse.builder()
-                    .userID(tuple.get(user.id))
-                    .profileImageURL(tuple.get(user.pictureUrl))
-                    .memberLevel(tuple.get(user.pictureUrl))
-                    .nickname(tuple.get(user.name))
-                    .position(makePosition(tuple.get(user.position), tuple.get(user.positionLevel)))
-                    .score(tuple.get(user.reviewScore))
-                    .like(tuple.get(user.likes))
-                    .TechStacks(techStackList(userAndUserTagList, tuple.get(user.id)))
+                    .userID(user.getId())
+                    .profileImageURL(user.getPictureUrl())
+                    .memberLevel(user.getUserLevel())
+                    .nickname(user.getName())
+                    .position(makePosition(user.getPosition(), user.getPositionLevel()))
+                    .score(user.getReviewScore())
+                    .like(user.getLikes())
+                    .TechStacks(techStackList(userAndUserTagList, user.getId()))
                     .build());
         });
-        return userCardResponseList;
+        Map<Long, List<UserCardResponse>> mapList = userCardResponseList.stream().collect(Collectors.groupingBy(UserCardResponse::getUserID));
+        return mapList.forEach( (key,value) -> vale);
     }
 
-    public List<TechStack> techStackList(List<Tuple> userAndUserTagList, Long userId) {
-        List<TechStack> techStacks = new ArrayList<>();
+    public Map<Long,List<UserTag>> techStackList(List<Tuple> userAndUserTagList) {
+        Map<Long,List<UserTag>> userTagMap = new HashMap<>();
+
         for (Tuple userAndTag : userAndUserTagList) {
-            if (userAndTag.get(user.id) == userId) {
-                techStacks.add(new TechStack(userAndTag.get(userTag.id), userAndTag.get(userTag.tagName)));
+            User user = userAndTag.get(0,User.class);
+            UserTag userTag = userAndTag.get(1, UserTag.class);
+            if (user.getId().equals(userTag.getId())) {
+                userTagMap.put(user.getId(), userTagMap.get(user.getId()).add(userTag));
             }
         }
         return techStacks;
