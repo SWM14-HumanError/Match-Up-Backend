@@ -32,11 +32,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     private QUserTag qUserTag = userTag;
 
     @Override
-    public Slice<UserCardResponse> findUserCardListByUserRequest(UserSearchRequest userSearchRequest, Pageable pageable) {
-        List<Tuple> content = queryFactory
-                .select(user, userTag)
-                .from(user)
-                .leftJoin(userTag).fetchJoin().on(user.id.eq(userTag.user.id))
+    public Slice<User> findUserListByUserRequest(UserSearchRequest userSearchRequest, Pageable pageable) {
+        List<User> content = queryFactory
+                .selectFrom(user)
                 .where(
                         searchEq(userSearchRequest.getSearch()),
                         placeEq(userSearchRequest.getPlace()),
@@ -53,12 +51,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             hasNext = true;
             content.remove(pageable.getPageSize());
         }
-        List<UserCardResponse> value = userAndUserTagToUserCard(content);
-        return new SliceImpl<>(value, pageable, hasNext);
+        return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    @Override
+    public List<UserTag> findUserTagList() {
+        List<UserTag> content = queryFactory
+                .selectFrom(userTag)
+                .fetch();
+        return content;
+    }
 
-    //order by에도 BooleanExpression 쓰면 될듯
     private BooleanExpression searchEq(String search) {
         return (search != null) ? user.name.contains(search) : null;
     }
@@ -78,15 +81,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return (position != null) ? user.position.eq(position) : null;
     }
 
-    private OrderSpecifier<?> orderByEq(Long orderBy) {
-        if (orderBy == 1) {
+    private OrderSpecifier<?> orderByEq(String orderBy) {
+        if (orderBy == "reviewScore") {
             return new OrderSpecifier<>(Order.DESC, user.reviewScore);
-        } else if (orderBy == 2) {
+        } else if (orderBy == "likes") {
             return new OrderSpecifier<>(Order.DESC, user.likes);
         } else return new OrderSpecifier<>(Order.DESC, user.createTime);
     }
-
-    public List<UserCardResponse> userAndUserTagToUserCard(List<Tuple> userAndUserTagList) {
+    //정렬 조건을 많이 하면 성능 이슈
+}
+/*
+   public List<UserCardResponse> userAndUserTagToUserCard(List<Tuple> userAndUserTagList) {
         List<UserCardResponse> userCardResponseList = new ArrayList<>();
 
         userAndUserTagList.stream().forEach(tuple -> {
@@ -123,6 +128,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     public static Position makePosition(String positionName, String positionLevel){
         return new Position(positionName, positionLevel);
     }
-}
+ */
 
 
