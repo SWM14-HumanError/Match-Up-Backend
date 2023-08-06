@@ -2,7 +2,6 @@ package com.example.matchup.matchupbackend.dto.user;
 
 import com.example.matchup.matchupbackend.dto.Position;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -20,7 +19,7 @@ public class UserCardResponse{
     private Position position;
     private Double score;
     private Long like;
-    private List<TechStack> TechStacks;
+    private List<TechStack> techStacks;
 
     @QueryProjection
     public UserCardResponse(Long userID, String profileImageURL, String memberLevel, String nickname, String positionName, String positionLevel, Double score, Long like, List<TechStack> TechStacks) {
@@ -31,6 +30,6 @@ public class UserCardResponse{
         this.position = new Position(positionName, positionLevel);
         this.score = score;
         this.like = like;
-        this.TechStacks = TechStacks;
+        this.techStacks = TechStacks;
     }
 }
