@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "position")
-public class Position {
+public class TeamPosition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "position_id")
@@ -25,11 +25,11 @@ public class Position {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
-    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "teamPosition", cascade = CascadeType.ALL)
     private List<TeamTag> tags = new ArrayList<>();
 
     @Builder
-    public Position(String role, Long maxCount) {
+    public TeamPosition(String role, Long maxCount) {
         this.role = role;
         this.maxCount = maxCount;
     }

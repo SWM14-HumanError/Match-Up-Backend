@@ -51,10 +51,10 @@ public class Team extends BaseTimeEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
-    private List<Position> teamPositionList = new ArrayList<>();
+    private List<TeamPosition> teamPositionList = new ArrayList<>();
 
     @Builder //신규로 팀을 만들때 사용
-    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<Position> teamPositionList) {
+    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -74,8 +74,8 @@ public class Team extends BaseTimeEntity {
         teamTagList.add(teamTag);
     }
 
-    public void addPosition(Position position) {
-        this.teamPositionList.add(position);
+    public void addPosition(TeamPosition teamPosition) {
+        this.teamPositionList.add(teamPosition);
     }
 
     //== 비즈니스 로직 ==//
