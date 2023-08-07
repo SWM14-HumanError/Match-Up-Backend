@@ -37,7 +37,6 @@ public class TeamPosition {
     //== 연관관계 로직 ==//
     public Long addTeam(Team team) {
         this.team = team;
-        team.addPosition(this);
         return team.getId();
     }
 

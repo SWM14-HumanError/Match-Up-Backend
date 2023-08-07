@@ -61,6 +61,7 @@ public class TeamService {
             teamPosition.addTeam(team);
             teamPositions.add(teamPosition);
         });
+
         makeNewTeamTag(teamCreateRequest, team);
         TeamUser teamUser = TeamUser.builder()
                 .user(userRepository.findById(teamCreateRequest.getLeaderID()).orElse(null))

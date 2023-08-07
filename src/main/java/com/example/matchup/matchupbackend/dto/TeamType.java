@@ -3,8 +3,10 @@ package com.example.matchup.matchupbackend.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class TeamType {
     private Long teamType; //project or study
     private String detailType; //세부 타입 설정
