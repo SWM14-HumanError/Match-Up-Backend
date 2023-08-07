@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
+import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamtag.TeamTagRepository;
@@ -28,6 +29,7 @@ public class TeamService {
     private final TeamTagRepository teamTagRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final TeamPositionRepository teamPositionRepository;
 
     public SliceTeamResponse searchSliceTeamList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<TeamSearchResponse> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
