@@ -11,4 +11,5 @@ import java.util.List;
 public interface TeamRepository extends JpaRepository<Team, Long>, TeamRepositoryCustom {
     @Query("SELECT tag from TeamTag tag where tag.team.id =:teamID")
     List<TeamTag> findTeamTagByTeamId(@Param("teamID") Long teamID);
+    Team findTeamById(Long Id);
 }

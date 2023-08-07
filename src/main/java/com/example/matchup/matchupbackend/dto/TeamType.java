@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

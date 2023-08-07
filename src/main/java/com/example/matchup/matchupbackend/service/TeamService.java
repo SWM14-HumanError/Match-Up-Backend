@@ -151,31 +151,14 @@ public class TeamService {
         });
         return teamTagNames;
     }
-    /**
-     * 여기 밑에서 부터 다시 만들어야 해
-     * @param teamID
-     * @return
-     */
-    /*
 
-
-    public TeamDetailResponse showTeamDetail(Long teamID)
+    public TeamType getTeamType(Long teamID)
     {
-        Team team = teamRepository.findById(teamID).orElse(null);
-        if(isDeleted(team) == true) {
-            return null;
-        }
-        return teamRepository.findTeamDetailByTeamID(teamID);
+        Team teamById = teamRepository.findTeamById(teamID);
+        TeamType teamType = new TeamType();
+        teamType.setTeamType(teamById.getType());
+        teamType.setDetailType(teamById.getDetailType());
+        return teamType;
     }
-
-    public boolean isDeleted(Team team)
-    {
-        if(team.getIsDeleted() == 1L){
-            return true;
-        }
-        return false;
-    }
-
- */
 }
 
