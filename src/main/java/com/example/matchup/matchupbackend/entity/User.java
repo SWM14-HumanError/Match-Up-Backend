@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -40,6 +41,11 @@ public class User extends BaseTimeEntity {
     private String positionLevel;
     @Column(name = "likes")
     private Long likes;
+    @Column(name = "total_reviews")
+    private Integer totalReviews = 0;
+    @Column(name = "review_score")
+    private Double reviewScore = 0.0;
+    @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> userReviewList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -60,6 +66,31 @@ public class User extends BaseTimeEntity {
 //        teamUser.setTag(this);
 //    }
     //== 비즈니스 로직 ==//
+
+    public double addUserReview(double score) {
+        double totalScore = (this.reviewScore) * (this.totalReviews);
+        this.totalReviews++;
+        this.reviewScore = (totalScore + score) / this.totalReviews;
+        return this.reviewScore;
+    }
+
+    public List<String> returnTagList() {
+        return userTagList.stream().map(
+                userTag -> userTag.getTag().getName()
+        ).collect(Collectors.toList());
+    }
+
+    public List<TechStack> returnStackList(){
+        List<TechStack> techStacks = new ArrayList<>();
+        userTagList.stream().forEach(userTag -> {
+            techStacks.add(TechStack.builder().tagID(userTag.getId())
+                    .tagName(userTag.getTagName()).build());
+        });
+        return techStacks;
+    }
+}
+
+/*
 public Double returnUserReviewAverage() {
     Double totalScore = 0.0;
     for (Review userReview : userReviewList) {
@@ -67,11 +98,4 @@ public Double returnUserReviewAverage() {
     }
     if (userReviewList.size() == 0) return 0.0;
     return totalScore / userReviewList.size();
-}
-
-    public List<String> returnTagList() {
-        return userTagList.stream().map(
-                userTag -> userTag.getTag().getName()
-        ).collect(Collectors.toList());
-    }
-}
+}*/

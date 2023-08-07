@@ -1,10 +1,9 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.example.matchup.matchupbackend.entity.User;
-import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +28,17 @@ public class TeamUserService {
                             .profileImageURL(user.getPictureUrl())
                             .memberLevel(user.getUserLevel())
                             .nickname(user.getName())
-                            .positionName(user.getPosition())
-                            .positionLevel(user.getPositionLevel())
-                            .score(user.returnUserReviewAverage())
+                            .position(makePosition(user.getPosition(), user.getUserLevel()))
+                            .score(user.getReviewScore())
                             .like(user.getLikes())
-                            .stacks(user.returnTagList())
+                            .techStacks(user.returnStackList())
                             .role((teamUser.getRole()))
                             .approve(teamUser.getApprove())
                             .build();
                 }
         ).collect(Collectors.toList());
+    }
+    public static Position makePosition(String positionName, String positionLevel){
+        return new Position(positionName, positionLevel);
     }
 }
