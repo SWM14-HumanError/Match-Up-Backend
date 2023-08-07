@@ -98,7 +98,7 @@ public class TeamService {
         for (TeamUser teamUser : team.getTeamUserList()) {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole() == member.getRole()
-                        && teamUser.getCount() > member.getCount()) {
+                        && teamUser.getCount() > member.getMaxCount()) {
                     return false;
                 }
             }
@@ -155,10 +155,13 @@ public class TeamService {
     public TeamType getTeamType(Long teamID)
     {
         Team teamById = teamRepository.findTeamById(teamID);
-        TeamType teamType = new TeamType();
-        teamType.setTeamType(teamById.getType());
-        teamType.setDetailType(teamById.getDetailType());
+        TeamType teamType = TeamType.builder()
+                .teamType(teamById.getType())
+                .detailType(teamById.getDetailType())
+                .build();
         return teamType;
     }
+
+
 }
 
