@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.entity.Position;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamtag.TeamTagRepository;
@@ -37,6 +38,8 @@ public class TeamService {
     @Transactional
     public Long makeNewTeam(TeamCreateRequest teamCreateRequest) {
         // String 으로 반환된 태그를 Tag 객체 리스트로 만듬
+
+
         Team team = Team.builder()
                 .title(teamCreateRequest.getName())
                 .description(teamCreateRequest.getDescription())
@@ -51,11 +54,20 @@ public class TeamService {
                 .leaderID(teamCreateRequest.getLeaderID())
                 .build();
 
+        List<Position> positions = new ArrayList<>();
+        teamCreateRequest.getMemberList().stream().forEach(member -> {
+            Position position = Position.builder()
+                    .role(member.getRole())
+                    .maxCount(member.getMaxCount())
+                    .build();
+            position.addTeam(team);
+            positions.add(position);
+        });
         makeNewTeamTag(teamCreateRequest, team);
-
         TeamUser teamUser = TeamUser.builder()
                 .user(userRepository.findById(teamCreateRequest.getLeaderID()).orElse(null))
                 .team(team)
+                .approve(true)
                 .build();
 
         return teamUserRepository.save(teamUser).getId();

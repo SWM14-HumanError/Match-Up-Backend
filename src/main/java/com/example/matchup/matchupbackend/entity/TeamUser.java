@@ -25,8 +25,9 @@ public class TeamUser {
     @Column(name = "count")
     private Long count;
     @Column(name = "approve")
-    private Boolean approve; //0은 미승인 1은 승인됨
-
+    private Boolean approve;
+    @Column(name = "max_count")
+    private Long maxCount;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -36,13 +37,14 @@ public class TeamUser {
     private User user;
 
     @Builder
-    public TeamUser(String role, Long count, Team team, User user) {
+    public TeamUser(String role, Long count, Boolean approve, Long maxCount, Team team, User user) {
         this.role = role;
         this.count = count;
+        this.approve = approve;
+        this.maxCount = maxCount;
         this.team = team;
         this.user = user;
     }
-
     //== 비즈니스 로직 ==//
 
 }

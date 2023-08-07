@@ -14,11 +14,12 @@ public class TeamTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_tag_id")
     private Long id;
-
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "position_id")
+    private Position position;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "tag_id")
     private Tag tag;
