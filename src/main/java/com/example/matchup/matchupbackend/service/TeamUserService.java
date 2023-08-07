@@ -64,7 +64,7 @@ public class TeamUserService {
             approvedMemberList.add(approvedMember);
         });
         boolean state =
-                teamPositionList.get(0).getTeam().numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
+                teamRepository.findTeamById(teamID).numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
         //false = 모집중 , true = 모집완료 + try-catch 예외처리
 
         return new TeamApprovedInfo(state, approvedMemberList);
