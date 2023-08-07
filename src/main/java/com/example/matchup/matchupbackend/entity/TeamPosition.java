@@ -40,4 +40,12 @@ public class TeamPosition {
         team.addPosition(this);
         return team.getId();
     }
+
+    public List<String> stringTagList() {
+        List<String> tagList = new ArrayList<>();
+        this.tags.stream().forEach(tag -> {
+            tagList.add(tag.getTag().getName());
+        });
+        return tagList;
+    }
 }

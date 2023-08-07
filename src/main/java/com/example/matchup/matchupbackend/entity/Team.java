@@ -94,4 +94,24 @@ public class Team extends BaseTimeEntity {
         isDeleted = 1L;
         return this.id;
     }
+
+    public Long numberOfUserByPosition(String position) {
+        Long result = 0L;
+        for (TeamUser teamUser : teamUserList) {
+            if (teamUser.getApprove() == true && position.equals(teamUser.getRole())) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public Long numberOfApprovedUser() {
+        Long number = 0L;
+        for (TeamUser teamUser : teamUserList) {
+            if (teamUser.getApprove() == true) {
+                number++;
+            }
+        }
+        return number;
+    }
 }
