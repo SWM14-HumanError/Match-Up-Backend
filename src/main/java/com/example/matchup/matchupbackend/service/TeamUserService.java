@@ -7,6 +7,7 @@ import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +24,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class TeamUserService {
     private final TeamUserRepository teamUserRepository;
     private final TeamRepository teamRepository;
+    private final TeamPositionRepository teamPositionRepository;
     public List<TeamUserCardResponse> getTeamUserCard(Long teamID)
     {
         List<TeamUser> allByTeam = teamUserRepository.findAllByTeamID(teamID);
@@ -52,7 +51,7 @@ public class TeamUserService {
     }
     public TeamApprovedInfo getTeamRecruitInfo(Long teamID)
     {
-        List<TeamPosition> teamPositionList = teamRepository.findTeamPositionListByTeamId(teamID);
+        List<TeamPosition> teamPositionList = teamPositionRepository.findTeamPositionListByTeamId(teamID);
         List<ApprovedMember> approvedMemberList = new ArrayList<>();
         teamPositionList.stream().forEach(teamPosition -> {
             ApprovedMember approvedMember = ApprovedMember.builder()
