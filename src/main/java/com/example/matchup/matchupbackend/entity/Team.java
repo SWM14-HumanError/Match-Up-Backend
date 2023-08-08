@@ -74,10 +74,6 @@ public class Team extends BaseTimeEntity {
         teamTagList.add(teamTag);
     }
 
-    public void addPosition(TeamPosition teamPosition) {
-        this.teamPositionList.add(teamPosition);
-    }
-
     //== 비즈니스 로직 ==//
     public Long updateTeam(TeamCreateRequest teamCreateRequest) {
         this.thumbnailUrl = teamCreateRequest.getThumbnailUrl();
