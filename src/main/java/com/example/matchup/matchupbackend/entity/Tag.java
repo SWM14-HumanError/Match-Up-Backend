@@ -19,13 +19,10 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tag_id")
     private Long id;
-
     @Column(name = "tag_name")
     private String name;
-
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
     private List<TeamTag> teamTagList = new ArrayList<>();
-
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
 //    @ManyToOne(fetch = FetchType.LAZY)

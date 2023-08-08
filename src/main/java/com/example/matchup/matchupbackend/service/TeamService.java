@@ -3,6 +3,8 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.entity.TeamPosition;
+import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamtag.TeamTagRepository;
@@ -27,6 +29,7 @@ public class TeamService {
     private final TeamTagRepository teamTagRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final TeamPositionRepository teamPositionRepository;
 
     public SliceTeamResponse searchSliceTeamList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<TeamSearchResponse> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -51,41 +54,90 @@ public class TeamService {
                 .leaderID(teamCreateRequest.getLeaderID())
                 .build();
 
-        makeNewTeamTag(teamCreateRequest, team);
+        makeTeamPosition(teamCreateRequest, team);
+        //makeTeamTag(teamCreateRequest, team);
 
         TeamUser teamUser = TeamUser.builder()
                 .user(userRepository.findById(teamCreateRequest.getLeaderID()).orElse(null))
                 .team(team)
+                .approve(true)
                 .build();
 
         return teamUserRepository.save(teamUser).getId();
     }
 
     @Transactional
-    public void makeNewTeamTag(TeamCreateRequest teamCreateRequest, Team team) {
-        for (String tagName : teamCreateRequest.returnTagList()) {
-            Tag isExistTag = tagRepository.findByName(tagName);
-            if (isExistTag != null) //이미 있는 태그
-            {
-                TeamTag teamTag = TeamTag.builder()
-                        .team(team)
-                        .tag(isExistTag)
-                        .build();
-                teamTagRepository.save(teamTag);
-                team.addTeamTagList(teamTag);
-            } else { //처음 생성한 태그
-                Tag newTag = Tag.builder().name(tagName).build();
-                tagRepository.save(newTag);
-                TeamTag newTeamTag = TeamTag.builder()
-                        .team(team)
-                        .tag(newTag)
-                        .build();
-                teamTagRepository.save(newTeamTag);
-                team.addTeamTagList(newTeamTag);
-            }
-        }
+    public void makeTeamPosition(TeamCreateRequest teamCreateRequest, Team team) {
+        List<TeamPosition> teamPositions = new ArrayList<>();
+        teamCreateRequest.getMemberList().stream().forEach(member -> {
+            TeamPosition teamPosition = TeamPosition.builder()
+                    .role(member.getRole())
+                    .maxCount(member.getMaxCount())
+                    .build();
+            teamPosition.addTeam(team);
+
+            teamPositions.add(teamPosition);
+            teamPositionRepository.save(teamPosition);
+        });
+        makeTeamPositionTag(teamPositions, teamCreateRequest);
     }
 
+    @Transactional
+    public void makeTeamPositionTag(List<TeamPosition> teamPositions, TeamCreateRequest teamCreateRequest) {
+        for (TeamPosition teamPosition : teamPositions) {
+            List<String> tagList = teamCreateRequest.returnTagListByRole(teamPosition.getRole());
+            tagList.stream().forEach(tagName -> {
+
+                Tag isExistTag = tagRepository.findByName(tagName);
+                if (isExistTag != null) //이미 있는 태그
+                {
+                    TeamTag teamTag = TeamTag.builder()
+                            .teamPosition(teamPosition)
+                            .tagName(tagName)
+                            .team(teamPosition.getTeam()) //에러각
+                            .tag(isExistTag)
+                            .build();
+                    teamTagRepository.save(teamTag);
+                } else {
+                    Tag newTag = Tag.builder().name(tagName).build();
+                    tagRepository.save(newTag);
+                    TeamTag teamTag = TeamTag.builder()
+                            .teamPosition(teamPosition)
+                            .tagName(tagName)
+                            .team(teamPosition.getTeam()) //에러각
+                            .tag(newTag)
+                            .build();
+                    teamTagRepository.save(teamTag);
+                }
+
+            });
+        }
+    }
+    /*
+        @Transactional
+        public void makeTeamTag(TeamCreateRequest teamCreateRequest, Team team) {
+            for (String tagName : teamCreateRequest.returnTagList()) {
+                Tag isExistTag = tagRepository.findByName(tagName);
+                if (isExistTag != null) //이미 있는 태그
+                {
+                    TeamTag teamTag = TeamTag.builder()
+                            .team(team)
+                            .tag(isExistTag)
+                            .build();
+                    teamTagRepository.save(teamTag);
+                    team.addTeamTagList(teamTag);
+                } else { //처음 생성한 태그
+                    Tag newTag = Tag.builder().name(tagName).build();
+                    tagRepository.save(newTag);
+                    TeamTag newTeamTag = TeamTag.builder()
+                            .team(team)
+                            .tag(newTag)
+                            .build();
+                    teamTagRepository.save(newTeamTag);                   team.addTeamTagList(newTeamTag);
+                }
+            }
+        }
+     */
     @Transactional
     public Long updateTeam(Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
@@ -98,7 +150,7 @@ public class TeamService {
         for (TeamUser teamUser : team.getTeamUserList()) {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole() == member.getRole()
-                        && teamUser.getCount() > member.getCount()) {
+                        && teamUser.getCount() > member.getMaxCount()) {
                     return false;
                 }
             }
@@ -151,31 +203,14 @@ public class TeamService {
         });
         return teamTagNames;
     }
-    /**
-     * 여기 밑에서 부터 다시 만들어야 해
-     * @param teamID
-     * @return
-     */
-    /*
 
-
-    public TeamDetailResponse showTeamDetail(Long teamID)
-    {
-        Team team = teamRepository.findById(teamID).orElse(null);
-        if(isDeleted(team) == true) {
-            return null;
-        }
-        return teamRepository.findTeamDetailByTeamID(teamID);
+    public TeamType getTeamType(Long teamID) {
+        Team teamById = teamRepository.findTeamById(teamID);
+        TeamType teamType = TeamType.builder()
+                .teamType(teamById.getType())
+                .detailType(teamById.getDetailType())
+                .build();
+        return teamType;
     }
-
-    public boolean isDeleted(Team team)
-    {
-        if(team.getIsDeleted() == 1L){
-            return true;
-        }
-        return false;
-    }
-
- */
 }
 

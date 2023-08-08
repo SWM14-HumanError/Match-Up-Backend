@@ -1,50 +1,50 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "team_user")
-public class TeamUser {
-
+@Table(name = "team_position")
+public class TeamPosition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_user_id")
+    @Column(name = "position_id")
     private Long id;
     @Column(name = "role")
     private String role;
-    @Column(name = "count")
-    private Long count;
-    @Column(name = "approve")
-    private Boolean approve;
     @Column(name = "max_count")
     private Long maxCount;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToMany(mappedBy = "teamPosition", cascade = CascadeType.ALL)
+    private List<TeamTag> tags = new ArrayList<>();
 
     @Builder
-    public TeamUser(String role, Long count, Boolean approve, Long maxCount, Team team, User user) {
+    public TeamPosition(String role, Long maxCount) {
         this.role = role;
-        this.count = count;
-        this.approve = approve;
         this.maxCount = maxCount;
-        this.team = team;
-        this.user = user;
     }
-    //== 비즈니스 로직 ==//
 
+    //== 연관관계 로직 ==//
+    public Long addTeam(Team team) {
+        this.team = team;
+        return team.getId();
+    }
+
+    public List<String> stringTagList() {
+        List<String> tagList = new ArrayList<>();
+        this.tags.stream().forEach(tag -> {
+            tagList.add(tag.getTag().getName());
+        });
+        return tagList;
+    }
 }

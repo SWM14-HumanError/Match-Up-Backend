@@ -107,4 +107,17 @@ public class TeamController {
         return teamService.getTeamTagStringList(teamID);
     }
 
+    @GetMapping("/team/{teamID}/type")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "팀 상세페이지의 모임 카테고리")
+    public TeamType showTeamType(@PathVariable Long teamID) {
+        return teamService.getTeamType(teamID);
+    }
+
+    @GetMapping("/team/{teamID}/recruitInfo")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "팀 상세페이지의 팀원 모집 정보 불러오기 ")
+    public TeamApprovedInfo showTeamRecruit(@PathVariable Long teamID) {
+        return teamUserService.getTeamRecruitInfo(teamID);
+    }
 }

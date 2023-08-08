@@ -26,4 +26,15 @@ public class TeamCreateRequest {
         return userStacks.stream().distinct().collect(Collectors.toList());
     }
 
+    public List<String> returnTagListByRole(String role) //사용자의 태그들을 모아서 중복을 제거함
+    {
+        List<String> userStacks = new ArrayList<>();
+        for (Member member : memberList) {
+            if(role.equals(member.getRole()))
+            {
+                userStacks.addAll(member.getStacks());
+            }
+        }
+        return userStacks.stream().distinct().collect(Collectors.toList());
+    }
 }

@@ -20,21 +20,16 @@ public class Team extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id")
     private Long id;
-
     @Column(name = "team_title")
     private String title;
-
     @Column(name = "description")
     private String description;
-
     @Column(name = "type")
     private Long type; //스터디인지 프로젝트 모임인지
     @Column(name = "detail_type")
     private String detailType;
-
     @Column(name = "thumbnailUrl")
     private String thumbnailUrl;
-
     @Column(name = "content_like")
     private Long like;
     @Column(name = "On_Offline")
@@ -46,7 +41,7 @@ public class Team extends BaseTimeEntity {
     @Column(name = "recruit_finish")
     private String recruitFinish;
     @Column(name = "is_deleted")
-    private Long isDeleted =0L;
+    private Long isDeleted = 0L;
     @Column(name = "leader_id")
     private Long leaderID;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
@@ -55,10 +50,11 @@ public class Team extends BaseTimeEntity {
     private List<TeamUser> teamUserList = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
-
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    private List<TeamPosition> teamPositionList = new ArrayList<>();
 
     @Builder //신규로 팀을 만들때 사용
-    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID) {
+    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -70,12 +66,12 @@ public class Team extends BaseTimeEntity {
         this.detailSpot = detailSpot;
         this.recruitFinish = recruitFinish;
         this.leaderID = leaderID;
+        this.teamPositionList = teamPositionList;
     }
 
     //== 연관관계 메서드 ==//
     public void addTeamTagList(TeamTag teamTag) {
         teamTagList.add(teamTag);
-
     }
 
     //== 비즈니스 로직 ==//
@@ -93,5 +89,25 @@ public class Team extends BaseTimeEntity {
     public Long deleteTeam() {
         isDeleted = 1L;
         return this.id;
+    }
+
+    public Long numberOfUserByPosition(String position) {
+        Long result = 0L;
+        for (TeamUser teamUser : teamUserList) {
+            if (teamUser.getApprove() == true && position.equals(teamUser.getRole())) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public Long numberOfApprovedUser() {
+        Long number = 0L;
+        for (TeamUser teamUser : teamUserList) {
+            if (teamUser.getApprove() == true) {
+                number++;
+            }
+        }
+        return number;
     }
 }
