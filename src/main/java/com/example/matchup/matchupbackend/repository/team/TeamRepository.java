@@ -14,6 +14,4 @@ public interface TeamRepository extends JpaRepository<Team, Long>, TeamRepositor
     List<TeamTag> findTeamTagByTeamId(@Param("teamID") Long teamID);
 
     Team findTeamById(Long Id);
-    @Query("SELECT team.teamPositionList from Team team where team.id=:teamID")
-    List<TeamPosition> findTeamPositionListByTeamId(@Param("teamID") Long teamID);
 }
