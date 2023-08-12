@@ -39,7 +39,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String address;
     @Column(columnDefinition = "TEXT")
     private String htmlContent;
-    @Column(name = "user_email")
+    @Column(name = "user_email", unique = true)
     private String email;
     @Column(name = "user_birthday")
     private LocalDateTime birthday;

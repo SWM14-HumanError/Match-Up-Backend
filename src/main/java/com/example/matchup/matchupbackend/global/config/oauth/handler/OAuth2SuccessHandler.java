@@ -8,7 +8,6 @@ import com.example.matchup.matchupbackend.global.config.oauth.CustomOAuth2User;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
 import com.example.matchup.matchupbackend.service.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -29,7 +28,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofHours(2);
-    public String loginSuccessRedirectPath = "http://match-up.xyz";
+    public String loginSuccessRedirectPath = "http://match-up.xyz/login/token";
 
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -46,7 +45,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
-        String targetUrl = getTargetUrl(accessToken, request);
+        String targetUrl = getTargetUrl(accessToken);
 
         clearAuthenticationAttributes(request, response);
 
@@ -73,16 +72,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
     }
 
-    private String getTargetUrl(String token, HttpServletRequest request) {
+    private String getTargetUrl(String token) {
 
-        Cookie cookie = WebUtils.getCookie(request, "redirect_uri");
-//      return UriComponentsBuilder.fromUriString(redirectPath)
-//                .queryParam("token", token)
-//                .port(5173)
-//                .build()
-//                .toUriString();
-        return (cookie != null && cookie.getValue() != null)
-                    ? loginSuccessRedirectPath + "%s?token=%s".formatted(cookie.getValue(), token)
-                    : loginSuccessRedirectPath + "/?token=%s".formatted(token);
+      return UriComponentsBuilder.fromUriString(loginSuccessRedirectPath)
+                .queryParam("token", token)
+                .build()
+                .toUriString();
     }
 }

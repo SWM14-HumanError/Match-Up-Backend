@@ -2,10 +2,13 @@ package com.example.matchup.matchupbackend.repository.user;
 
 import com.example.matchup.matchupbackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 
-    Optional<User> findByEmail(String email);
+    @Query("SELECT user.id, user.email, user.name, user.role from User user where user.email=:userEmail")
+    Optional<User> findByEmail(@Param("userEmail") String email);
 }
