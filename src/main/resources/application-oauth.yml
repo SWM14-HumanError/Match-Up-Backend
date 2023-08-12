@@ -41,3 +41,26 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+
+# JWT config
+jwt:
+  issuer: match-up.xyz
+  secret_key: ASAasidufhASKHFUfH234356098273aSDfSEDF
+
+--- # local env: localhost:5173 redirect
+spring:
+  config:
+    activate:
+      on-profile: "oauth-local"
+
+oauth-login:
+  success-url: http://localhost:5173/login/token
+
+--- # dev env: match-up.xyz redirect
+spring:
+  config:
+    activate:
+      on-profile: "oauth-dev"
+
+oauth-login:
+  success-url: http://match-up.xyz/login/token

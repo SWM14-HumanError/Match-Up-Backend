@@ -27,6 +27,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 @Configuration
 public class WebOAuthSecurityConfig {
 
+//    private final OAuthSuccessRedirectProperties oAuthSuccessRedirectProperties;
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -86,6 +87,7 @@ public class WebOAuthSecurityConfig {
     public OAuth2SuccessHandler oAuth2SuccessHandler() {
 
         return new OAuth2SuccessHandler(
+//                oAuthSuccessRedirectProperties,
                 tokenProvider,
                 refreshTokenRepository,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
