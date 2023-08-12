@@ -1,9 +1,17 @@
 spring:
+    profiles:
+        include: oauth
+
     datasource:
         url: jdbc:h2:tcp://localhost/~/jpashop
         username: sa
         password:
         driver-class-name: org.h2.Driver
+
+    h2:
+        console:
+            enabled: true
+
     jpa:
         hibernate:
             ddl-auto: create # 배포 할땐 최소 validation
@@ -13,3 +21,8 @@ spring:
 logging.level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+
+# JWT config
+jwt:
+    issuer: match-up.xyz
+    secret_key: ASAasidufhASKHFUfH234356098273aSDfSEDF
