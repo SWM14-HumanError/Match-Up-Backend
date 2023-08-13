@@ -34,7 +34,7 @@ public class WebOAuthSecurityConfig {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
 
-    @Value("${oaut-login.logout-success-url}")
+    @Value("${oauth-login.logout-success-url}")
     private String logoutSuccessUrl;
 
     @Bean
@@ -67,7 +67,6 @@ public class WebOAuthSecurityConfig {
                             .loginPage("/login")
                             .authorizationEndpoint((authorizationEndpoint) ->
                                     authorizationEndpoint
-                                            .baseUri("/oauth2/authorize")
                                             .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
                             .successHandler(oAuth2SuccessHandler())
                             .userInfoEndpoint((userInfoEndpoint) ->
