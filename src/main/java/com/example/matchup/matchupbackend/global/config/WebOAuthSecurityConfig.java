@@ -7,8 +7,10 @@ import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2Succ
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
 import com.example.matchup.matchupbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,11 +29,13 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 @Configuration
 public class WebOAuthSecurityConfig {
 
-//    private final OAuthSuccessRedirectProperties oAuthSuccessRedirectProperties;
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
+
+    @Value("${oaut-login.logout-success-url}")
+    private String logoutSuccessUrl;
 
     @Bean
     public WebSecurityCustomizer configure() {
@@ -44,41 +48,42 @@ public class WebOAuthSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // 폼로그인 + csrf 비활성화
-        http.csrf().disable()
-                .httpBasic().disable()
-                .formLogin().disable()
-                .logout().disable();
+        http.csrf((csrf) -> csrf.disable());
 
         // 세션 비활성화
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement((sessionManagement) ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // http request의 header에서 authorization(토큰을 저장한 header field) 값을 추출 후 bearer과 분리
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http.authorizeRequests()
-                .requestMatchers("/api/token").permitAll()
-//                .requestMatchers("/api/**").authenticated()
-                .anyRequest().permitAll();
+        http.authorizeHttpRequests((authorizeHttpRequests) ->
+                        authorizeHttpRequests
+                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                                .anyRequest().authenticated());
 
-        http.oauth2Login()
-                    .loginPage("/login")
-                    .authorizationEndpoint()
-                    .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
-                .and()
-                    .successHandler(oAuth2SuccessHandler())
-                    .userInfoEndpoint()
-                    .userService(oAuth2UserCustomService);
+        http.oauth2Login((oauth2Login) ->
+                oauth2Login
+                            .loginPage("/login")
+                            .authorizationEndpoint((authorizationEndpoint) ->
+                                    authorizationEndpoint
+                                            .baseUri("/oauth2/authorize")
+                                            .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                            .successHandler(oAuth2SuccessHandler())
+                            .userInfoEndpoint((userInfoEndpoint) ->
+                                    userInfoEndpoint
+                                            .userService(oAuth2UserCustomService)));
 
-        http.logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login");
+        http.logout((logout) ->
+                logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl(logoutSuccessUrl));
 
-        http.exceptionHandling()
-                .defaultAuthenticationEntryPointFor(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                        new AntPathRequestMatcher("/api/**"))
-                .accessDeniedPage("/articles");
+        http.exceptionHandling((exceptionHandling) ->
+                exceptionHandling.defaultAuthenticationEntryPointFor(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                new AntPathRequestMatcher("/api/**"))
+                        .accessDeniedPage("/articles"));
 
         return http.build();
     }
@@ -87,7 +92,6 @@ public class WebOAuthSecurityConfig {
     public OAuth2SuccessHandler oAuth2SuccessHandler() {
 
         return new OAuth2SuccessHandler(
-//                oAuthSuccessRedirectProperties,
                 tokenProvider,
                 refreshTokenRepository,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),

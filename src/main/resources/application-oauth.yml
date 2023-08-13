@@ -55,6 +55,7 @@ spring:
 
 oauth-login:
   success-url: http://localhost:5173/login/token
+  logout-url: http://localhost:5173/logout/token
 
 --- # dev env: match-up.xyz redirect
 spring:
@@ -64,3 +65,4 @@ spring:
 
 oauth-login:
   success-url: http://match-up.xyz/login/token
+  logout-url: http://match-up.xyz/logout/token
