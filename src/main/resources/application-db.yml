@@ -28,6 +28,18 @@ spring:
     activate:
       on-profile: "db-dev"
 
+  ### MYSQL로 수정해야함 ###
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+  h2:
+    console:
+      enabled: true
+  ### MYSQL로 수정해야함 ###
+
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create

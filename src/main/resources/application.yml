@@ -1,6 +1,8 @@
 spring:
     profiles:
-        active: local
+        active:
+            - local
+            - blue
 
         group:
           local:
@@ -9,9 +11,11 @@ spring:
           dev:
               - db-dev
               - oauth-dev
+              - blue-green-dev
         include:
             - oauth
             - db
+            - blue-green
 
     h2:
         console:
