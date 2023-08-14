@@ -1,0 +1,23 @@
+--- # only for dev env
+spring:
+  config:
+    activate:
+      on-profile: "blue-green-dev"
+
+--- # blue
+spring:
+  config:
+    activate:
+      on-profile: "blue"
+
+server:
+  port: 8081
+
+--- # green
+spring:
+  config:
+    activate:
+      on-profile: "green"
+
+server:
+  port: 8082
