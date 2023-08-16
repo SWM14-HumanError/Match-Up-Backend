@@ -26,7 +26,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "메인 페이지 API")
     public SliceTeamResponse showTeams(TeamSearchRequest teamSearchRequest, Pageable pageable) {
-        return teamService.searchSliceTeamList(teamSearchRequest, pageable);
+        return teamService.searchSliceTeamResponseList(teamSearchRequest, pageable);
     }
 
     @PostMapping("/team")

@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.TeamCreateRequest;
+import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -109,5 +110,14 @@ public class Team extends BaseTimeEntity {
             }
         }
         return number;
+    }
+
+    public List<TechStack> returnStackList() {
+        List<TechStack> techStacks = new ArrayList<>();
+        teamTagList.stream().forEach(teamTag -> {
+            techStacks.add(TechStack.builder().tagID(teamTag.getId())
+                    .tagName(teamTag.getTagName()).build());
+        });
+        return techStacks;
     }
 }

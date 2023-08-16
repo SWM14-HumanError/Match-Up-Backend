@@ -31,16 +31,9 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     private QMentoring qMentoring = mentoring;
 
     @Override
-    public Slice<TeamSearchResponse> findTeamSliceByTeamRequest(TeamSearchRequest teamSearchRequest, Pageable pageable) {
-        List<TeamSearchResponse> content = queryFactory
-                .select(Projections.bean(TeamSearchResponse.class,
-                        team.id,
-                        team.title,
-                        team.description,
-                        team.like,
-                        team.thumbnailUrl
-                ))
-                .from(team)
+    public Slice<Team> findTeamSliceByTeamRequest(TeamSearchRequest teamSearchRequest, Pageable pageable) {
+        List<Team> content = queryFactory
+                .selectFrom(team)
                 .where(typeEq(teamSearchRequest.getType()),
                         categoryEq(teamSearchRequest.getCategory()),
                         searchEq(teamSearchRequest.getSearch()),

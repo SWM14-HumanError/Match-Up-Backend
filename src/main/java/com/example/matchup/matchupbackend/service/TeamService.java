@@ -31,10 +31,29 @@ public class TeamService {
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
 
-    public SliceTeamResponse searchSliceTeamList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
-        Slice<TeamSearchResponse> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
-        SliceTeamResponse sliceTeamResponse = new SliceTeamResponse(teamSliceByTeamRequest.getContent(), teamSliceByTeamRequest.getSize(), teamSliceByTeamRequest.hasNext());
+    public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
+        Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
+        SliceTeamResponse sliceTeamResponse = new SliceTeamResponse(teamSearchResponseList(teamSliceByTeamRequest.getContent()), teamSliceByTeamRequest.getSize(), teamSliceByTeamRequest.hasNext());
         return sliceTeamResponse;
+    }
+
+    public List<TeamSearchResponse> teamSearchResponseList(List<Team> teamList) {
+        List<TeamSearchResponse> teamSearchResponseList = new ArrayList<>();
+        teamList.stream()
+                .forEach(team -> {
+                    TeamSearchResponse teamSearchResponse = TeamSearchResponse
+                            .builder()
+                            .id(team.getId())
+                            .title(team.getTitle())
+                            .description(team.getDescription())
+                            .like(team.getLike())
+                            .thumbnailUrl(team.getThumbnailUrl())
+                            .techStacks(team.returnStackList())
+                            .leaderID(team.getLeaderID())
+                            .build();
+                    teamSearchResponseList.add(teamSearchResponse);
+                });
+        return teamSearchResponseList;
     }
 
     @Transactional
