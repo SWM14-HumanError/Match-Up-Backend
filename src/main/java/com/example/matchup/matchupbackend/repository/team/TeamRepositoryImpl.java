@@ -29,6 +29,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     private QTeamUser qTeamUser = teamUser;
     private QTeamMentoring qTeamMentoring = teamMentoring;
     private QMentoring qMentoring = mentoring;
+
     @Override
     public Slice<TeamSearchResponse> findTeamSliceByTeamRequest(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         List<TeamSearchResponse> content = queryFactory
@@ -92,15 +93,16 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     public MeetingSpot findMeetingSpotByTeamId(Long teamID) {
         MeetingSpot content = queryFactory
                 .select(Projections.bean(MeetingSpot.class,
-                team.onOffline,
-                team.city,
-                team.detailSpot
+                        team.onOffline,
+                        team.city,
+                        team.detailSpot
                 ))
                 .from(team)
                 .where(team.id.eq(teamID))
                 .fetchOne();
         return content;
     }
+
     @Override
     public List<TeamMentoring> findTeamMentoringListByTeamId(Long teamID) {
         List<TeamMentoring> content = queryFactory
@@ -109,7 +111,7 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
                 .fetch();
         return content;
     }
-
+}
 
     /*
     @Override
@@ -164,4 +166,3 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
         return content;
     }
      */
-}

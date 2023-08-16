@@ -55,7 +55,6 @@ public class TeamService {
                 .build();
 
         makeTeamPosition(teamCreateRequest, team);
-        //makeTeamTag(teamCreateRequest, team);
 
         TeamUser teamUser = TeamUser.builder()
                 .user(userRepository.findById(teamCreateRequest.getLeaderID()).orElse(null))
@@ -94,7 +93,7 @@ public class TeamService {
                     TeamTag teamTag = TeamTag.builder()
                             .teamPosition(teamPosition)
                             .tagName(tagName)
-                            .team(teamPosition.getTeam()) //에러각
+                            .team(teamPosition.getTeam())
                             .tag(isExistTag)
                             .build();
                     teamTagRepository.save(teamTag);
@@ -104,7 +103,7 @@ public class TeamService {
                     TeamTag teamTag = TeamTag.builder()
                             .teamPosition(teamPosition)
                             .tagName(tagName)
-                            .team(teamPosition.getTeam()) //에러각
+                            .team(teamPosition.getTeam())
                             .tag(newTag)
                             .build();
                     teamTagRepository.save(teamTag);
@@ -113,31 +112,7 @@ public class TeamService {
             });
         }
     }
-    /*
-        @Transactional
-        public void makeTeamTag(TeamCreateRequest teamCreateRequest, Team team) {
-            for (String tagName : teamCreateRequest.returnTagList()) {
-                Tag isExistTag = tagRepository.findByName(tagName);
-                if (isExistTag != null) //이미 있는 태그
-                {
-                    TeamTag teamTag = TeamTag.builder()
-                            .team(team)
-                            .tag(isExistTag)
-                            .build();
-                    teamTagRepository.save(teamTag);
-                    team.addTeamTagList(teamTag);
-                } else { //처음 생성한 태그
-                    Tag newTag = Tag.builder().name(tagName).build();
-                    tagRepository.save(newTag);
-                    TeamTag newTeamTag = TeamTag.builder()
-                            .team(team)
-                            .tag(newTag)
-                            .build();
-                    teamTagRepository.save(newTeamTag);                   team.addTeamTagList(newTeamTag);
-                }
-            }
-        }
-     */
+
     @Transactional
     public Long updateTeam(Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
