@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Position {
     private String positionName;
-    private String level; //팀원은 초보,중수,고수로 멘토는 대학생, 카카오 이런식으로 나눔
+    private Long level; //팀원은 초보,중수,고수로 멘토는 대학생, 카카오 이런식으로 나눔
     @QueryProjection
-    public Position(String positionName, String level) {
+    public Position(String positionName, Long level) {
         this.positionName = positionName;
         this.level = level;
     }

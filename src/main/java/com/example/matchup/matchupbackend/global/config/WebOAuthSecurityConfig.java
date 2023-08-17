@@ -59,8 +59,8 @@ public class WebOAuthSecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
-                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                                .anyRequest().authenticated());
+//                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                                .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
                 oauth2Login

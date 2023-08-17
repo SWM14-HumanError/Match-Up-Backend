@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class TeamService {
 
     public List<TeamSearchResponse> teamSearchResponseList(List<Team> teamList) {
         List<TeamSearchResponse> teamSearchResponseList = new ArrayList<>();
+        Map<Long, User> userMap = getUserMap();
         teamList.stream()
                 .forEach(team -> {
                     TeamSearchResponse teamSearchResponse = TeamSearchResponse
@@ -50,10 +53,18 @@ public class TeamService {
                             .thumbnailUrl(team.getThumbnailUrl())
                             .techStacks(team.returnStackList())
                             .leaderID(team.getLeaderID())
+                            .leaderName(userMap.get(team.getLeaderID()).getName())
+                            .leaderLevel(userMap.get(team.getLeaderID()).getUserLevel())
                             .build();
                     teamSearchResponseList.add(teamSearchResponse);
                 });
         return teamSearchResponseList;
+    }
+
+    public Map<Long, User> getUserMap() {
+        Map<Long, User> userMap = new HashMap<>();
+        userRepository.findAllUser().stream().forEach(user -> userMap.put(user.getId(), user));
+        return userMap;
     }
 
     @Transactional

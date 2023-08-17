@@ -15,8 +15,10 @@ public class TeamSearchResponse {
     private String thumbnailUrl;
     private List<TechStack> techStacks;
     private Long leaderID;
+    private String leaderName;
+    private Long leaderLevel;
     @Builder
-    public TeamSearchResponse(Long id, String title, String description, Long like, String thumbnailUrl, List<TechStack> techStacks, Long leaderID) {
+    public TeamSearchResponse(Long id, String title, String description, Long like, String thumbnailUrl, List<TechStack> techStacks, Long leaderID, String leaderName, Long leaderLevel) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -24,5 +26,7 @@ public class TeamSearchResponse {
         this.thumbnailUrl = thumbnailUrl;
         this.techStacks = techStacks;
         this.leaderID = leaderID;
+        this.leaderName = leaderName;
+        this.leaderLevel = leaderLevel;
     }
 }
