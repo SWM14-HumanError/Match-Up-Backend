@@ -58,7 +58,7 @@ public class TeamController {
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> deleteTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID) {
         Long userId = tokenProvider.getUserId(token);
-        teamService.deleteTeam(teamID);
+        teamService.deleteTeam(userId, teamID);
         return ResponseEntity.ok("팀 삭제 완료");
     }
 
