@@ -147,7 +147,7 @@ public class TeamService {
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
         if(leaderID != team.getLeaderID()) {
-            throw new IllegalArgumentException("Leader ID mismatch");
+            throw new IllegalArgumentException("리더만 팀 정보를 변경 할 수 있습니다");
         }
         return team.updateTeam(teamCreateRequest);
     }
@@ -167,8 +167,11 @@ public class TeamService {
     }
 
     @Transactional
-    public void deleteTeam(Long teamID) {
+    public void deleteTeam(Long leaderID, Long teamID) {
         Team team = teamRepository.findById(teamID).orElse(null);
+        if(leaderID != team.getLeaderID()) {
+            throw new IllegalArgumentException("리더만 팀을 삭제 할 수 있습니다");
+        }
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
 
