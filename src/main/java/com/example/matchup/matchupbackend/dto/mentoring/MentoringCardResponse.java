@@ -20,7 +20,7 @@ public class MentoringCardResponse {
 
     @QueryProjection
     @Builder
-    public MentoringCardResponse(Long mentoringID, String thumbnailURL, String title, String positionName, String positionLevel, String mentorProfileURL, String mentorNickname, Double score, Long like) {
+    public MentoringCardResponse(Long mentoringID, String thumbnailURL, String title, String positionName, Long positionLevel, String mentorProfileURL, String mentorNickname, Double score, Long like) {
         this.mentoringID = mentoringID;
         this.thumbnailURL = thumbnailURL;
         this.title = title;

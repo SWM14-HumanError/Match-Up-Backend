@@ -47,7 +47,7 @@ public class TeamUserService {
         ).collect(Collectors.toList());
     }
 
-    public static Position makePosition(String positionName, String positionLevel) {
+    public static Position makePosition(String positionName, Long positionLevel) {
         return new Position(positionName, positionLevel);
     }
 

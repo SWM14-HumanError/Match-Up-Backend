@@ -30,7 +30,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "picture_url")
     private String pictureUrl;
     @Column(name = "user_level")
-    private String userLevel;
+    private Long userLevel;
     @Enumerated(EnumType.STRING)
     private MeetingType meetingType;
     /**
@@ -46,7 +46,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "position")
     private String position;
     @Column(name = "position_level")
-    private String positionLevel;
+    private Long positionLevel;
     @Column(name = "likes")
     private Long likes;
     @Column(name = "total_reviews")

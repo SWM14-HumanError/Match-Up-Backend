@@ -14,7 +14,7 @@ import java.util.List;
 public class UserCardResponse{
     private Long userID;
     private String profileImageURL;
-    private String memberLevel;
+    private Long memberLevel;
     private String nickname;
     private Position position;
     private Double score;
@@ -22,7 +22,7 @@ public class UserCardResponse{
     private List<TechStack> techStacks;
 
     @QueryProjection
-    public UserCardResponse(Long userID, String profileImageURL, String memberLevel, String nickname, String positionName, String positionLevel, Double score, Long like, List<TechStack> TechStacks) {
+    public UserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks) {
         this.userID = userID;
         this.profileImageURL = profileImageURL;
         this.memberLevel = memberLevel;
