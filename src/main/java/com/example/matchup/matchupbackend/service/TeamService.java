@@ -68,7 +68,7 @@ public class TeamService {
     }
 
     @Transactional
-    public Long makeNewTeam(TeamCreateRequest teamCreateRequest) {
+    public Long makeNewTeam(Long leaderID,TeamCreateRequest teamCreateRequest) {
         // String 으로 반환된 태그를 Tag 객체 리스트로 만듬
         Team team = Team.builder()
                 .title(teamCreateRequest.getName())
@@ -81,13 +81,13 @@ public class TeamService {
                 .city(teamCreateRequest.getMeetingSpot().getCity())
                 .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
                 .recruitFinish("NF")
-                .leaderID(teamCreateRequest.getLeaderID())
+                .leaderID(leaderID)
                 .build();
 
         makeTeamPosition(teamCreateRequest, team);
 
         TeamUser teamUser = TeamUser.builder()
-                .user(userRepository.findById(teamCreateRequest.getLeaderID()).orElse(null))
+                .user(userRepository.findById(leaderID).orElse(null))
                 .team(team)
                 .approve(true)
                 .build();
