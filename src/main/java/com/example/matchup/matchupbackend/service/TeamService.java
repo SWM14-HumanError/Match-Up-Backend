@@ -144,8 +144,11 @@ public class TeamService {
     }
 
     @Transactional
-    public Long updateTeam(Long teamID, TeamCreateRequest teamCreateRequest) {
+    public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID).orElse(null);
+        if(leaderID != team.getLeaderID()) {
+            throw new IllegalArgumentException("Leader ID mismatch");
+        }
         return team.updateTeam(teamCreateRequest);
     }
 

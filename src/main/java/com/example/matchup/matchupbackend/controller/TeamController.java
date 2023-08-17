@@ -50,7 +50,7 @@ public class TeamController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("기존 팀원 인원수 보다 높게 인원수를 설정하세요");
         }
-        teamService.updateTeam(userId, teamCreateRequest);
+        teamService.updateTeam(userId, teamID, teamCreateRequest);
         return ResponseEntity.ok("업데이트 완료");
     }
 
