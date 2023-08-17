@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
-
     @Query("SELECT user from User user where user.email=:userEmail")
     Optional<User> findByEmail(@Param("userEmail") String email);
 }

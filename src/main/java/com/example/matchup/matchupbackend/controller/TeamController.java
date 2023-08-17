@@ -26,7 +26,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "메인 페이지 API")
     public SliceTeamResponse showTeams(TeamSearchRequest teamSearchRequest, Pageable pageable) {
-        return teamService.searchSliceTeamList(teamSearchRequest, pageable);
+        return teamService.searchSliceTeamResponseList(teamSearchRequest, pageable);
     }
 
     @PostMapping("/team")
@@ -55,22 +55,6 @@ public class TeamController {
         teamService.deleteTeam(teamID);
         return ResponseEntity.ok("팀 삭제 완료");
     }
-
-/*
-
-
-    @GetMapping("/team/{teamID}")
-    @Operation(description = "팀 세부 정보 불러오기") //인증
-    public ResponseEntity<TeamDetailResponse> showTeamDetail(@PathVariable Long teamID)
-    {
-        TeamDetailResponse teamDetailResponse = teamService.showTeamDetail(teamID);
-//        if(teamDetailResponse == null)
-//        {
-//            return null;  //여기 부분 어떻게 할지
-//        }
-        return ResponseEntity.ok(teamDetailResponse);
-    }
- */
 
     @GetMapping("/team/{teamID}/info")
     @ResponseStatus(HttpStatus.OK)

@@ -1,11 +1,7 @@
 package com.example.matchup.matchupbackend.repository.user;
 
-import com.example.matchup.matchupbackend.dto.Position;
-import com.example.matchup.matchupbackend.dto.user.TechStack;
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.*;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,11 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.example.matchup.matchupbackend.entity.QUser.*;
 import static com.example.matchup.matchupbackend.entity.QUserTag.*;
@@ -130,5 +122,3 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return new Position(positionName, positionLevel);
     }
  */
-
-

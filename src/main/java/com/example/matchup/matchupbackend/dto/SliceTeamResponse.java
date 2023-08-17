@@ -11,4 +11,5 @@ public class SliceTeamResponse {
     private List<TeamSearchResponse> teamSearchResponseList;
     private int size;
     private Boolean hasNextSlice;
+
 }
