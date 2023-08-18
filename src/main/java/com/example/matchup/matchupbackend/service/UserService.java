@@ -37,11 +37,9 @@ public class UserService {
     }
 
     public List<UserCardResponse> userCardResponseList(List<User> userList) {
-        List<UserCardResponse> userCardResponseList = new ArrayList<>();
         return userList.stream().map(
                 user -> {
                     Position position = new Position(user.getPosition(), user.getPositionLevel());
-                    //Map<Long, List<TechStack>> userTags = userTagListToTeckStackMap(userRepository.findUserTagList());
                     return UserCardResponse.builder()
                             .userID(user.getId())
                             .profileImageURL(user.getPictureUrl())
@@ -65,16 +63,4 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("unexpected user"));
     }
-
-
 }
-/* public Map<Long,List<TechStack>> userTagListToTeckStackMap(List<UserTag> userTags)
-    {
-        Map<Long,List<TechStack>> teckStackMap = new HashMap<>();
-        return userTags.stream().map(userTag -> {
-            TechStack techStack = new TechStack(userTag.getId(), userTag.getTagName());
-            teckStackMap.put(userTag.getUser().getId(), );
-        })
-    }
-
- */

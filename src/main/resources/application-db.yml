@@ -14,7 +14,10 @@ spring:
       mode: embedded
 
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:tcp://localhost/~/jpashop
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
 
   h2:
     console:

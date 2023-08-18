@@ -25,8 +25,8 @@ public class TeamUserService {
     private final TeamUserRepository teamUserRepository;
     private final TeamRepository teamRepository;
     private final TeamPositionRepository teamPositionRepository;
-    public List<TeamUserCardResponse> getTeamUserCard(Long teamID)
-    {
+
+    public List<TeamUserCardResponse> getTeamUserCard(Long teamID) {
         List<TeamUser> allByTeam = teamUserRepository.findAllByTeamID(teamID);
         return allByTeam.stream().map(
                 teamUser -> {
@@ -46,11 +46,12 @@ public class TeamUserService {
                 }
         ).collect(Collectors.toList());
     }
-    public static Position makePosition(String positionName, String positionLevel){
+
+    public static Position makePosition(String positionName, Long positionLevel) {
         return new Position(positionName, positionLevel);
     }
-    public TeamApprovedInfo getTeamRecruitInfo(Long teamID)
-    {
+
+    public TeamApprovedInfo getTeamRecruitInfo(Long teamID) {
         List<TeamPosition> teamPositionList = teamPositionRepository.findTeamPositionListByTeamId(teamID);
         List<ApprovedMember> approvedMemberList = new ArrayList<>();
         teamPositionList.stream().forEach(teamPosition -> {
@@ -65,15 +66,13 @@ public class TeamUserService {
         boolean state =
                 teamRepository.findTeamById(teamID).numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
         //false = 모집중 , true = 모집완료 + try-catch 예외처리
-
         return new TeamApprovedInfo(state, approvedMemberList);
     }
-    public Long numberOfMaxTeamMember(List<TeamPosition> teamPositionList)
-    {
+
+    public Long numberOfMaxTeamMember(List<TeamPosition> teamPositionList) {
         Long max = 0L;
-        for(TeamPosition teamPosition : teamPositionList)
-        {
-            max+=teamPosition.getMaxCount();
+        for (TeamPosition teamPosition : teamPositionList) {
+            max += teamPosition.getMaxCount();
         }
         return max;
     }
