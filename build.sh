@@ -28,6 +28,8 @@ then
     if docker ps -a | grep -q "${build_part}"; then
         docker rm -f "${build_part}"
     fi
-    
+    docker volume create nginx
+    docker volume create spring
+    docker network create private
     docker run -d --name "${build_part}" -p 8080:8080 --network private "${build_part}":test
 fi

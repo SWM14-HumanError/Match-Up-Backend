@@ -17,17 +17,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class UserLoginController {
 
     @GetMapping("/login")
-    public String login(HttpServletRequest request, HttpServletResponse response) {
+    public String login() {
 
-//        getRedirectUri(request, response);
         return "oauthLogin";
     }
 
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
 
-        new SecurityContextLogoutHandler().logout(
-                request, response, SecurityContextHolder.getContext().getAuthentication());
+        new SecurityContextLogoutHandler()
+                .logout(request, response, SecurityContextHolder.getContext().getAuthentication());
         return "redirect:/";
     }
 

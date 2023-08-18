@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -34,9 +33,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofHours(2);
-
-    @Value("${oauth-login.success-url}")
-    public String loginSuccessRedirectPath;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -77,7 +73,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private String getTargetUrl(String token) {
 
-      return UriComponentsBuilder.fromUriString(loginSuccessRedirectPath)
+      return UriComponentsBuilder.fromUriString(
+//              (tokenProvider.getOAuth2LoginUrl().getSuccessUrl() != null)
+//              ? tokenProvider.getOAuth2LoginUrl().getSuccessUrl()
+//              : "http://localhost/login/token")
+              tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                 .queryParam("token", token)
                 .build()
                 .toUriString();
