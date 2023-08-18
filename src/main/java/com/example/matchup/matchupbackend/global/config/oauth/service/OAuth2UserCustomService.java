@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.oauth.CustomOAuth2User;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuthAttributes;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 @RequiredArgsConstructor
+@Getter
 @Slf4j
 @Service
 public class OAuth2UserCustomService extends DefaultOAuth2UserService {
