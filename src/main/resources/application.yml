@@ -1,21 +1,24 @@
 spring:
     profiles:
-        active: local
+        active:
+            - local
 
         group:
           local:
-              - db-local
+              - db
+              - oauth
+              - h2
               - oauth-local
           dev:
-              - db-dev
+              - db
+              - oauth
+              - h2
               - oauth-dev
-        include:
-            - oauth
-            - db
+#              - mysql
 
-    h2:
-        console:
-            enabled: true
+logging:
+    file:
+        name: /var/log/spring/spring.log
 
 logging.level:
     org.hibernate.SQL: debug

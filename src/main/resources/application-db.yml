@@ -1,16 +1,17 @@
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: create # 배포 할땐 최소 validation
-    properties:
-      hibernate:
-        format_sql: true
-
---- # local env
+--- # h2 for local
 spring:
   config:
     activate:
-      on-profile: "db-local"
+      on-profile: "h2"
+
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create
+
+  sql:
+    init:
+      mode: embedded
 
   datasource:
     url: jdbc:h2:tcp://localhost/~/jpashop
@@ -22,11 +23,15 @@ spring:
     console:
       enabled: true
 
---- # dev env
+  properties:
+    hibernate:
+      format_sql: true
+
+--- # mysql for dev prod
 spring:
   config:
     activate:
-      on-profile: "db-dev"
+      on-profile: "mysql"
 
   jpa:
     hibernate:

@@ -1,10 +1,12 @@
 package com.example.matchup.matchupbackend.global.config.jwt;
 
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuth2LoginUrl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,10 +19,12 @@ import java.util.Date;
 import java.util.Set;
 
 @RequiredArgsConstructor
+@Getter
 @Service
 public class TokenProvider {
 
     private final JwtProperties jwtProperties;
+    private final OAuth2LoginUrl oAuth2LoginUrl;
 
     public String generateToken(User user, Duration expiredAt) {
 
