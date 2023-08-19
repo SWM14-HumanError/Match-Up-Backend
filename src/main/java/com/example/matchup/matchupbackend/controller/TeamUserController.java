@@ -40,7 +40,13 @@ public class TeamUserController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "유저가 팀에 지원하는 API")
     public Long recruitToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody RecruitForm recruitForm) {
-        Long userID = tokenProvider.getUserId(token);
+        Long userID = getUserIdFromToken(token);
         return teamUserService.recruitToTeam(userID, teamID, recruitForm);
+    }
+
+    private Long getUserIdFromToken(String token) {
+        if (tokenProvider.validToken(token)) {
+            return tokenProvider.getUserId(token);
+        } else return null;
     }
 }
