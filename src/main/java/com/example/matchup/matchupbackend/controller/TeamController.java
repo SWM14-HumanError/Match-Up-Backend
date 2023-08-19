@@ -21,7 +21,6 @@ import java.util.List;
 @Slf4j
 public class TeamController {
     private final TeamService teamService;
-    private final TeamUserService teamUserService;
     private final TokenProvider tokenProvider;
 
     @GetMapping("/list/team")
@@ -66,13 +65,6 @@ public class TeamController {
     @Operation(description = "팀 상세페이지의 제목,상세설명 API")
     public TeamDetailResponse showTeamInfo(@PathVariable Long teamID) {
         return teamService.getTeamInfo(teamID);
-    }
-
-    @GetMapping("/team/{teamID}/member")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "팀 상세페이지의 유저 API")
-    public List<TeamUserCardResponse> showTeamUsers(@PathVariable Long teamID) {
-        return teamUserService.getTeamUserCard(teamID);
     }
 
     @GetMapping("/team/{teamID}/spot")
