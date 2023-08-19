@@ -95,7 +95,7 @@ public class TeamUserService {
         Team team = teamRepository.findTeamById(teamID);
         User user = userRepository.findUserById(userID);
         TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(teamID, recruitForm.getRole());
-        if (isRecruitAvailable(userID, teamID)) {
+        if (!isRecruitAvailable(userID, teamID)) {
             throw new RuntimeException("니 같은팀에 또 신청함");
         }
 
