@@ -75,16 +75,13 @@ public class WebOAuthSecurityConfig {
         http.logout((logout) ->
                 logout
                         .logoutUrl("/logout")
-//                        .logoutSuccessUrl((tokenProvider.getOAuth2LoginUrl().getLogoutSuccessUrl() != null)
-//                            ? tokenProvider.getOAuth2LoginUrl().getLogoutSuccessUrl()
-//                            : "http://localhost/logout/token"));
                         .logoutSuccessUrl(tokenProvider.getOAuth2LoginUrl().getLogoutSuccessUrl()));
 
         http.exceptionHandling((exceptionHandling) ->
                 exceptionHandling.defaultAuthenticationEntryPointFor(
                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                new AntPathRequestMatcher("/api/**"))
-                        .accessDeniedPage("/articles"));
+                                new AntPathRequestMatcher("/api/**")));
+//                        .accessDeniedPage("/articles"));
 
         return http.build();
     }

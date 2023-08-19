@@ -33,7 +33,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
     public Long makeTeam(@RequestHeader(value = "Authorization") String token, @RequestBody TeamCreateRequest teamCreateRequest) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = tokenProvider.getUserId(token);
         return teamService.makeNewTeam(userId, teamCreateRequest);
     }
 
@@ -41,7 +41,7 @@ public class TeamController {
     @PutMapping("/team/{teamID}")
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> updateTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = tokenProvider.getUserId(token);
         if (teamService.isUpdatable(teamID, teamCreateRequest) == false) //업데이트 불가능
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -54,7 +54,7 @@ public class TeamController {
     @DeleteMapping("/team/{teamID}")
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> deleteTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID) {
-        Long userId = getUserIdFromToken(token);
+        Long userId = tokenProvider.getUserId(token);
         teamService.deleteTeam(userId, teamID);
         return ResponseEntity.ok("팀 삭제 완료");
     }
@@ -92,11 +92,5 @@ public class TeamController {
     @Operation(description = "팀 상세페이지의 모임 카테고리")
     public TeamType showTeamType(@PathVariable Long teamID) {
         return teamService.getTeamType(teamID);
-    }
-
-    private Long getUserIdFromToken(String token) {
-        if (tokenProvider.validToken(token)) {
-            return tokenProvider.getUserId(token);
-        } else return null;
     }
 }

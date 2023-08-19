@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
+@Slf4j
 @RequiredArgsConstructor
 @Getter
 @Service
@@ -72,9 +74,9 @@ public class TokenProvider {
     }
 
     public Long getUserId(String token) {
+        if (!validToken(token)) return null;
 
         Claims claims = getClaims(token);
-
         return claims.get("id", Long.class);
     }
 
