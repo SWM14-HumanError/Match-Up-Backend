@@ -101,6 +101,8 @@ public class TeamService {
         teamCreateRequest.getMemberList().stream().forEach(member -> {
             TeamPosition teamPosition = TeamPosition.builder()
                     .role(member.getRole())
+                    .count(0L)
+                    .team(team)
                     .maxCount(member.getMaxCount())
                     .build();
             teamPosition.addTeam(team);

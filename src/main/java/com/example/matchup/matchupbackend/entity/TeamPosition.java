@@ -20,6 +20,8 @@ public class TeamPosition {
     private Long id;
     @Column(name = "role")
     private String role;
+    @Column(name = "count")
+    private Long count;
     @Column(name = "max_count")
     private Long maxCount;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -29,9 +31,12 @@ public class TeamPosition {
     private List<TeamTag> tags = new ArrayList<>();
 
     @Builder
-    public TeamPosition(String role, Long maxCount) {
+    public TeamPosition(String role, Long count, Long maxCount, Team team, List<TeamTag> tags) {
         this.role = role;
+        this.count = count;
         this.maxCount = maxCount;
+        this.team = team;
+        this.tags = tags;
     }
 
     //== 연관관계 로직 ==//
