@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
 import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +43,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "user_email", unique = true)
     private String email;
     @Column(name = "user_birthday")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
     @Column(name = "position")
     private String position;
     @Column(name = "position_level")
@@ -108,13 +109,26 @@ public class User extends BaseTimeEntity implements UserDetails {
         return this.role.getKey();
     }
 
-    @Builder
+    @Builder // OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
     public User(String email, String name, String pictureUrl, Role role) {
 
         this.email = email;
         this.name = name;
         this.pictureUrl = pictureUrl;
         this.role = role;
+    }
+
+    public User updateFirstLogin(AdditionalUserInfoRequestDto dto) {
+
+        this.userLevel = dto.getUserLevel();
+        this.birthday = dto.getUserBirthday();
+        this.address = dto.getAddress();
+        this.expYear = dto.getExpYear();
+        this.expertize = dto.getExpertize();
+        this.position = dto.getPosition();
+        this.positionLevel = dto.getPositionLevel();
+        this.meetingType = dto.getMeetingType();
+        return this;
     }
 
     @Override

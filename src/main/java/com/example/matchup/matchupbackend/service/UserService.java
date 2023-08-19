@@ -1,12 +1,12 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.TechStack;
 import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.User;
-import com.example.matchup.matchupbackend.entity.UserTag;
+import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -62,5 +60,14 @@ public class UserService {
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("unexpected user"));
+    }
+
+    public Long saveAdditionalUserInfo(String token, AdditionalUserInfoRequestDto dto) {
+
+        Long userId = tokenProvider.getUserId(token);
+        User user = findById(userId);
+        User updatedUser = user.updateFirstLogin(dto);
+        userRepository.save(updatedUser);
+        return userId;
     }
 }
