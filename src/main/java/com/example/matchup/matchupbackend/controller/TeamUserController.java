@@ -39,8 +39,8 @@ public class TeamUserController {
     @PostMapping("/team/{teamID}/recruit")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "유저가 팀에 지원하는 API")
-    public List<TeamUserCardResponse> recruitToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody RecruitForm recruitForm) {
-        Long userId = tokenProvider.getUserId(token);
-        return null;
+    public Long recruitToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody RecruitForm recruitForm) {
+        Long userID = tokenProvider.getUserId(token);
+        return teamUserService.recruitToTeam(userID, teamID, recruitForm);
     }
 }
