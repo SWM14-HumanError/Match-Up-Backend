@@ -4,7 +4,6 @@ import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamService;
-import com.example.matchup.matchupbackend.service.TeamUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,6 @@ import java.util.List;
 @Slf4j
 public class TeamController {
     private final TeamService teamService;
-    private final TeamUserService teamUserService;
     private final TokenProvider tokenProvider;
 
     @GetMapping("/list/team")
@@ -68,13 +66,6 @@ public class TeamController {
         return teamService.getTeamInfo(teamID);
     }
 
-    @GetMapping("/team/{teamID}/member")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "팀 상세페이지의 유저 API")
-    public List<TeamUserCardResponse> showTeamUsers(@PathVariable Long teamID) {
-        return teamUserService.getTeamUserCard(teamID);
-    }
-
     @GetMapping("/team/{teamID}/spot")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 모임 장소 API")
@@ -101,13 +92,6 @@ public class TeamController {
     @Operation(description = "팀 상세페이지의 모임 카테고리")
     public TeamType showTeamType(@PathVariable Long teamID) {
         return teamService.getTeamType(teamID);
-    }
-
-    @GetMapping("/team/{teamID}/recruitInfo")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "팀 상세페이지의 팀원 모집 정보 불러오기 ")
-    public TeamApprovedInfo showTeamRecruit(@PathVariable Long teamID) {
-        return teamUserService.getTeamRecruitInfo(teamID);
     }
 
     private Long getUserIdFromToken(String token) {
