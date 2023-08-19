@@ -7,10 +7,9 @@ import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2Succ
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
 import com.example.matchup.matchupbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,6 +23,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
+@Slf4j
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
@@ -34,9 +34,6 @@ public class WebOAuthSecurityConfig {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
 
-    @Value("${oauth-login.logout-success-url}")
-    private String logoutSuccessUrl;
-
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
@@ -46,6 +43,7 @@ public class WebOAuthSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
 
         // 폼로그인 + csrf 비활성화
         http.csrf((csrf) -> csrf.disable());
@@ -58,25 +56,29 @@ public class WebOAuthSecurityConfig {
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
-                        authorizeHttpRequests
+                authorizeHttpRequests
 //                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                                .anyRequest().permitAll());
+//                                .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
                 oauth2Login
-                            .loginPage("/login")
-                            .authorizationEndpoint((authorizationEndpoint) ->
-                                    authorizationEndpoint
-                                            .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
-                            .successHandler(oAuth2SuccessHandler())
-                            .userInfoEndpoint((userInfoEndpoint) ->
-                                    userInfoEndpoint
-                                            .userService(oAuth2UserCustomService)));
+                        .loginPage("/login")
+                        .authorizationEndpoint((authorizationEndpoint) ->
+                                authorizationEndpoint
+                                        .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                        .successHandler(oAuth2SuccessHandler())
+                        .userInfoEndpoint((userInfoEndpoint) ->
+                                userInfoEndpoint
+                                        .userService(oAuth2UserCustomService)));
 
         http.logout((logout) ->
                 logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl(logoutSuccessUrl));
+//                        .logoutSuccessUrl((tokenProvider.getOAuth2LoginUrl().getLogoutSuccessUrl() != null)
+//                            ? tokenProvider.getOAuth2LoginUrl().getLogoutSuccessUrl()
+//                            : "http://localhost/logout/token"));
+                        .logoutSuccessUrl(tokenProvider.getOAuth2LoginUrl().getLogoutSuccessUrl()));
 
         http.exceptionHandling((exceptionHandling) ->
                 exceptionHandling.defaultAuthenticationEntryPointFor(
