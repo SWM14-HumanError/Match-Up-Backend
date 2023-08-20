@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.repository.teamuser;
 
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -11,6 +12,13 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Query(value = "SELECT * FROM team_user WHERE team_id=:teamId"
             , nativeQuery = true)
     List<TeamUser> findAllByTeamID(@Param("teamId") Long teamId);
+
     @Query("select teamuser from TeamUser teamuser where teamuser.user.id=:userId and teamuser.team.id=:teamId")
     List<TeamUser> isUserRecruitDuplicated(@Param("userId") Long userId, @Param("teamId") Long teamId);
+
+    TeamUser findTeamUserById(Long Id);
+
+    @Modifying
+    @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id = :teamId")
+    void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId);
 }

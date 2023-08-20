@@ -1,14 +1,10 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -45,6 +41,9 @@ public class TeamUser {
         this.team = team;
         this.user = user;
     }
-    //== 비즈니스 로직 ==//
 
+    //== 비즈니스 로직 ==//
+    public void approveUser() {
+        this.approve = true;
+    }
 }

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,32 @@ public class TeamUserService {
     public boolean isRecruitAvailable(Long userID, Long teamID) {
         List<TeamUser> recruitDuplicated = teamUserRepository.isUserRecruitDuplicated(userID, teamID);
         if (recruitDuplicated.size() != 0) return false;
+        return true;
+    }
+
+    /**
+     * 팀장이 유저를 팀원으로 승인함
+     */
+    @Transactional
+    public void acceptUserToTeam(Long leaderID, Long teamID, Long recruitUserID)
+    {
+        Team team = teamRepository.findTeamById(teamID);
+        if (!isTeamLeader(leaderID, team)) {
+            throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
+        }
+        TeamUser recruitUser = teamUserRepository.findTeamUserById(recruitUserID);
+        recruitUser.approveUser();
+
+        teamUserRepository.updateTeamUserStatusByAcceptUser(teamID);
+        log.info("teamUser 업데이트 완료");
+
+        teamPositionRepository.updateTeamPositionStatusByAcceptUser(teamID);
+        log.info("teamPosition 업데이트 완료");
+    }
+
+    public boolean isTeamLeader(Long leaderID, Team team)
+    {
+        if (team.getLeaderID() != leaderID) return false;
         return true;
     }
 }

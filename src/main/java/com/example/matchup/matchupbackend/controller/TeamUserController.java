@@ -37,12 +37,22 @@ public class TeamUserController {
     }
 
     @PostMapping("/team/{teamID}/recruit")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "유저가 팀에 지원하는 API")
     public Long recruitToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody RecruitForm recruitForm) {
         Long userID = getUserIdFromToken(token);
         log.info("userID: " + userID.toString());
         return teamUserService.recruitToTeam(userID, teamID, recruitForm);
+    }
+
+    @PostMapping("/team/{teamID}/acceptUser")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(description = "팀장이 유저를 팀원으로 수락하는 API")
+    public String acceptUserToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody Long recruitUserID) {
+        Long leaderID = getUserIdFromToken(token);
+        log.info("leaderID: " + leaderID.toString());
+        teamUserService.acceptUserToTeam(leaderID, teamID, recruitUserID);
+        return "유저가 팀원이 되었습니다";
     }
 
     private Long getUserIdFromToken(String token) {
