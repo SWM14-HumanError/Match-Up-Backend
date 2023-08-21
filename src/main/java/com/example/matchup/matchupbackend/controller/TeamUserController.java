@@ -2,10 +2,10 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfo;
 import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamUserService;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,10 +48,10 @@ public class TeamUserController {
     @PostMapping("/team/{teamID}/acceptUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 팀원으로 수락하는 API")
-    public String acceptUserToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody Long recruitUserID) {
+    public String acceptUserToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody AcceptForm acceptForm) {
         Long leaderID = getUserIdFromToken(token);
-        log.info("leaderID: " + leaderID.toString());
-        teamUserService.acceptUserToTeam(leaderID, teamID, recruitUserID);
+        log.info("leaderID: " + leaderID);
+        teamUserService.acceptUserToTeam(leaderID, teamID, acceptForm);
         return "유저가 팀원이 되었습니다";
     }
 

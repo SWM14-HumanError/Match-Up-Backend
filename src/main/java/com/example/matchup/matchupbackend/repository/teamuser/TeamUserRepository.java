@@ -16,9 +16,10 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Query("select teamuser from TeamUser teamuser where teamuser.user.id=:userId and teamuser.team.id=:teamId")
     List<TeamUser> isUserRecruitDuplicated(@Param("userId") Long userId, @Param("teamId") Long teamId);
 
-    TeamUser findTeamUserById(Long Id);
+    @Query("select teamuser from TeamUser teamuser where teamuser.team.id=:teamId and teamuser.user.id=:userId")
+    TeamUser findTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
 
     @Modifying
-    @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id = :teamId")
-    void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId);
+    @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id = :teamId AND teamuser.role =: role")
+    void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
 }

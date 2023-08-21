@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.ApprovedMember;
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfo;
 import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
@@ -129,24 +130,22 @@ public class TeamUserService {
      * 팀장이 유저를 팀원으로 승인함
      */
     @Transactional
-    public void acceptUserToTeam(Long leaderID, Long teamID, Long recruitUserID)
-    {
+    public void acceptUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
         Team team = teamRepository.findTeamById(teamID);
         if (!isTeamLeader(leaderID, team)) {
             throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
         }
-        TeamUser recruitUser = teamUserRepository.findTeamUserById(recruitUserID);
+        TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
         recruitUser.approveUser();
 
-        teamUserRepository.updateTeamUserStatusByAcceptUser(teamID);
+        teamUserRepository.updateTeamUserStatusByAcceptUser(teamID, acceptForm.getRole());
         log.info("teamUser 업데이트 완료");
 
-        teamPositionRepository.updateTeamPositionStatusByAcceptUser(teamID);
+        teamPositionRepository.updateTeamPositionStatusByAcceptUser(teamID, acceptForm.getRole());
         log.info("teamPosition 업데이트 완료");
     }
 
-    public boolean isTeamLeader(Long leaderID, Team team)
-    {
+    public boolean isTeamLeader(Long leaderID, Team team) {
         if (team.getLeaderID() != leaderID) return false;
         return true;
     }
