@@ -20,6 +20,6 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     TeamUser findTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
 
     @Modifying
-    @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id = :teamId AND teamuser.role =: role")
+    @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
     void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
 }
