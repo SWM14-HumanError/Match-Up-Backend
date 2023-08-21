@@ -19,7 +19,7 @@ public class UserLoginController {
     @GetMapping("/login")
     public String login() {
 
-        return "oauthLogin";
+        return "oauth";
     }
 
     @GetMapping("/logout")

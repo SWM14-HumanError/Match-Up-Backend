@@ -37,3 +37,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+  datasource:
+    url: jdbc:mysql://mysql:3306/matchup?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
