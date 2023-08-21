@@ -136,6 +136,9 @@ public class TeamUserService {
             throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
         }
         TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        if (recruitUser.getApprove()) {
+            throw new RuntimeException("얘는 이미 우리 팀원인데?");
+        }
         recruitUser.approveUser();
 
         teamUserRepository.updateTeamUserStatusByAcceptUser(teamID, acceptForm.getRole());
