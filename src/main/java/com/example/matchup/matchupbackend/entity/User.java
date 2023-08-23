@@ -38,8 +38,6 @@ public class User extends BaseTimeEntity implements UserDetails {
      * address(선호하는 장소)를 어떻게 받을지 고민
      */
     private String address;
-    @Column(columnDefinition = "TEXT")
-    private String htmlContent;
     @Column(name = "user_email", unique = true)
     private String email;
     @Column(name = "user_birthday")
