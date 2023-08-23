@@ -131,8 +131,7 @@ public class TeamUserService {
      */
     @Transactional
     public void acceptUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
-        Team team = teamRepository.findTeamById(teamID);
-        if (!isTeamLeader(leaderID, team)) {
+        if (!isTeamLeader(leaderID, teamID)) {
             throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
         }
         TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
@@ -148,7 +147,15 @@ public class TeamUserService {
         log.info("teamPosition 업데이트 완료");
     }
 
-    public boolean isTeamLeader(Long leaderID, Team team) {
+    @Transactional
+    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm){
+        if (!isTeamLeader(leaderID, teamID)) {
+            throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
+        }
+    }
+
+    public boolean isTeamLeader(Long leaderID, Long teamID) {
+        Team team = teamRepository.findTeamById(teamID);
         if (team.getLeaderID() != leaderID) return false;
         return true;
     }
