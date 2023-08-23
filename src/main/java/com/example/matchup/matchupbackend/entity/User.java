@@ -64,7 +64,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Boolean isAuth;
     //링크는 조인해서 가져온다
     private String expertize;
-    private String expYear;
+    private Long expYear;
     private String certificateURL;
 
 
