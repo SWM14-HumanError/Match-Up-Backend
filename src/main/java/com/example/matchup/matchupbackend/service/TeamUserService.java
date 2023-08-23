@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.ApprovedMember;
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfo;
 import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
@@ -95,7 +96,7 @@ public class TeamUserService {
         Team team = teamRepository.findTeamById(teamID);
         User user = userRepository.findUserById(userID);
         TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(teamID, recruitForm.getRole());
-        if (isRecruitAvailable(userID, teamID)) {
+        if (!isRecruitAvailable(userID, teamID)) {
             throw new RuntimeException("니 같은팀에 또 신청함");
         }
 
@@ -121,6 +122,63 @@ public class TeamUserService {
     public boolean isRecruitAvailable(Long userID, Long teamID) {
         List<TeamUser> recruitDuplicated = teamUserRepository.isUserRecruitDuplicated(userID, teamID);
         if (recruitDuplicated.size() != 0) return false;
+        return true;
+    }
+
+    /**
+     * 팀장이 유저를 팀원으로 승인함
+     */
+    @Transactional
+    public void acceptUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
+        if (!isTeamLeader(leaderID, teamID)) {
+            throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
+        }
+        TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        if (recruitUser.getApprove()) {
+            throw new RuntimeException("얘는 이미 우리 팀원인데?");
+        }
+        recruitUser.approveUser();
+
+        teamUserRepository.updateTeamUserStatusByAcceptUser(teamID, acceptForm.getRole());
+        log.info("teamUser 업데이트 완료");
+
+        teamPositionRepository.updateTeamPositionStatusByAcceptUser(teamID, acceptForm.getRole());
+        log.info("teamPosition 업데이트 완료");
+    }
+
+    @Transactional
+    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
+        if (!isTeamLeader(leaderID, teamID)) {
+            throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
+        }
+        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 거절 완료");
+    }
+
+    @Transactional
+    public void kickUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
+        if (!isTeamLeader(leaderID, teamID)) {
+            throw new RuntimeException("팀장 아니면 팀원 강퇴 못함");
+        }
+        try {
+            teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        } catch (NullPointerException exception) {
+            log.info("이미 강퇴된 유저 입니다");
+            return;
+        }
+        teamUserRepository.updateTeamUserStatusByKickedUser(teamID, acceptForm.getRole());
+        log.info("teamUser 업데이트 완료");
+
+        teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, acceptForm.getRole());
+        log.info("teamPosition 업데이트 완료");
+
+        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        log.info("userID:" + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
+    }
+
+    public boolean isTeamLeader(Long leaderID, Long teamID) {
+        Team team = teamRepository.findTeamById(teamID);
+        if (team.getLeaderID() != leaderID) return false;
         return true;
     }
 }
