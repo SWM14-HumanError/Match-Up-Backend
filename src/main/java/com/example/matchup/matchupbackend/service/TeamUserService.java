@@ -148,10 +148,12 @@ public class TeamUserService {
     }
 
     @Transactional
-    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm){
+    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
         }
+        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        log.info("teamUser 삭제완료");
     }
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {

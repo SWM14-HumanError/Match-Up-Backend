@@ -22,4 +22,8 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Modifying
     @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
     void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
+
+    @Modifying
+    @Query("DELETE from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId")
+    void deleteTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
 }

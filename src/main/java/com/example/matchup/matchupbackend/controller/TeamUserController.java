@@ -55,6 +55,26 @@ public class TeamUserController {
         return "유저가 팀원이 되었습니다";
     }
 
+    @DeleteMapping("/team/{teamID}/refuseUser")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(description = "팀장이 유저를 거절하는 API")
+    public String refuseUserToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody AcceptForm acceptForm) {
+        Long leaderID = getUserIdFromToken(token);
+        log.info("leaderID: " + leaderID);
+        teamUserService.refuseUserToTeam(leaderID, teamID, acceptForm);
+        return "안타깝게도 저희와 팀을 할수 없습니다";
+    }
+
+    @DeleteMapping("/team/{teamID}/kickUser")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(description = "팀장이 팀원을 강퇴하는 API")
+    public String kickUserToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody AcceptForm acceptForm) {
+        Long leaderID = getUserIdFromToken(token);
+        log.info("leaderID: " + leaderID);
+        //teamUserService.refuseUserToTeam(leaderID, teamID, acceptForm);
+        return "유저가 강퇴되었습니다";
+    }
+
     private Long getUserIdFromToken(String token) {
         if (tokenProvider.validToken(token)) {
             return tokenProvider.getUserId(token);
