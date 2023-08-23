@@ -160,6 +160,12 @@ public class TeamUserService {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new RuntimeException("팀장 아니면 팀원 강퇴 못함");
         }
+        try {
+            teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        } catch (NullPointerException exception) {
+            log.info("이미 강퇴된 유저 입니다");
+            return;
+        }
         teamUserRepository.updateTeamUserStatusByKickedUser(teamID, acceptForm.getRole());
         log.info("teamUser 업데이트 완료");
 
@@ -167,7 +173,7 @@ public class TeamUserService {
         log.info("teamPosition 업데이트 완료");
 
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
+        log.info("userID:" + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
     }
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {
