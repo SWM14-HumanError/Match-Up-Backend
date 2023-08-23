@@ -71,7 +71,7 @@ public class TeamUserController {
     public String kickUserToTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody AcceptForm acceptForm) {
         Long leaderID = getUserIdFromToken(token);
         log.info("leaderID: " + leaderID);
-        //teamUserService.refuseUserToTeam(leaderID, teamID, acceptForm);
+        teamUserService.kickUserToTeam(leaderID, teamID, acceptForm);
         return "유저가 강퇴되었습니다";
     }
 

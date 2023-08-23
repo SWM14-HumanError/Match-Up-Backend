@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +152,22 @@ public class TeamUserService {
             throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
         }
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        log.info("teamUser 삭제완료");
+        log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 거절 완료");
+    }
+
+    @Transactional
+    public void kickUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
+        if (!isTeamLeader(leaderID, teamID)) {
+            throw new RuntimeException("팀장 아니면 팀원 강퇴 못함");
+        }
+        teamUserRepository.updateTeamUserStatusByKickedUser(teamID, acceptForm.getRole());
+        log.info("teamUser 업데이트 완료");
+
+        teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, acceptForm.getRole());
+        log.info("teamPosition 업데이트 완료");
+
+        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
     }
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {

@@ -18,4 +18,8 @@ public interface TeamPositionRepository extends JpaRepository<TeamPosition, Long
     @Modifying
     @Query("UPDATE TeamPosition position SET position.count = position.count + 1 WHERE position.team.id = :teamId AND position.role=:role")
     void updateTeamPositionStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
+
+    @Modifying
+    @Query("UPDATE TeamPosition position SET position.count = position.count - 1 WHERE position.team.id = :teamId AND position.role=:role")
+    void updateTeamPositionStatusByKickedUser(@Param("teamId") Long teamId, @Param("role") String role);
 }
