@@ -12,6 +12,7 @@ public class UserTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_tag_id")
     private Long id;
+
     @Column(name = "tag_name")
     private String tagName;
 

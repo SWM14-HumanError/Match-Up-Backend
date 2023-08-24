@@ -38,8 +38,6 @@ public class User extends BaseTimeEntity implements UserDetails {
      * address(선호하는 장소)를 어떻게 받을지 고민
      */
     private String address;
-    @Column(columnDefinition = "TEXT")
-    private String htmlContent;
     @Column(name = "user_email", unique = true)
     private String email;
     @Column(name = "user_birthday")
@@ -63,10 +61,12 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<TeamUser> teamUserList = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(nullable = false)
+    private String refreshToken;
     private Boolean isAuth;
     //링크는 조인해서 가져온다
     private String expertize;
-    private String expYear;
+    private Long expYear;
     private String certificateURL;
 
 
@@ -75,6 +75,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 //        teamUser.setTag(this);
 //    }
     //== 비즈니스 로직 ==//
+    public String updateNewRefreshToken(String newRefreshToken) {
+        this.refreshToken = newRefreshToken;
+        return this.refreshToken;
+    }
 
     public double addUserReview(double score) {
         double totalScore = (this.reviewScore) * (this.totalReviews);
