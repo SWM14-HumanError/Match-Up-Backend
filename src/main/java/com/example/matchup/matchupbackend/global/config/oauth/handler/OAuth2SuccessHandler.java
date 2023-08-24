@@ -2,10 +2,11 @@ package com.example.matchup.matchupbackend.global.config.oauth.handler;
 
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshToken;
+import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshTokenRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.CustomOAuth2User;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
-import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +26,7 @@ import java.time.Duration;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
-    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
     private final UserService userService;
 
@@ -39,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User user = userService.findByEmail(oAuth2User.getEmail());
 
         String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
-        user.updateNewRefreshToken(refreshToken);
+        saveRefreshToken(user.getId(), refreshToken);
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
@@ -48,6 +49,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         clearAuthenticationAttributes(request, response);
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private void saveRefreshToken(Long userId, String newRefreshToken) {
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
+                .map(entity -> entity.update(newRefreshToken))
+                .orElse(new RefreshToken(userId, newRefreshToken));
+
+        refreshTokenRepository.save(refreshToken);
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
@@ -65,6 +74,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String getTargetUrl(String token) {
 
       return UriComponentsBuilder.fromUriString(
+//              (tokenProvider.getOAuth2LoginUrl().getSuccessUrl() != null)
+//              ? tokenProvider.getOAuth2LoginUrl().getSuccessUrl()
+//              : "http://localhost/login/token")
               tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                 .queryParam("token", token)
                 .build()
