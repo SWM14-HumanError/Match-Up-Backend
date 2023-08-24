@@ -1,7 +1,6 @@
 package com.example.matchup.matchupbackend.global.config;
 
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshTokenRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler;
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
@@ -67,7 +66,9 @@ public class WebOAuthSecurityConfig {
                 authorizeHttpRequests
 //                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
 //                                .anyRequest().authenticated());
-                        .anyRequest().permitAll());
+                        .requestMatchers("/login*", "/logout*").permitAll()
+                        .anyRequest().authenticated());
+//                      .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
                 oauth2Login

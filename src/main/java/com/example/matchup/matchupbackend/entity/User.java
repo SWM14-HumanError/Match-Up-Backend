@@ -61,6 +61,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<TeamUser> teamUserList = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(nullable = false)
+    private String refreshToken;
     private Boolean isAuth;
     //링크는 조인해서 가져온다
     private String expertize;
@@ -73,6 +75,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 //        teamUser.setTag(this);
 //    }
     //== 비즈니스 로직 ==//
+    public String updateNewRefreshToken(String newRefreshToken) {
+        this.refreshToken = newRefreshToken;
+        return this.refreshToken;
+    }
 
     public double addUserReview(double score) {
         double totalScore = (this.reviewScore) * (this.totalReviews);
