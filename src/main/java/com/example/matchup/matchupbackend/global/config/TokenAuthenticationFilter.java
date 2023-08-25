@@ -29,7 +29,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 //        String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
 //        String token = tokenProvider.getAccessToken(authorizationHeader);
 //        String token = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
-        String token = Arrays.stream(request.getCookies())
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals("token"))
                 .map(Cookie::getValue)
                 .findFirst()
