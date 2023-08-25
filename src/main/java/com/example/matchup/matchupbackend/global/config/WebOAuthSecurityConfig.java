@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.Arrays;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -39,7 +42,7 @@ public class WebOAuthSecurityConfig {
     @Bean
     public WebSecurityCustomizer configure() {
 
-        if (environment.getActiveProfiles()[0].equals("local")) {
+        if (Arrays.asList(environment.getActiveProfiles()).contains("local")) {
             return (web) -> web.ignoring()
                     .requestMatchers(toH2Console())
                     .requestMatchers("/img/**", "/css/**", "/js/**");
@@ -65,10 +68,11 @@ public class WebOAuthSecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-//                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-//                                .anyRequest().authenticated());
-                        .requestMatchers("/login*", "/logout*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        .requestMatchers("/login/**", "/logout/**").permitAll()
                         .anyRequest().authenticated());
+//                        .requestMatchers("/login/**", "/logout/**").permitAll()
+//                        .anyRequest().authenticated());
 //                      .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->

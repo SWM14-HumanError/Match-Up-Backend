@@ -2,10 +2,7 @@ package com.example.matchup.matchupbackend.global.config.jwt;
 
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuth2LoginUrl;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,10 +56,32 @@ public class TokenProvider {
                     .parseClaimsJws(token);
 
             // 토큰의 유효기간 검증
-            Date expiry = getClaims(token).get("exp", Date.class);
-            if (expiry.compareTo(new Date()) < 0) throw new IllegalArgumentException("The expired token.");
+//            Date expiry = getClaims(token).get("exp", Date.class);
+//            if (expiry.compareTo(new Date()) < 0) {
+//                log.info("The expired token.");
+//                throw new IllegalArgumentException("The expired token.");
+//            }
             return true;
-        } catch (Exception e) {
+//        } catch (ExpiredJwtException e) {
+//            log.info("Expired JWT: " + e.getMessage(), e);
+//            return false;
+//        } catch (UnsupportedJwtException e) {
+//            log.info("Unsupported JWT: " + e.getMessage(), e);
+//            return false;
+//        } catch (MalformedJwtException e) {
+//            log.info("Malformed JWT: " + e.getMessage(), e);
+//            return false;
+//        } catch (SignatureException e) {
+//            log.info("JWT Signature Error: " + e.getMessage(), e);
+//            return false;
+//        } catch (IllegalArgumentException e) {
+//            log.info("Invalid JWT argument: " + e.getMessage(), e);
+//            return false;
+//        } catch (Exception e) {
+//            log.info("Unhandled Exception: " + e.getMessage(), e);
+//            return false;
+        }
+        catch (Exception e) {
             return false;
         }
     }
@@ -94,11 +113,11 @@ public class TokenProvider {
                 .getBody();
     }
 
-    public String getAccessToken(String authorizationHeader) {
-
-        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PRIFIX)) {
-            return authorizationHeader.substring(TOKEN_PRIFIX.length());
-        }
-        return null;
-    }
+//    public String getAccessToken(String authorizationHeader) {
+//
+////        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PRIFIX)) {
+////            return authorizationHeader.substring(TOKEN_PRIFIX.length());
+////        }
+//        return null;
+//    }
 }

@@ -37,20 +37,17 @@ public class UserLoginController {
         return "redirect:/";
     }
 
-    // access token이 없는 채로 사이트에 접근하면 refresh token을 이용해 access token을 발급
-//    @GetMapping("/token/validate")
-//    public String validateToken(@RequestBody String refreshToken) {
-//
-//        tokenProvider.validToken();
-//
-//        return "redirect:/";
-//    }
-
-    // 액세스 토큰이 만료되었을 때, 리프레시 토큰을 이용해 액세스 토큰을 재발급
+    /**
+     * 액세스 토큰이 만료되었을 때, 리프레시 토큰을 이용해 액세스 토큰을 재발급
+     * 이용약관에 동의하지 않은, 최초 로그인 유저는 이용약관 동의 페이지로 이동하기 위해서 signup query를 추가함
+     * 관련 값은 tokenService.createNewAccessToken(token)에서 처리
+      */
     @PostMapping("/login/token/refresh")
-    public String loginToken(@RequestBody Map<String, String> headerAuthorization) {
+    public String loginToken(@RequestBody Map<String, Object> headerAuthorization) {
 
-        String token = tokenProvider.getAccessToken(headerAuthorization.get("refreshToken"));
+        // Bearer
+//        String token = tokenProvider.getAccessToken(headerAuthorization.get("refreshToken"));
+        String token = (String) headerAuthorization.get("refreshToken");
         String reissuedAccessToken = tokenService.createNewAccessToken(token);
         return "redirect:" + tokenProvider.getOAuth2LoginUrl().getSuccessUrl() + "?token=" + reissuedAccessToken;
     }

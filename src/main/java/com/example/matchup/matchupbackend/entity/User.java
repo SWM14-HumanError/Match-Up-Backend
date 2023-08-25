@@ -3,10 +3,7 @@ package com.example.matchup.matchupbackend.entity;
 import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
 import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -61,9 +58,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<TeamUser> teamUserList = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(nullable = false)
     private String refreshToken;
     private Boolean isAuth;
+//    @Column(columnDefinition = "BOOLEAN DEFAULT true") // 처음 로그인할 때, 이용약관 동의, 추가 정보 조회에 관여
+    private Boolean isFirstLogin = true;
     //링크는 조인해서 가져온다
     private String expertize;
     private Long expYear;

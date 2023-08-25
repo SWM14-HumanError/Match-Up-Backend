@@ -43,9 +43,8 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
 
     private User saveOrUpdate(OAuthAttributes attributes) {
 
-        if (attributes.email() == null) throw new IllegalArgumentException("Invalid email");
+        if (attributes.email() == null) throw new IllegalArgumentException("Token has no email");
 
-        // 검토 로그인 할 떄마다 getName으로 update하는 거 이상하지 않나?
         User user = userRepository.findByEmail(attributes.email())
                 .map(entity -> entity.update(attributes.name()))
                 .orElse(attributes.toEntity());

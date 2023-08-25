@@ -43,7 +43,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
-        String targetUrl = getTargetUrl(accessToken);
+        String targetUrl = getTargetUrl(accessToken, user);
 
         clearAuthenticationAttributes(request, response);
 
@@ -62,11 +62,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
     }
 
-    private String getTargetUrl(String token) {
+    private String getTargetUrl(String token, User user) {
 
-      return UriComponentsBuilder.fromUriString(
-              tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
+//        log.info("User: " + user.getIsFirstLogin() + " " + user.getEmail() + " " + user.getId());
+        String isFirstLogin = user.getIsFirstLogin()
+                ? "true"
+                : "";
+
+        return UriComponentsBuilder.fromUriString(
+                        tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                 .queryParam("token", token)
+                .queryParam("signup", isFirstLogin)
                 .build()
                 .toUriString();
     }
