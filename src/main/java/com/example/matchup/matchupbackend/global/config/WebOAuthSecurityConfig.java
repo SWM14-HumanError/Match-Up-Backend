@@ -64,6 +64,7 @@ public class WebOAuthSecurityConfig {
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // http request의 header에서 authorization(토큰을 저장한 header field) 값을 추출 후 bearer과 분리
+        // Bearer 분리는 나중에 하기로 결정
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
