@@ -29,7 +29,7 @@ public class Team extends BaseTimeEntity {
     private Long type; //스터디인지 프로젝트 모임인지
     @Column(name = "detail_type")
     private String detailType;
-    @Column(name = "thumbnailUrl")
+    @Column(name = "thumbnail_Url")
     private String thumbnailUrl;
     @Column(name = "content_like")
     private Long like;

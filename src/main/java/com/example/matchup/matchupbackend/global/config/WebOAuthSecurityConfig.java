@@ -1,7 +1,6 @@
 package com.example.matchup.matchupbackend.global.config;
 
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshTokenRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler;
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
@@ -10,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,12 +33,19 @@ public class WebOAuthSecurityConfig {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
+    private final Environment environment;
 
     @Bean
     public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring()
-                .requestMatchers(toH2Console())
-                .requestMatchers("/img/**", "/css/**", "/js/**");
+
+        if (environment.getActiveProfiles()[0].equals("local")) {
+            return (web) -> web.ignoring()
+                    .requestMatchers(toH2Console())
+                    .requestMatchers("/img/**", "/css/**", "/js/**");
+        } else {
+            return (web) -> web.ignoring()
+                    .requestMatchers("/img/**", "/css/**", "/js/**");
+        }
     }
 
     @Bean
@@ -59,7 +66,9 @@ public class WebOAuthSecurityConfig {
                 authorizeHttpRequests
 //                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
 //                                .anyRequest().authenticated());
-                        .anyRequest().permitAll());
+                        .requestMatchers("/login*", "/logout*").permitAll()
+                        .anyRequest().authenticated());
+//                      .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
                 oauth2Login

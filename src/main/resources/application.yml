@@ -12,9 +12,8 @@ spring:
           dev:
               - db
               - oauth
-              - h2
               - oauth-dev
-#              - mysql
+              - mysql
 
 logging:
     file:

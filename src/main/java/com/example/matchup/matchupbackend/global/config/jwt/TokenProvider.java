@@ -28,6 +28,9 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final OAuth2LoginUrl oAuth2LoginUrl;
 
+    public final static String HEADER_AUTHORIZATION = "Authorization";
+    public final static String TOKEN_PRIFIX = "Bearer ";
+
     public String generateToken(User user, Duration expiredAt) {
 
         Date now = new Date();
@@ -39,7 +42,7 @@ public class TokenProvider {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer(jwtProperties.getIssuer())
-                .setIssuedAt(new Date())
+                .setIssuedAt(expiry)
                 .setExpiration(expiry)
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
@@ -50,13 +53,16 @@ public class TokenProvider {
     public boolean validToken(String token) {
 
         try {
+            // 토큰의 유효성 검증
             Jwts.parser()
                     .setSigningKey(jwtProperties.getSecretKey())
                     .parseClaimsJws(token);
 
+            // 토큰의 유효기간 검증
+            Date expiry = getClaims(token).get("exp", Date.class);
+            if (expiry.compareTo(new Date()) < 0) throw new IllegalArgumentException("The expired token.");
             return true;
         } catch (Exception e) {
-
             return false;
         }
     }
@@ -68,9 +74,9 @@ public class TokenProvider {
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
         return new UsernamePasswordAuthenticationToken(
-                new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities)
-                , token
-                , authorities);
+                new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities),
+                token,
+                authorities);
     }
 
     public Long getUserId(String token) {
@@ -86,5 +92,13 @@ public class TokenProvider {
                 .setSigningKey(jwtProperties.getSecretKey())
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String getAccessToken(String authorizationHeader) {
+
+        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PRIFIX)) {
+            return authorizationHeader.substring(TOKEN_PRIFIX.length());
+        }
+        return null;
     }
 }
