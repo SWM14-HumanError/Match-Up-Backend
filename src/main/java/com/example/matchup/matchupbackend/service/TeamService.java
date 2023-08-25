@@ -87,8 +87,11 @@ public class TeamService {
         makeTeamPosition(teamCreateRequest, team);
 
         TeamUser teamUser = TeamUser.builder()
+                .count(1L)
+                .maxCount(1L) //팀 리더는 한명으로 설정
                 .user(userRepository.findById(leaderID).orElse(null))
                 .team(team)
+                .role("Leader")
                 .approve(true)
                 .build();
 
