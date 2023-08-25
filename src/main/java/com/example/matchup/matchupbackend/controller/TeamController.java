@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class TeamController {
     @PostMapping("/team")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
-    public Long makeTeam(@RequestHeader(value = "Authorization") String token, @RequestBody TeamCreateRequest teamCreateRequest) {
+    public Long makeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
         return teamService.makeNewTeam(userId, teamCreateRequest);
     }
@@ -40,7 +42,7 @@ public class TeamController {
     //팀 내용 업데이트
     @PutMapping("/team/{teamID}")
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
-    public ResponseEntity<String> updateTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest) {
+    public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
         if (teamService.isUpdatable(teamID, teamCreateRequest) == false) //업데이트 불가능
         {
@@ -53,7 +55,7 @@ public class TeamController {
 
     @DeleteMapping("/team/{teamID}")
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
-    public ResponseEntity<String> deleteTeam(@RequestHeader(value = "Authorization") String token, @PathVariable Long teamID) {
+    public ResponseEntity<String> deleteTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
         Long userId = tokenProvider.getUserId(token);
         teamService.deleteTeam(userId, teamID);
         return ResponseEntity.ok("팀 삭제 완료");

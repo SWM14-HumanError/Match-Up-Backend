@@ -76,9 +76,8 @@ public class User extends BaseTimeEntity implements UserDetails {
 //        teamUser.setTag(this);
 //    }
     //== 비즈니스 로직 ==//
-    public String updateNewRefreshToken(String newRefreshToken) {
+    public void updateNewRefreshToken(String newRefreshToken) {
         this.refreshToken = newRefreshToken;
-        return this.refreshToken;
     }
 
     public double addUserReview(double score) {

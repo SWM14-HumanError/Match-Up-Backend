@@ -105,7 +105,6 @@ public class WebOAuthSecurityConfig {
 
         return new OAuth2SuccessHandler(
                 tokenProvider,
-                userRepository,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
                 userService);
     }
