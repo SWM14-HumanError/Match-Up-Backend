@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,8 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.Map;
+import java.util.Arrays;
 
 @Controller
 @RequiredArgsConstructor
@@ -43,11 +43,19 @@ public class UserLoginController {
      * 관련 값은 tokenService.createNewAccessToken(token)에서 처리
       */
     @PostMapping("/login/token/refresh")
-    public String loginToken(@RequestBody Map<String, Object> headerAuthorization) {
+    public String loginToken(HttpServletRequest request) {
 
         // Bearer
 //        String token = tokenProvider.getAccessToken(headerAuthorization.get("refreshToken"));
-        String token = (String) headerAuthorization.get("refreshToken");
+//        String token = (String) headerAuthorization.get("refreshToken");
+        String token = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals("refresh-token"))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+        if (token == null) {
+            return "redirect:/";
+        }
         String reissuedAccessToken = tokenService.createNewAccessToken(token);
         return "redirect:" + tokenProvider.getOAuth2LoginUrl().getSuccessUrl() + "?token=" + reissuedAccessToken;
     }
