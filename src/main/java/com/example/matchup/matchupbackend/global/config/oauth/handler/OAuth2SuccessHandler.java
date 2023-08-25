@@ -2,8 +2,6 @@ package com.example.matchup.matchupbackend.global.config.oauth.handler;
 
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshToken;
-import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshTokenRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.CustomOAuth2User;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
@@ -26,7 +24,6 @@ import java.time.Duration;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
     private final UserService userService;
 
@@ -40,23 +37,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User user = userService.findByEmail(oAuth2User.getEmail());
 
         String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
-        saveRefreshToken(user.getId(), refreshToken);
+        user.updateNewRefreshToken(refreshToken);
         addRefreshTokenToCookie(request, response, refreshToken);
 
         String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
-        String targetUrl = getTargetUrl(accessToken);
+        String targetUrl = getTargetUrl(accessToken, user);
 
         clearAuthenticationAttributes(request, response);
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
-    }
-
-    private void saveRefreshToken(Long userId, String newRefreshToken) {
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
-                .map(entity -> entity.update(newRefreshToken))
-                .orElse(new RefreshToken(userId, newRefreshToken));
-
-        refreshTokenRepository.save(refreshToken);
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
@@ -71,14 +60,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
     }
 
-    private String getTargetUrl(String token) {
+    private String getTargetUrl(String token, User user) {
 
-      return UriComponentsBuilder.fromUriString(
-//              (tokenProvider.getOAuth2LoginUrl().getSuccessUrl() != null)
-//              ? tokenProvider.getOAuth2LoginUrl().getSuccessUrl()
-//              : "http://localhost/login/token")
-              tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
+//        log.info("User: " + user.getIsFirstLogin() + " " + user.getEmail() + " " + user.getId());
+        String isFirstLogin = user.getIsFirstLogin()
+                ? "true"
+                : "";
+
+        return UriComponentsBuilder.fromUriString(
+                        tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                 .queryParam("token", token)
+                .queryParam("signup", isFirstLogin)
                 .build()
                 .toUriString();
     }

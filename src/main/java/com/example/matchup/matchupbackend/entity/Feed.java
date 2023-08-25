@@ -2,8 +2,6 @@ package com.example.matchup.matchupbackend.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 @Entity
 @Getter
 public class Feed {
@@ -16,6 +14,8 @@ public class Feed {
 
     @Column(name = "feed_content")
     private String content;
+
+    private String thumbnailUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

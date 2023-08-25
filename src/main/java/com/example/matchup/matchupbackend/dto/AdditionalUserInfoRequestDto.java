@@ -11,7 +11,7 @@ public class AdditionalUserInfoRequestDto {
     private LocalDate userBirthday;
     private Long userLevel;
     private String address;
-    private String expYear;
+    private Long expYear;
     private String expertize;
     private MeetingType meetingType;
     private String position;

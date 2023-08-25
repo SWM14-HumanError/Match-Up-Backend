@@ -70,4 +70,9 @@ public class UserService {
         userRepository.save(updatedUser);
         return userId;
     }
+
+    public User findRefreshToken(String refreshToken) {
+        return userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new IllegalArgumentException("Unexpected refresh token."));
+    }
 }

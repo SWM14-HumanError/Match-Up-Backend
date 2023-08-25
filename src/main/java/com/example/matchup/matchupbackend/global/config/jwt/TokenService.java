@@ -1,29 +1,27 @@
 package com.example.matchup.matchupbackend.global.config.jwt;
 
 import com.example.matchup.matchupbackend.entity.User;
-import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshTokenService;
-import com.example.matchup.matchupbackend.service.UserService;
+import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TokenService {
 
     private final TokenProvider tokenProvider;
-    private final RefreshTokenService refreshTokenService;
-    private final UserService userService;
+    private final UserRepository userRespository;
 
     public String createNewAccessToken(String refreshToken) {
 
-        if (!tokenProvider.validToken(refreshToken)) {
+        if (!tokenProvider.validToken(refreshToken)) throw new IllegalArgumentException("Invalid refresh-token");
 
-            throw new IllegalArgumentException("Invalid refresh-token");
-        }
-        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        User user = userService.findById(userId);
+        User user = userRespository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new IllegalArgumentException("Unexpected user found by refresh-token"));
 
         return tokenProvider.generateToken(user, Duration.ofHours(2));
     }

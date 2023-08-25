@@ -1,7 +1,6 @@
 package com.example.matchup.matchupbackend.global.config;
 
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.global.config.jwt.refreshtoken.RefreshTokenRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler;
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
@@ -10,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +22,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.util.Arrays;
+
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @Slf4j
@@ -31,14 +34,20 @@ public class WebOAuthSecurityConfig {
 
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final TokenProvider tokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
+    private final Environment environment;
 
     @Bean
     public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring()
-                .requestMatchers(toH2Console())
-                .requestMatchers("/img/**", "/css/**", "/js/**");
+
+        if (Arrays.asList(environment.getActiveProfiles()).contains("local")) {
+            return (web) -> web.ignoring()
+                    .requestMatchers(toH2Console())
+                    .requestMatchers("/img/**", "/css/**", "/js/**");
+        } else {
+            return (web) -> web.ignoring()
+                    .requestMatchers("/img/**", "/css/**", "/js/**");
+        }
     }
 
     @Bean
@@ -53,13 +62,17 @@ public class WebOAuthSecurityConfig {
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // http request의 header에서 authorization(토큰을 저장한 header field) 값을 추출 후 bearer과 분리
+        // Bearer 분리는 나중에 하기로 결정
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-//                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-//                                .anyRequest().authenticated());
-                        .anyRequest().permitAll());
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        .requestMatchers("/login/**", "/logout/**").permitAll()
+                        .anyRequest().authenticated());
+//                        .requestMatchers("/login/**", "/logout/**").permitAll()
+//                        .anyRequest().authenticated());
+//                      .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
                 oauth2Login
@@ -91,7 +104,6 @@ public class WebOAuthSecurityConfig {
 
         return new OAuth2SuccessHandler(
                 tokenProvider,
-                refreshTokenRepository,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
                 userService);
     }

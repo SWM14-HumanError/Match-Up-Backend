@@ -2,10 +2,7 @@ package com.example.matchup.matchupbackend.global.config.jwt;
 
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuth2LoginUrl;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +24,9 @@ public class TokenProvider {
 
     private final JwtProperties jwtProperties;
     private final OAuth2LoginUrl oAuth2LoginUrl;
+
+    public final static String HEADER_AUTHORIZATION = "Authorization";
+    public final static String TOKEN_PRIFIX = "Bearer ";
 
     public String generateToken(User user, Duration expiredAt) {
 
@@ -50,13 +50,38 @@ public class TokenProvider {
     public boolean validToken(String token) {
 
         try {
+            // 토큰의 유효성 검증
             Jwts.parser()
                     .setSigningKey(jwtProperties.getSecretKey())
                     .parseClaimsJws(token);
 
+            // 토큰의 유효기간 검증
+//            Date expiry = getClaims(token).get("exp", Date.class);
+//            if (expiry.compareTo(new Date()) < 0) {
+//                log.info("The expired token.");
+//                throw new IllegalArgumentException("The expired token.");
+//            }
             return true;
-        } catch (Exception e) {
-
+//        } catch (ExpiredJwtException e) {
+//            log.info("Expired JWT: " + e.getMessage(), e);
+//            return false;
+//        } catch (UnsupportedJwtException e) {
+//            log.info("Unsupported JWT: " + e.getMessage(), e);
+//            return false;
+//        } catch (MalformedJwtException e) {
+//            log.info("Malformed JWT: " + e.getMessage(), e);
+//            return false;
+//        } catch (SignatureException e) {
+//            log.info("JWT Signature Error: " + e.getMessage(), e);
+//            return false;
+//        } catch (IllegalArgumentException e) {
+//            log.info("Invalid JWT argument: " + e.getMessage(), e);
+//            return false;
+//        } catch (Exception e) {
+//            log.info("Unhandled Exception: " + e.getMessage(), e);
+//            return false;
+        }
+        catch (Exception e) {
             return false;
         }
     }
@@ -68,9 +93,9 @@ public class TokenProvider {
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
         return new UsernamePasswordAuthenticationToken(
-                new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities)
-                , token
-                , authorities);
+                new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities),
+                token,
+                authorities);
     }
 
     public Long getUserId(String token) {
@@ -87,4 +112,12 @@ public class TokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+//    public String getAccessToken(String authorizationHeader) {
+//
+////        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PRIFIX)) {
+////            return authorizationHeader.substring(TOKEN_PRIFIX.length());
+////        }
+//        return null;
+//    }
 }
