@@ -13,6 +13,6 @@ public class TeamSearchRequest {
     private String search;
     @NotNull
     private int page;
-    @NonNull
+    @NotNull
     private int size;
 }
