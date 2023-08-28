@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ public class TeamController {
     @GetMapping("/list/team")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "메인 페이지 API")
-    public SliceTeamResponse showTeams(TeamSearchRequest teamSearchRequest, Pageable pageable) {
+    public SliceTeamResponse showTeams(@Valid TeamSearchRequest teamSearchRequest, Pageable pageable) {
         return teamService.searchSliceTeamResponseList(teamSearchRequest, pageable);
     }
 
