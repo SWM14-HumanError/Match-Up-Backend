@@ -37,12 +37,12 @@ public class TeamController {
     @PostMapping("/team")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
-    public Long makeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @RequestBody TeamCreateRequest teamCreateRequest) {
+    public Long makeTeam(@RequestHeader(value = "Authorization") String token, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
         if(userId == null){
-            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamCreated");
+            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamCreate");
         }
-        return teamService.makeNewTeam(userId, teamCreateRequest);
+            return teamService.makeNewTeam(userId, teamCreateRequest);
     }
 
     //팀 내용 업데이트
