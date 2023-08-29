@@ -2,6 +2,8 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
+import com.example.matchup.matchupbackend.error.ErrorCode;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +39,9 @@ public class TeamController {
     @Operation(description = "팀 생성 및 저장")
     public Long makeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
+        if(userId == null){
+            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamCreated");
+        }
         return teamService.makeNewTeam(userId, teamCreateRequest);
     }
 
