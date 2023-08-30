@@ -52,13 +52,8 @@ public class TeamController {
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
-        if(userId == null){
-            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamCreate");
-        }
-        if (teamService.isUpdatable(teamID, teamCreateRequest) == false) //업데이트 불가능
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("기존 팀원 인원수 보다 높게 인원수를 설정하세요");
+        if (userId == null) {
+            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamUpdate");
         }
         teamService.updateTeam(userId, teamID, teamCreateRequest);
         return ResponseEntity.ok("업데이트 완료");
