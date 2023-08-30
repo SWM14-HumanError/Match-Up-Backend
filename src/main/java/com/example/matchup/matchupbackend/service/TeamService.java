@@ -74,6 +74,9 @@ public class TeamService {
         return userMap;
     }
 
+    /**
+     * 새로운 팀 생성
+     */
     @Transactional
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
         // String 으로 반환된 태그를 Tag 객체 리스트로 만듬
@@ -105,6 +108,9 @@ public class TeamService {
         return teamUserRepository.save(teamUser).getId();
     }
 
+    /**
+     * 새로운 팀 생성 / 직무별 팀원 모집 정보 생성
+     */
     @Transactional
     public void makeTeamPosition(TeamCreateRequest teamCreateRequest, Team team) {
         List<TeamPosition> teamPositions = new ArrayList<>();
@@ -123,6 +129,9 @@ public class TeamService {
         makeTeamPositionTag(teamPositions, teamCreateRequest);
     }
 
+    /**
+     * 새로운 팀 생성 / 직무별 모집 정보 기반으로 "팀의 기술 스택 종합" 해서 생성
+     */
     @Transactional
     public void makeTeamPositionTag(List<TeamPosition> teamPositions, TeamCreateRequest teamCreateRequest) {
         for (TeamPosition teamPosition : teamPositions) {
@@ -155,6 +164,9 @@ public class TeamService {
         }
     }
 
+    /**
+     * 팀장이 팀 정보 업데이트
+     */
     @Transactional
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID)
