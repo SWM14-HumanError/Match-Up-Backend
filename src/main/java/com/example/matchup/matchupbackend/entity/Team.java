@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.TeamCreateRequest;
+import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
