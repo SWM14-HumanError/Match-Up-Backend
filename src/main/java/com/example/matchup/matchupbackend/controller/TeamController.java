@@ -2,6 +2,8 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
+import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
+import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
@@ -50,6 +52,9 @@ public class TeamController {
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
+        if(userId == null){
+            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamCreate");
+        }
         if (teamService.isUpdatable(teamID, teamCreateRequest) == false) //업데이트 불가능
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
