@@ -15,8 +15,9 @@ public enum ErrorCode {
     REQUEST_FIELD_ERROR(HttpStatus.BAD_REQUEST, "G-003", "입력 필드에 오류가 있습니다."),
     UNAUTHORIZED_RESOURCE_ACCESS(HttpStatus.UNAUTHORIZED, "G-004", "토큰이 유효하지 않습니다."),
     MISSING_REQUEST_HEADER(HttpStatus.UNAUTHORIZED, "G-005", "header 값이 없습니다."),
-    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-001", "게시글이 존재하지 않습니다.");
-
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-001", "게시글이 존재하지 않습니다."),
+    LEADER_ONLY_MODIFY(HttpStatus.UNAUTHORIZED, "T-S-002", "팀장만 게시글 수정이 가능 합니다."),
+    MAX_MEMBER_ERROR(HttpStatus.BAD_REQUEST, "T-S-003", "현재 팀원보다 최대 팀원 수를 높게 정하세요.");
 
     private HttpStatus status;
     private String code;

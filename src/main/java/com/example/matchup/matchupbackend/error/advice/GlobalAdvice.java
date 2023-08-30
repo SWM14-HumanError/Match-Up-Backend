@@ -3,6 +3,9 @@ package com.example.matchup.matchupbackend.error.advice;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.ErrorResult;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -39,11 +42,12 @@ public class GlobalAdvice {
      */
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity MissingRequestHeaderExHandler(MissingRequestHeaderException ex) {
-        ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MISSING_REQUEST_HEADER, ex.getHeaderName());
+        String messageExtra = ex.getHeaderName();
+        ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MISSING_REQUEST_HEADER, messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
-    /**
+    /** 에러 난 경우 에러 메세지를 보기 위해 주석처리
      * 그 외 서버 내부 오류인 경우 (G-001)
 
      @ExceptionHandler(Exception.class) public ResponseEntity globalExHandler(Exception ex) {
@@ -53,14 +57,45 @@ public class GlobalAdvice {
      }*/
 
     //------------Custom Error------------//
+    //ex에 어떤걸 들고 올지 모르니까 ex.getErrorCode() 사용
 
     /**
      * 잘못된 토큰을 가지고 있는 유저가 인가가 필요한 리소스에 접근하는 경우 (G-004)
      */
     @ExceptionHandler(AuthorizeException.class)
     public ResponseEntity AuthorizeExHandler(AuthorizeException ex) {
-        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), ex.getResource());
+        String messageExtra = ex.getResource();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
+    }
+
+    /**
+     * 존재하지 않거나 삭제된 팀 세부 사항에 접근 하는 경우 (T-S-001)
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity ResourceNotFoundExHandler(ResourceNotFoundException ex) {
+        String messageExtra = ex.getDetailInfo();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(NOT_FOUND).body(errorResponseDto);
+    }
+
+    /**
+     * 팀장이 아닌 유저가 팀 게시물을 수정 하는 경우 (T-S-002)
+     */
+    @ExceptionHandler(ResourceNotPermitException.class)
+    public ResponseEntity ResourceNotPermitExHandler(ResourceNotPermitException ex) {
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode());
+        return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
+    }
+
+    /**
+     * 현재 모집한 팀원보다 Max 팀원을 적게 설정 할때  (T-S-003)
+     */
+    @ExceptionHandler(InvalidValueException.class)
+    public ResponseEntity InvalidValueExHandler(InvalidValueException ex) {
+        Long messageExtra = ex.getRequestValue();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
     //--매서드 모음--//

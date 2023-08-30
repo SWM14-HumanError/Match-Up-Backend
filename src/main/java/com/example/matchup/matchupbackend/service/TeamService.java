@@ -6,7 +6,9 @@ import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -25,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.matchup.matchupbackend.error.ErrorCode.TEAM_NOT_FOUND;
+import static com.example.matchup.matchupbackend.error.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -157,26 +159,31 @@ public class TeamService {
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> {
-                    throw new ResourceNotFoundException(TEAM_NOT_FOUND);
+                    throw new ResourceNotFoundException(TEAM_NOT_FOUND, "존재하지 않는 게시물");
                 });
-        if (leaderID != team.getLeaderID()) {
-            throw new IllegalArgumentException("리더만 팀 정보를 변경 할 수 있습니다");
-        }
+
+        isUpdatableTeam(leaderID, team, teamCreateRequest);
         return team.updateTeam(teamCreateRequest);
     }
 
-    public boolean isUpdatable(Long teamID, TeamCreateRequest teamCreateRequest) {
-        Team team = teamRepository.findById(teamID).orElse(null);
-        if (team == null || team.getIsDeleted() == 1L) return false;
+    /**
+     * 팀 수정 할때 현재 있는 팀원보다 더 적은 max 팀원을 설정 할 경우 예외
+     */
+    private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
+        if (leaderID != team.getLeaderID()) {
+            throw new ResourceNotPermitException(LEADER_ONLY_MODIFY);
+        }
+        if (team.getIsDeleted() == 1L) {
+            throw new ResourceNotFoundException(TEAM_NOT_FOUND, "삭제 된 게시물");
+        }
         for (TeamUser teamUser : team.getTeamUserList()) {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole() == member.getRole()
                         && teamUser.getCount() > member.getMaxCount()) {
-                    return false;
+                    throw new InvalidValueException(MAX_MEMBER_ERROR, member.getMaxCount());
                 }
             }
         }
-        return true;
     }
 
     @Transactional
