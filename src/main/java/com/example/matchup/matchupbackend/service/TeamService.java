@@ -2,8 +2,11 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
+import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
+import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -21,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.example.matchup.matchupbackend.error.ErrorCode.TEAM_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +73,7 @@ public class TeamService {
     }
 
     @Transactional
-    public Long makeNewTeam(Long leaderID,TeamCreateRequest teamCreateRequest) {
+    public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
         // String 으로 반환된 태그를 Tag 객체 리스트로 만듬
         Team team = Team.builder()
                 .title(teamCreateRequest.getName())
@@ -150,8 +155,11 @@ public class TeamService {
 
     @Transactional
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
-        Team team = teamRepository.findById(teamID).orElse(null);
-        if(leaderID != team.getLeaderID()) {
+        Team team = teamRepository.findById(teamID)
+                .orElseThrow(() -> {
+                    throw new ResourceNotFoundException(TEAM_NOT_FOUND);
+                });
+        if (leaderID != team.getLeaderID()) {
             throw new IllegalArgumentException("리더만 팀 정보를 변경 할 수 있습니다");
         }
         return team.updateTeam(teamCreateRequest);
