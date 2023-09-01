@@ -8,6 +8,7 @@ import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -37,27 +38,12 @@ public class TeamUserService {
      */
     public List<TeamUserCardResponse> getTeamUserCard(Long teamID) {
         List<TeamUser> allByTeam = teamUserRepository.findAllByTeamID(teamID);
+        if (allByTeam.isEmpty()) {
+            throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
+        }
         return allByTeam.stream().map(
-                teamUser -> {
-                    User user = teamUser.getUser();
-                    return TeamUserCardResponse.builder()
-                            .userID(user.getId())
-                            .profileImageURL(user.getPictureUrl())
-                            .memberLevel(user.getUserLevel())
-                            .nickname(user.getName())
-                            .position(makePosition(user.getPosition(), user.getUserLevel()))
-                            .score(user.getReviewScore())
-                            .like(user.getLikes())
-                            .techStacks(user.returnStackList())
-                            .role((teamUser.getRole()))
-                            .approve(teamUser.getApprove())
-                            .build();
-                }
+                teamUser -> TeamUserCardResponse.fromEntity(teamUser)
         ).collect(Collectors.toList());
-    }
-
-    public static Position makePosition(String positionName, Long positionLevel) {
-        return new Position(positionName, positionLevel);
     }
 
     /**
