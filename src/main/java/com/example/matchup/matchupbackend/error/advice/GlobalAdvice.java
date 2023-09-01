@@ -3,9 +3,9 @@ package com.example.matchup.matchupbackend.error.advice;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.ErrorResult;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
-import com.example.matchup.matchupbackend.error.exception.InvalidValueException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -32,7 +32,7 @@ public class GlobalAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity MethodArgumentNotValidExHandler(MethodArgumentNotValidException ex) {
         Map<String, List<String>> messageExtra = new HashMap<>(); //ex) type: [에러1, 에러2, 에러3...]
-        convertBindingResultToMap(ex, messageExtra);
+        convertBindingResultToMap(ex.getBindingResult(), messageExtra);
         ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.REQUEST_FIELD_ERROR, messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
@@ -44,7 +44,7 @@ public class GlobalAdvice {
     public ResponseEntity MissingRequestHeaderExHandler(MissingRequestHeaderException ex) {
         String messageExtra = ex.getHeaderName();
         ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MISSING_REQUEST_HEADER, messageExtra);
-        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
+        return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
     }
 
     /** 에러 난 경우 에러 메세지를 보기 위해 주석처리

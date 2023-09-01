@@ -7,12 +7,12 @@ import lombok.Getter;
 public class AuthorizeException extends CustomException {
     private String resource;
 
-    public AuthorizeException(ErrorCode errorCode) {
-        super(errorCode);
+    public AuthorizeException() {
+        super(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS);
     }
 
-    public AuthorizeException(ErrorCode errorCode, String resource) {
-        super(errorCode);
+    public AuthorizeException(String resource) {
+        super(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS);
         this.resource = resource;
     }
 }
