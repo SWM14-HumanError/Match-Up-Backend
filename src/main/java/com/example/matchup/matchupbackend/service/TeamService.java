@@ -6,9 +6,10 @@ import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
-import com.example.matchup.matchupbackend.error.exception.InvalidValueException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamDetailNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -171,7 +172,7 @@ public class TeamService {
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> {
-                    throw new ResourceNotFoundException("존재하지 않는 게시물");
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
 
         isUpdatableTeam(leaderID, team, teamCreateRequest);
@@ -184,17 +185,17 @@ public class TeamService {
      */
     private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
         if (leaderID != team.getLeaderID()) { // 팀 수정 시도 하는 사람이 리더인지 체크
-            throw new ResourceNotPermitException(LEADER_ONLY_MODIFY);
+            throw new LeaderOnlyPermitException();
         }
         if (team.getIsDeleted() == 1L) { // 이미 지워진 팀을 수정 하는지 체크
-            throw new ResourceNotFoundException("삭제 된 게시물");
+            throw new TeamNotFoundException("삭제 된 게시물");
         }
 
         for (TeamUser teamUser : team.getTeamUserList()) { // 현재 팀원보다 max 인원을 적게 설정했는지 체크
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole().equals(member.getRole())
                         && teamUser.getCount() > member.getMaxCount()) {
-                    throw new InvalidValueException(MAX_MEMBER_ERROR, member.getMaxCount());
+                    throw new InvalidMemberValueException(member.getMaxCount());
                 }
             }
         }
@@ -204,20 +205,28 @@ public class TeamService {
     public void deleteTeam(Long leaderID, Long teamID) {
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> {
-                    throw new ResourceNotFoundException("존재하지 않는 게시물");
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
         if(!leaderID.equals(team.getLeaderID())) {
-            throw new ResourceNotPermitException(LEADER_ONLY_MODIFY);
+            throw new LeaderOnlyPermitException();
         }
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
 
     public TeamDetailResponse getTeamInfo(Long teamID) {
-        return teamRepository.findTeamInfoByTeamId(teamID);
+        TeamDetailResponse teamInfoByTeamId = teamRepository.findTeamInfoByTeamId(teamID);
+        if (teamInfoByTeamId == null) {
+            throw new TeamDetailNotFoundException("팀 상세 정보가 없습니다");
+        }
+        return teamInfoByTeamId;
     }
 
     public MeetingSpot getTeamMeetingSpot(Long teamID) {
-        return teamRepository.findMeetingSpotByTeamId(teamID);
+        MeetingSpot meetingSpotByTeamId = teamRepository.findMeetingSpotByTeamId(teamID);
+        if (meetingSpotByTeamId == null) {
+            throw new TeamDetailNotFoundException("팀 회의 장소가 없습니다");
+        }
+        return meetingSpotByTeamId;
     }
 
     public List<MentoringCardResponse> getTeamMentoringCardList(Long teamID) {
@@ -242,9 +251,13 @@ public class TeamService {
         );
         return teamMentoringCards;
     }
+    //Todo from으로 만들기
 
     public List<String> getTeamTagStringList(Long teamID) {
         List<TeamTag> teamTags = teamRepository.findTeamTagByTeamId(teamID);
+        if (teamTags.isEmpty()) {
+            throw new TeamDetailNotFoundException("팀 태그가 없습니다");
+        }
         List<String> teamTagNames = new ArrayList<>();
         teamTags.stream().forEach(teamTag -> {
             teamTagNames.add(teamTag.getTag().getName());
@@ -253,7 +266,10 @@ public class TeamService {
     }
 
     public TeamType getTeamType(Long teamID) {
-        Team teamById = teamRepository.findTeamById(teamID);
+        Team teamById = teamRepository.findTeamById(teamID)
+                .orElseThrow(() -> {
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
+                });
         TeamType teamType = TeamType.builder()
                 .teamType(teamById.getType())
                 .detailType(teamById.getDetailType())
