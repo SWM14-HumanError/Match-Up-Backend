@@ -42,7 +42,7 @@ public class TeamController {
     public Long makeTeam(@RequestHeader(value = "Authorization") String token, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
         if(userId == null){
-            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamCreate");
+            throw new AuthorizeException("TeamCreate");
         }
             return teamService.makeNewTeam(userId, teamCreateRequest);
     }
@@ -53,7 +53,7 @@ public class TeamController {
     public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
         if (userId == null) {
-            throw new AuthorizeException(ErrorCode.UNAUTHORIZED_RESOURCE_ACCESS, "TeamUpdate");
+            throw new AuthorizeException("TeamUpdate");
         }
         teamService.updateTeam(userId, teamID, teamCreateRequest);
         return ResponseEntity.ok("업데이트 완료");
@@ -63,6 +63,9 @@ public class TeamController {
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> deleteTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
         Long userId = tokenProvider.getUserId(token);
+        if (userId == null) {
+            throw new AuthorizeException("TeamDelete");
+        }
         teamService.deleteTeam(userId, teamID);
         return ResponseEntity.ok("팀 삭제 완료");
     }

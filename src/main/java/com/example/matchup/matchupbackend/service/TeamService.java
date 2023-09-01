@@ -171,10 +171,11 @@ public class TeamService {
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> {
-                    throw new ResourceNotFoundException(TEAM_NOT_FOUND, "존재하지 않는 게시물");
+                    throw new ResourceNotFoundException("존재하지 않는 게시물");
                 });
 
         isUpdatableTeam(leaderID, team, teamCreateRequest);
+        log.info("Update team ID : " + team.deleteTeam().toString());
         return team.updateTeam(teamCreateRequest);
     }
 
@@ -182,15 +183,16 @@ public class TeamService {
      * 팀 수정 할때 현재 있는 팀원보다 더 적은 max 팀원을 설정 할 경우 예외
      */
     private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
-        if (leaderID != team.getLeaderID()) {
+        if (leaderID != team.getLeaderID()) { // 팀 수정 시도 하는 사람이 리더인지 체크
             throw new ResourceNotPermitException(LEADER_ONLY_MODIFY);
         }
-        if (team.getIsDeleted() == 1L) {
-            throw new ResourceNotFoundException(TEAM_NOT_FOUND, "삭제 된 게시물");
+        if (team.getIsDeleted() == 1L) { // 이미 지워진 팀을 수정 하는지 체크
+            throw new ResourceNotFoundException("삭제 된 게시물");
         }
-        for (TeamUser teamUser : team.getTeamUserList()) {
+
+        for (TeamUser teamUser : team.getTeamUserList()) { // 현재 팀원보다 max 인원을 적게 설정했는지 체크
             for (Member member : teamCreateRequest.getMemberList()) {
-                if (teamUser.getRole() == member.getRole()
+                if (teamUser.getRole().equals(member.getRole())
                         && teamUser.getCount() > member.getMaxCount()) {
                     throw new InvalidValueException(MAX_MEMBER_ERROR, member.getMaxCount());
                 }
@@ -200,9 +202,12 @@ public class TeamService {
 
     @Transactional
     public void deleteTeam(Long leaderID, Long teamID) {
-        Team team = teamRepository.findById(teamID).orElse(null);
-        if(leaderID != team.getLeaderID()) {
-            throw new IllegalArgumentException("리더만 팀을 삭제 할 수 있습니다");
+        Team team = teamRepository.findById(teamID)
+                .orElseThrow(() -> {
+                    throw new ResourceNotFoundException("존재하지 않는 게시물");
+                });
+        if(!leaderID.equals(team.getLeaderID())) {
+            throw new ResourceNotPermitException(LEADER_ONLY_MODIFY);
         }
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }
