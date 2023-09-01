@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.dto.mentoring;
 
 import com.example.matchup.matchupbackend.dto.Position;
+import com.example.matchup.matchupbackend.entity.Mentoring;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Data;
@@ -29,5 +30,18 @@ public class MentoringCardResponse {
         this.mentorNickname = mentorNickname;
         this.score = score;
         this.like = like;
+    }
+
+    public static MentoringCardResponse fromEntity(Mentoring mentoring) {
+        return new MentoringCardResponse(
+                mentoring.getId(),
+                mentoring.getThumbnailURL(),
+                mentoring.getTitle(),
+                mentoring.getMentor().getPosition(),
+                mentoring.getMentor().getPositionLevel(),
+                mentoring.getMentor().getPictureUrl(),
+                mentoring.getMentor().getName(),
+                mentoring.returnMentoringReviewAverage(),
+                mentoring.getLikes());
     }
 }

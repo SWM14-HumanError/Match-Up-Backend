@@ -4,6 +4,10 @@ import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
+import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
+import com.example.matchup.matchupbackend.dto.response.team.TeamType;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
@@ -28,11 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.matchup.matchupbackend.error.ErrorCode.*;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
@@ -235,23 +238,10 @@ public class TeamService {
         teamMentoringList.stream().forEach(
                 teamMentoring -> {
                     Mentoring mentoring = teamMentoring.getMentoring();
-                    teamMentoringCards.add(MentoringCardResponse.builder()
-                            .mentoringID(mentoring.getId())
-                            .thumbnailURL(mentoring.getThumbnailURL())
-                            .title(mentoring.getTitle())
-                            .positionName(mentoring.getMentor().getPosition())
-                            .positionLevel(mentoring.getMentor().getPositionLevel())
-                            .mentorProfileURL(mentoring.getMentor().getPictureUrl())
-                            .mentorNickname(mentoring.getMentor().getName())
-                            .score(mentoring.returnMentoringReviewAverage())
-                            .like(mentoring.getLikes())
-                            .build()
-                    );
-                }
-        );
+                    teamMentoringCards.add(MentoringCardResponse.fromEntity(mentoring));
+                });
         return teamMentoringCards;
     }
-    //Todo from으로 만들기
 
     public List<String> getTeamTagStringList(Long teamID) {
         List<TeamTag> teamTags = teamRepository.findTeamTagByTeamId(teamID);
@@ -270,10 +260,7 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        TeamType teamType = TeamType.builder()
-                .teamType(teamById.getType())
-                .detailType(teamById.getDetailType())
-                .build();
+        TeamType teamType = TeamType.fromTeamEntity(teamById);
         return teamType;
     }
 }
