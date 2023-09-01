@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.response.team;
 
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.NotBlank;

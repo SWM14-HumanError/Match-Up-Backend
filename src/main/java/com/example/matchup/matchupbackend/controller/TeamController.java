@@ -1,10 +1,12 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
-import com.example.matchup.matchupbackend.error.ErrorCode;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
+import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
+import com.example.matchup.matchupbackend.dto.response.team.TeamType;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamService;

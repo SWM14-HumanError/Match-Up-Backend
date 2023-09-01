@@ -1,11 +1,13 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.request.team;
 
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.Member;
+import com.example.matchup.matchupbackend.dto.response.team.TeamType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.hibernate.validator.constraints.URL;
 
 import java.util.ArrayList;
 import java.util.List;

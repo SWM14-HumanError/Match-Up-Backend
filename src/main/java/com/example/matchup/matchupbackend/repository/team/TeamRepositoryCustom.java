@@ -1,6 +1,8 @@
 package com.example.matchup.matchupbackend.repository.team;
 
-import com.example.matchup.matchupbackend.dto.*;
+import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamMentoring;
 import org.springframework.data.domain.Pageable;

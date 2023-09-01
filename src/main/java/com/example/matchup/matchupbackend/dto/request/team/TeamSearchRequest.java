@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.request.team;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
