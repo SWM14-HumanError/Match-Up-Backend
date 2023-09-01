@@ -6,12 +6,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class TeamApprovedInfo {
+public class TeamApprovedInfoResponse {
     private boolean state;
-    private List<ApprovedMember> memberList;
+    private List<ApprovedMemberCount> memberList;
 
     @Builder
-    public TeamApprovedInfo(boolean state, List<ApprovedMember> memberList) {
+    public TeamApprovedInfoResponse(boolean state, List<ApprovedMemberCount> memberList) {
         this.state = state;
         this.memberList = memberList;
     }

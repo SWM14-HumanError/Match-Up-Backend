@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.TeamApprovedInfo;
-import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -26,16 +28,17 @@ public class TeamUserController {
 
     @GetMapping("/team/{teamID}/member")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "팀 상세페이지의 유저 API")
-    public List<TeamUserCardResponse> showTeamUsers(@PathVariable Long teamID) {
-        return teamUserService.getTeamUserCard(teamID);
+    @Operation(description = "팀 상세페이지의 유저 API - 팀장(수락+비수락)")
+    public List<TeamUserCardResponse> showTeamUsers(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
+        Long userId = tokenProvider.getUserId(token);
+        return teamUserService.getTeamUserCard(userId, teamID);
     }
 
     @GetMapping("/team/{teamID}/recruitInfo")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 팀원 모집 정보 불러오기 ")
-    public TeamApprovedInfo showTeamRecruit(@PathVariable Long teamID) {
-        return teamUserService.getTeamRecruitInfo(teamID);
+    public TeamApprovedInfoResponse showTeamRecruit(@PathVariable Long teamID) {
+        return teamUserService.getTeamApprovedMemberInfo(teamID);
     }
 
     @PostMapping("/team/{teamID}/recruit")

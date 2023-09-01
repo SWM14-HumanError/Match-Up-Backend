@@ -1,14 +1,15 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.Position;
-import com.example.matchup.matchupbackend.dto.ApprovedMember;
-import com.example.matchup.matchupbackend.dto.TeamApprovedInfo;
-import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
+import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -34,10 +35,14 @@ public class TeamUserService {
     private final UserRepository userRepository;
 
     /**
-     * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환
+     * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 - 팀장 mode
      */
-    public List<TeamUserCardResponse> getTeamUserCard(Long teamID) {
-        List<TeamUser> allByTeam = teamUserRepository.findAllByTeamID(teamID);
+    public List<TeamUserCardResponse> getTeamUserCard(Long userID,Long teamID) {
+        if(!isTeamLeader(userID, teamID))
+        {
+            throw new LeaderOnlyPermitException();
+        }
+        List<TeamUser> allByTeam = teamUserRepository.findAllTeamUserByTeamID(teamID);
         if (allByTeam.isEmpty()) {
             throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
         }
@@ -49,26 +54,24 @@ public class TeamUserService {
     /**
      * 팀의 현재 팀원 모집 현황을 알려줌 (ex. 백엔드 1/3)
      */
-    public TeamApprovedInfo getTeamRecruitInfo(Long teamID) {
+    public TeamApprovedInfoResponse getTeamApprovedMemberInfo(Long teamID) {
         List<TeamPosition> teamPositionList = teamPositionRepository.findTeamPositionListByTeamId(teamID);
-        List<ApprovedMember> approvedMemberList = new ArrayList<>();
+        if (teamPositionList.isEmpty()) {
+            throw new TeamPositionNotFoundException();
+        }
+        List<ApprovedMemberCount> approvedMemberCountList = new ArrayList<>();
         teamPositionList.stream().forEach(teamPosition -> {
-            ApprovedMember approvedMember = ApprovedMember.builder()
-                    .role(teamPosition.getRole())
-                    .stacks(teamPosition.stringTagList())
-                    .maxCount(teamPosition.getMaxCount())
-                    .count(teamPosition.getTeam().numberOfUserByPosition(teamPosition.getRole()))
-                    .build();
-            approvedMemberList.add(approvedMember);
+            approvedMemberCountList.add(ApprovedMemberCount.fromEntity(teamPosition));
         });
         Team team = teamRepository.findTeamById(teamID)
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        boolean state =team.numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
-        //false = 모집중 , true = 모집완료 + try-catch 예외처리
-        return new TeamApprovedInfo(state, approvedMemberList);
+        boolean state = team.numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
+        //false = 모집중 , true = 모집완료
+        return new TeamApprovedInfoResponse(state, approvedMemberCountList);
     }
+
 
     public Long numberOfMaxTeamMember(List<TeamPosition> teamPositionList) {
         Long max = 0L;
