@@ -7,10 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeamRepository extends JpaRepository<Team, Long>, TeamRepositoryCustom {
     @Query("SELECT tag from TeamTag tag where tag.team.id =:teamID")
     List<TeamTag> findTeamTagByTeamId(@Param("teamID") Long teamID);
 
-    Team findTeamById(Long Id);
+    Optional<Team> findTeamById(Long Id);
 }

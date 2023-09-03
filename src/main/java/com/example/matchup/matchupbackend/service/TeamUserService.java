@@ -7,6 +7,7 @@ import com.example.matchup.matchupbackend.dto.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
 import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -74,8 +75,11 @@ public class TeamUserService {
                     .build();
             approvedMemberList.add(approvedMember);
         });
-        boolean state =
-                teamRepository.findTeamById(teamID).numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
+        Team team = teamRepository.findTeamById(teamID)
+                .orElseThrow(() -> {
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
+                });
+        boolean state =team.numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
         //false = 모집중 , true = 모집완료 + try-catch 예외처리
         return new TeamApprovedInfo(state, approvedMemberList);
     }
@@ -93,7 +97,10 @@ public class TeamUserService {
      */
     @Transactional
     public Long recruitToTeam(Long userID, Long teamID, RecruitForm recruitForm) {
-        Team team = teamRepository.findTeamById(teamID);
+        Team team = teamRepository.findTeamById(teamID)
+                .orElseThrow(() -> {
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
+                });
         User user = userRepository.findUserById(userID);
         TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(teamID, recruitForm.getRole());
         if (!isRecruitAvailable(userID, teamID)) {
@@ -177,7 +184,10 @@ public class TeamUserService {
     }
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {
-        Team team = teamRepository.findTeamById(teamID);
+        Team team = teamRepository.findTeamById(teamID)
+                .orElseThrow(() -> {
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
+                });
         if (team.getLeaderID() != leaderID) return false;
         return true;
     }

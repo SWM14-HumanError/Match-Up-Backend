@@ -1,5 +1,6 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.response.team;
 
+import com.example.matchup.matchupbackend.dto.TeamSearchResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.domain.Slice;
