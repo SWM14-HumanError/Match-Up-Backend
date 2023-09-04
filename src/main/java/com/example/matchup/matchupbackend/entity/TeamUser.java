@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -45,5 +46,18 @@ public class TeamUser {
     //== 비즈니스 로직 ==//
     public void approveUser() {
         this.approve = true;
+    }
+
+    public static TeamUser of(RecruitFormRequest recruitForm, TeamPosition teamPosition, Team team, User user)
+    {
+        TeamUser build = TeamUser.builder()
+                .role(recruitForm.getRole())
+                .approve(false)
+                .count(teamPosition.getCount())
+                .maxCount(teamPosition.getMaxCount())
+                .team(team)
+                .user(user)
+                .build();
+        return build;
     }
 }
