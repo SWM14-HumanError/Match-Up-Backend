@@ -3,12 +3,15 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
-import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,7 +32,7 @@ public class TeamUserController {
     @GetMapping("/team/{teamID}/member")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 유저 API - 팀장(수락+비수락)")
-    public List<TeamUserCardResponse> showTeamUsers(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
+    public List<TeamUserCardResponse> showTeamUsers(@Nullable @RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
         Long userId = tokenProvider.getUserId(token);
         return teamUserService.getTeamUserCard(userId, teamID);
     }
@@ -44,9 +47,12 @@ public class TeamUserController {
     @PostMapping("/team/{teamID}/recruit")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "유저가 팀에 지원하는 API")
-    public Long recruitToTeam(@PathVariable Long teamID, @RequestBody RecruitForm recruitForm, HttpServletRequest request) {
-        Long userID = getUserIdFromToken(request);
-        log.info("userID: " + userID.toString());
+    public Long recruitToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody RecruitFormRequest recruitForm) {
+        Long userID = tokenProvider.getUserId(token);
+        if (userID == null) {
+            throw new AuthorizeException("TeamUserRecruit");
+        }
+        log.info("userID: " + userID);
         return teamUserService.recruitToTeam(userID, teamID, recruitForm);
     }
 
