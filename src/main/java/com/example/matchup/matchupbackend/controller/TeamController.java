@@ -43,10 +43,11 @@ public class TeamController {
     @Operation(description = "팀 생성 및 저장")
     public Long makeTeam(@RequestHeader(value = "Authorization") String token, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(token);
-        if(userId == null){
+        if (userId == null) {
             throw new AuthorizeException("TeamCreate");
         }
-            return teamService.makeNewTeam(userId, teamCreateRequest);
+        log.info("제목: " + teamCreateRequest.getName() + "팀이 생성되었습니다");
+        return teamService.makeNewTeam(userId, teamCreateRequest);
     }
 
     //팀 내용 업데이트
@@ -58,6 +59,7 @@ public class TeamController {
             throw new AuthorizeException("TeamUpdate");
         }
         teamService.updateTeam(userId, teamID, teamCreateRequest);
+        log.info("제목: " + teamCreateRequest.getName() + "팀이 수정되었습니다");
         return ResponseEntity.ok("업데이트 완료");
     }
 
@@ -69,6 +71,7 @@ public class TeamController {
             throw new AuthorizeException("TeamDelete");
         }
         teamService.deleteTeam(userId, teamID);
+        log.info("teamID " + teamID.toString() + "팀이 삭제되었습니다");
         return ResponseEntity.ok("팀 삭제 완료");
     }
 
