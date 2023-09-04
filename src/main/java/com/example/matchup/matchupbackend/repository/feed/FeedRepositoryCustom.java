@@ -56,7 +56,7 @@ public class FeedRepositoryCustom {
             Long countQuery = em.createQuery(jpql, Long.class)
                     .setParameter("searchValue", request.getSearchValue())
                     .getSingleResult();
-            return countQuery > (pageable.getPageNumber() * pageable.getPageSize());
+            return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
         } catch (Exception e) {
             return false;
         }
