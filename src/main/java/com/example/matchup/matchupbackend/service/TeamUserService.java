@@ -4,11 +4,13 @@ import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
-import com.example.matchup.matchupbackend.dto.teamuser.RecruitForm;
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -60,7 +62,7 @@ public class TeamUserService {
     public TeamApprovedInfoResponse getTeamApprovedMemberInfo(Long teamID) {
         List<TeamPosition> teamPositionList = teamPositionRepository.findTeamPositionListByTeamId(teamID);
         if (teamPositionList.isEmpty()) {
-            throw new TeamPositionNotFoundException();
+            throw new TeamPositionNotFoundException("팀 or 팀 구성 정보가 없습니다");
         }
         List<ApprovedMemberCount> approvedMemberCountList = new ArrayList<>();
         teamPositionList.stream().forEach(teamPosition -> {
@@ -75,7 +77,9 @@ public class TeamUserService {
         return new TeamApprovedInfoResponse(state, approvedMemberCountList);
     }
 
-
+    /**
+     * 팀에서 총 몇명의 팀원을 모집하는지 찾는 매서드
+     */
     public Long numberOfMaxTeamMember(List<TeamPosition> teamPositionList) {
         Long max = 0L;
         for (TeamPosition teamPosition : teamPositionList) {
@@ -88,36 +92,31 @@ public class TeamUserService {
      * 팀원으로 유저가 지원
      */
     @Transactional
-    public Long recruitToTeam(Long userID, Long teamID, RecruitForm recruitForm) {
+    public Long recruitToTeam(Long userID, Long teamID, RecruitFormRequest recruitForm) {
         Team team = teamRepository.findTeamById(teamID)
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        User user = userRepository.findUserById(userID);
-        TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(teamID, recruitForm.getRole());
+        User user = userRepository.findUserById(userID).orElseThrow(() -> {
+            throw new UserNotFoundException("teamID: " + teamID.toString() + "로 신청한 " +
+                    "userID: " + userID.toString() + " 유저 정보를 찾을수 없습니다");
+        });
+        TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(teamID, recruitForm.getRole())
+                .orElseThrow(() -> {
+                    throw new TeamPositionNotFoundException("팀 구성 정보가 없습니다");
+                });
         if (!isRecruitAvailable(userID, teamID)) {
-            throw new RuntimeException("니 같은팀에 또 신청함");
+            throw new DuplicateTeamRecruitException(userID, teamID);
         }
 
-        TeamRecruit teamRecruit = TeamRecruit.builder()
-                .content(recruitForm.getContent())
-                .role(recruitForm.getRole())
-                .user(user)
-                .team(team)
-                .build();
-        teamRecruitRepository.save(teamRecruit);
+        teamRecruitRepository.save(TeamRecruit.of(recruitForm, user, team));
 
-        TeamUser teamUser = TeamUser.builder()
-                .role(recruitForm.getRole())
-                .approve(false)
-                .count(teamPosition.getCount())
-                .maxCount(teamPosition.getMaxCount())
-                .team(team)
-                .user(user)
-                .build();
-        return teamUserRepository.save(teamUser).getId();
+        return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
     }
 
+    /**
+     * 유저가 팀에 중복해서 지원했는지 확인하는 메서드
+     */
     public boolean isRecruitAvailable(Long userID, Long teamID) {
         List<TeamUser> recruitDuplicated = teamUserRepository.isUserRecruitDuplicated(userID, teamID);
         if (recruitDuplicated.size() != 0) return false;
