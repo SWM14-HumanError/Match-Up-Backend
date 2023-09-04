@@ -9,7 +9,6 @@ import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -35,7 +34,7 @@ public class TeamUserService {
     private final UserRepository userRepository;
 
     /**
-     * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 - 팀장 mode
+     * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
      */
     public List<TeamUserCardResponse> getTeamUserCard(Long userID, Long teamID) {
         if (!isTeamLeader(userID, teamID)) // 일반 사용자의 경우

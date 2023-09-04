@@ -13,6 +13,7 @@ import com.example.matchup.matchupbackend.entity.TeamPosition;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamDetailNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
@@ -103,7 +104,9 @@ public class TeamService {
         TeamUser teamUser = TeamUser.builder()
                 .count(1L)
                 .maxCount(1L) //팀 리더는 한명으로 설정
-                .user(userRepository.findById(leaderID).orElse(null))
+                .user(userRepository.findById(leaderID).orElseThrow(() -> {
+                    throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
+                }))
                 .team(team)
                 .role("Leader")
                 .approve(true)

@@ -20,7 +20,8 @@ public enum ErrorCode {
     MAX_MEMBER_ERROR(HttpStatus.BAD_REQUEST, "T-S-003", "현재 팀원보다 최대 팀원 수를 높게 정하세요."),
     TEAM_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-004", "팀 세부 정보가 존재하지 않습니다."),
     TEAM_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-001", "팀원 정보가 존재하지 않습니다."),
-    TEAM_POSITION_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-002", "팀 구성 정보가 존재하지 않습니다.");
+    TEAM_POSITION_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-002", "팀 구성 정보가 존재하지 않습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다.");
 
     private HttpStatus status;
     private String code;
