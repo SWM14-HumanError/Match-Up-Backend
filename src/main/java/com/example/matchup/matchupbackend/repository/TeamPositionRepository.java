@@ -7,13 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeamPositionRepository extends JpaRepository<TeamPosition, Long> {
     @Query("SELECT position from TeamPosition position where position.team.id=:teamID")
     List<TeamPosition> findTeamPositionListByTeamId(@Param("teamID") Long teamID);
 
     @Query("SELECT position from TeamPosition position where position.team.id=:teamID and position.role=:role")
-    TeamPosition findTeamPositionByTeamIdAndRole(@Param("teamID") Long teamID, @Param("role") String role);
+    Optional<TeamPosition> findTeamPositionByTeamIdAndRole(@Param("teamID") Long teamID, @Param("role") String role);
 
     @Modifying
     @Query("UPDATE TeamPosition position SET position.count = position.count + 1 WHERE position.team.id = :teamId AND position.role=:role")
