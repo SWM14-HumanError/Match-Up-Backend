@@ -37,16 +37,20 @@ public class TeamUserService {
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 - 팀장 mode
      */
-    public List<TeamUserCardResponse> getTeamUserCard(Long userID,Long teamID) {
-        if(!isTeamLeader(userID, teamID))
+    public List<TeamUserCardResponse> getTeamUserCard(Long userID, Long teamID) {
+        if (!isTeamLeader(userID, teamID)) // 일반 사용자의 경우
         {
-            throw new LeaderOnlyPermitException();
+            List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID);
+            return acceptedTeamUsers.stream().map(
+                    acceptedTeamUser -> TeamUserCardResponse.fromEntity(acceptedTeamUser)
+            ).collect(Collectors.toList());
         }
-        List<TeamUser> allByTeam = teamUserRepository.findAllTeamUserByTeamID(teamID);
-        if (allByTeam.isEmpty()) {
+        //팀 리더의 경우
+        List<TeamUser> teamUsers = teamUserRepository.findAllTeamUserByTeamID(teamID);
+        if (teamUsers.isEmpty()) {
             throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
         }
-        return allByTeam.stream().map(
+        return teamUsers.stream().map(
                 teamUser -> TeamUserCardResponse.fromEntity(teamUser)
         ).collect(Collectors.toList());
     }

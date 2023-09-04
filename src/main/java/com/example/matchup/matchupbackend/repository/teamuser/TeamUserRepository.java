@@ -9,9 +9,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
-    @Query(value = "SELECT * FROM team_user WHERE team_id=:teamId"
-            , nativeQuery = true)
-    List<TeamUser> findAllByTeamID(@Param("teamId") Long teamId);
+    @Query("select teamuser from TeamUser teamuser WHERE teamuser.team=:teamId")
+    List<TeamUser> findAllTeamUserByTeamID(@Param("teamId") Long teamId);
+
+    @Query("select teamuser from TeamUser teamuser WHERE teamuser.team=:teamId and teamuser.approve=true")
+    List<TeamUser> findAcceptedTeamUserByTeamID(@Param("teamId") Long teamId);
 
     @Query("select teamuser from TeamUser teamuser where teamuser.user.id=:userId and teamuser.team.id=:teamId")
     List<TeamUser> isUserRecruitDuplicated(@Param("userId") Long userId, @Param("teamId") Long teamId);
