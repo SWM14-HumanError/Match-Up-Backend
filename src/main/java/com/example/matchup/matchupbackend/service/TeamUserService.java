@@ -164,14 +164,13 @@ public class TeamUserService {
     @Transactional
     public void kickUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
         if (!isTeamLeader(leaderID, teamID)) {
-            throw new RuntimeException("팀장 아니면 팀원 강퇴 못함");
+            throw new LeaderOnlyPermitException("유저 강퇴 부분");
         }
-        try {
-            teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        } catch (NullPointerException exception) {
-            log.info("이미 강퇴된 유저 입니다");
-            return;
-        }
+        teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID()).orElseThrow(
+                () -> {
+                    throw new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다");
+                });
+
         teamUserRepository.updateTeamUserStatusByKickedUser(teamID, acceptForm.getRole());
         log.info("teamUser 업데이트 완료");
 

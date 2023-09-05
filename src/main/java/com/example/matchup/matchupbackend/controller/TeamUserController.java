@@ -72,8 +72,11 @@ public class TeamUserController {
     @DeleteMapping("/team/{teamID}/refuseUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 거절하는 API")
-    public String refuseUserToTeam(@PathVariable Long teamID, @RequestBody AcceptFormRequest acceptForm, HttpServletRequest request) {
-        Long leaderID = getUserIdFromToken(request);
+    public String refuseUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
+        Long leaderID = tokenProvider.getUserId(token);
+        if (leaderID == null) {
+            throw new AuthorizeException("TeamUserRefuse");
+        }
         log.info("leaderID: " + leaderID);
         teamUserService.refuseUserToTeam(leaderID, teamID, acceptForm);
         return "안타깝게도 저희와 팀을 할수 없습니다";
@@ -82,8 +85,11 @@ public class TeamUserController {
     @DeleteMapping("/team/{teamID}/kickUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 팀원을 강퇴하는 API")
-    public String kickUserToTeam(@PathVariable Long teamID, @RequestBody AcceptFormRequest acceptForm, HttpServletRequest request) {
-        Long leaderID = getUserIdFromToken(request);
+    public String kickUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
+        Long leaderID = tokenProvider.getUserId(token);
+        if (leaderID == null) {
+            throw new AuthorizeException("TeamUserKick");
+        }
         log.info("leaderID: " + leaderID);
         teamUserService.kickUserToTeam(leaderID, teamID, acceptForm);
         return "유저가 강퇴되었습니다";
