@@ -149,12 +149,14 @@ public class TeamUserService {
         log.info("teamPosition 업데이트 완료");
     }
 
+    /**
+     * 팀장이 유저를 팀원으로 거절함
+     */
     @Transactional
     public void refuseUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
         if (!isTeamLeader(leaderID, teamID)) { // 일반 사용자인 경우
             throw new LeaderOnlyPermitException("팀원으로 유저 거절 부분");
         }
-
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
         log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 거절 완료");
     }
