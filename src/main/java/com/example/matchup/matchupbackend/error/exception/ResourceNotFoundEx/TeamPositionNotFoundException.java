@@ -4,7 +4,7 @@ import com.example.matchup.matchupbackend.error.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class TeamPositionNotFoundException extends ResourceNotFoundException{
+public class TeamPositionNotFoundException extends ResourceNotFoundException {
     public TeamPositionNotFoundException() {
         super(ErrorCode.TEAM_POSITION_NOT_FOUND);
     }

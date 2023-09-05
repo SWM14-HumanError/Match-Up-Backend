@@ -21,6 +21,7 @@ public enum ErrorCode {
     TEAM_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-004", "팀 세부 정보가 존재하지 않습니다."),
     TEAM_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-001", "팀원 정보가 존재하지 않습니다."),
     TEAM_POSITION_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-002", "팀 구성 정보가 존재하지 않습니다."),
+    TEAM_USER_RECRUIT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-003", "이미 지원한 팀입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다.");
 
     private HttpStatus status;

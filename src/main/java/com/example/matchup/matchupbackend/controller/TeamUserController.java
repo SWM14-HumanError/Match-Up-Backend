@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
+import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
@@ -59,8 +59,8 @@ public class TeamUserController {
     @PostMapping("/team/{teamID}/acceptUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 팀원으로 수락하는 API")
-    public String acceptUserToTeam(@PathVariable Long teamID, @RequestBody AcceptForm acceptForm, HttpServletRequest request) {
-        Long leaderID = getUserIdFromToken(request);
+    public String acceptUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
+        Long leaderID = tokenProvider.getUserId(token);
         log.info("leaderID: " + leaderID);
         teamUserService.acceptUserToTeam(leaderID, teamID, acceptForm);
         return "유저가 팀원이 되었습니다";
@@ -69,7 +69,7 @@ public class TeamUserController {
     @DeleteMapping("/team/{teamID}/refuseUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 거절하는 API")
-    public String refuseUserToTeam(@PathVariable Long teamID, @RequestBody AcceptForm acceptForm, HttpServletRequest request) {
+    public String refuseUserToTeam(@PathVariable Long teamID, @RequestBody AcceptFormRequest acceptForm, HttpServletRequest request) {
         Long leaderID = getUserIdFromToken(request);
         log.info("leaderID: " + leaderID);
         teamUserService.refuseUserToTeam(leaderID, teamID, acceptForm);
@@ -79,7 +79,7 @@ public class TeamUserController {
     @DeleteMapping("/team/{teamID}/kickUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 팀원을 강퇴하는 API")
-    public String kickUserToTeam(@PathVariable Long teamID, @RequestBody AcceptForm acceptForm, HttpServletRequest request) {
+    public String kickUserToTeam(@PathVariable Long teamID, @RequestBody AcceptFormRequest acceptForm, HttpServletRequest request) {
         Long leaderID = getUserIdFromToken(request);
         log.info("leaderID: " + leaderID);
         teamUserService.kickUserToTeam(leaderID, teamID, acceptForm);
