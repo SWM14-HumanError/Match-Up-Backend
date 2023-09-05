@@ -60,4 +60,16 @@ public class TeamUser {
                 .build();
         return build;
     }
+
+    public static TeamUser of(String role, Long count, Boolean approve, Long maxCount, Team team, User user) {
+        TeamUser build = TeamUser.builder()
+                .count(count)
+                .maxCount(maxCount) //팀 리더는 한명으로 설정
+                .user(user)
+                .team(team)
+                .role(role)
+                .approve(approve)
+                .build();
+        return build;
+    }
 }

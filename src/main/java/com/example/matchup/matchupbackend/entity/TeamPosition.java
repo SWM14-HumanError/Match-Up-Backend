@@ -39,17 +39,22 @@ public class TeamPosition {
         this.tags = tags;
     }
 
-    //== 연관관계 로직 ==//
-    public Long addTeam(Team team) {
-        this.team = team;
-        return team.getId();
-    }
-
+    //== 비즈니스 로직 ==//
     public List<String> stringTagList() {
         List<String> tagList = new ArrayList<>();
         this.tags.stream().forEach(tag -> {
             tagList.add(tag.getTag().getName());
         });
         return tagList;
+    }
+
+    public static TeamPosition of(String role, Long count, Long maxCount, Team team) {
+        TeamPosition build = TeamPosition.builder()
+                .role(role)
+                .count(count)
+                .maxCount(maxCount)
+                .team(team)
+                .build();
+        return build;
     }
 }
