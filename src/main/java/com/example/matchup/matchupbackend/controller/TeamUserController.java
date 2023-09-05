@@ -61,6 +61,9 @@ public class TeamUserController {
     @Operation(description = "팀장이 유저를 팀원으로 수락하는 API")
     public String acceptUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
         Long leaderID = tokenProvider.getUserId(token);
+        if (leaderID == null) {
+            throw new AuthorizeException("TeamUserAccept");
+        }
         log.info("leaderID: " + leaderID);
         teamUserService.acceptUserToTeam(leaderID, teamID, acceptForm);
         return "유저가 팀원이 되었습니다";
