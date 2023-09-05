@@ -191,7 +191,7 @@ public class TeamService {
      */
     private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
         if (leaderID != team.getLeaderID()) { // 팀 수정 시도 하는 사람이 리더인지 체크
-            throw new LeaderOnlyPermitException();
+            throw new LeaderOnlyPermitException("팀 업데이트 - teamID: " + team.getId());
         }
         if (team.getIsDeleted() == 1L) { // 이미 지워진 팀을 수정 하는지 체크
             throw new TeamNotFoundException("삭제 된 게시물");
@@ -213,8 +213,8 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        if(!leaderID.equals(team.getLeaderID())) {
-            throw new LeaderOnlyPermitException();
+        if (!leaderID.equals(team.getLeaderID())) {
+            throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }

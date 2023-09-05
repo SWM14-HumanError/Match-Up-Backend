@@ -1,7 +1,5 @@
 package com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx;
 
-import com.example.matchup.matchupbackend.error.ErrorCode;
-
 import static com.example.matchup.matchupbackend.error.ErrorCode.TEAM_USER_RECRUIT_ERROR;
 
 public class DuplicateTeamRecruitException extends DuplicateRecruitException {
