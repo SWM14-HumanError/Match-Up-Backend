@@ -6,13 +6,13 @@ import static com.example.matchup.matchupbackend.error.ErrorCode.TEAM_USER_RECRU
 
 @Getter
 public class DuplicateTeamRecruitException extends DuplicateRecruitException {
-    private Long recruitUserID;
-    private Long recruitTeamID;
 
     public DuplicateTeamRecruitException(Long recruitUserID, Long recruitTeamID) {
+        super(TEAM_USER_RECRUIT_ERROR, recruitUserID, recruitTeamID);
+    }
+
+    public DuplicateTeamRecruitException() {
         super(TEAM_USER_RECRUIT_ERROR);
-        this.recruitUserID = recruitUserID;
-        this.recruitTeamID = recruitTeamID;
     }
 
     public String getErrorDetail() {

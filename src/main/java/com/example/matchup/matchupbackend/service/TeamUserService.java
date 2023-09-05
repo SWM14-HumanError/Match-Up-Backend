@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResp
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class TeamUserService {
     private final TeamUserRepository teamUserRepository;
     private final TeamRepository teamRepository;
@@ -129,11 +131,14 @@ public class TeamUserService {
     @Transactional
     public void acceptUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
         if (!isTeamLeader(leaderID, teamID)) { // 일반 사용자인 경우
-            throw new LeaderOnlyPermitException("팀원으로 유저 수락");
+            throw new LeaderOnlyPermitException("팀원으로 유저 수락 부분");
         }
-        TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
+        TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID())
+                .orElseThrow(() -> {
+                    throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");
+                });
         if (recruitUser.getApprove()) { // 이미 팀에 속한 팀원인 경우
-            throw new RuntimeException("얘는 이미 우리 팀원인데?");
+            throw new DuplicateAcceptTeamUserException(acceptForm.getRecruitUserID(), teamID);
         }
         recruitUser.approveUser();
 
@@ -146,9 +151,10 @@ public class TeamUserService {
 
     @Transactional
     public void refuseUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
-        if (!isTeamLeader(leaderID, teamID)) {
-            throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
+        if (!isTeamLeader(leaderID, teamID)) { // 일반 사용자인 경우
+            throw new LeaderOnlyPermitException("팀원으로 유저 거절 부분");
         }
+
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
         log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 거절 완료");
     }

@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.error.advice;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.ErrorResult;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
@@ -109,6 +110,9 @@ public class GlobalAdvice {
         String messageExtra = "";
         if(ex instanceof DuplicateTeamRecruitException){
             messageExtra = ((DuplicateTeamRecruitException) ex).getErrorDetail();
+        }
+        else if(ex instanceof DuplicateAcceptTeamUserException){
+            messageExtra = ((DuplicateAcceptTeamUserException) ex).getErrorDetail();
         }
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
