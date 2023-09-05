@@ -3,7 +3,7 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
 import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.dto.teamuser.AcceptForm;
+import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
@@ -11,6 +11,7 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Tea
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -108,9 +109,8 @@ public class TeamUserService {
         if (!isRecruitAvailable(userID, teamID)) {
             throw new DuplicateTeamRecruitException(userID, teamID);
         }
-
+        //성공 로직
         teamRecruitRepository.save(TeamRecruit.of(recruitForm, user, team));
-
         return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
     }
 
@@ -127,12 +127,12 @@ public class TeamUserService {
      * 팀장이 유저를 팀원으로 승인함
      */
     @Transactional
-    public void acceptUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
-        if (!isTeamLeader(leaderID, teamID)) {
-            throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
+    public void acceptUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
+        if (!isTeamLeader(leaderID, teamID)) { // 일반 사용자인 경우
+            throw new LeaderOnlyPermitException("팀원으로 유저 수락");
         }
         TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        if (recruitUser.getApprove()) {
+        if (recruitUser.getApprove()) { // 이미 팀에 속한 팀원인 경우
             throw new RuntimeException("얘는 이미 우리 팀원인데?");
         }
         recruitUser.approveUser();
@@ -145,7 +145,7 @@ public class TeamUserService {
     }
 
     @Transactional
-    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
+    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new RuntimeException("팀장 아니면 팀원으로 수락 못함");
         }
@@ -154,7 +154,7 @@ public class TeamUserService {
     }
 
     @Transactional
-    public void kickUserToTeam(Long leaderID, Long teamID, AcceptForm acceptForm) {
+    public void kickUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new RuntimeException("팀장 아니면 팀원 강퇴 못함");
         }

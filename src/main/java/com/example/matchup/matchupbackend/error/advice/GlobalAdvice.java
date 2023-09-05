@@ -84,7 +84,8 @@ public class GlobalAdvice {
      */
     @ExceptionHandler(ResourceNotPermitException.class)
     public ResponseEntity ResourceNotPermitExHandler(ResourceNotPermitException ex) {
-        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode());
+        String messageExtra = ex.getResource();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
     }
 
