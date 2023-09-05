@@ -3,6 +3,8 @@ package com.example.matchup.matchupbackend.error.advice;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.ErrorResult;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
@@ -80,7 +82,7 @@ public class GlobalAdvice {
     }
 
     /**
-     * 팀장이 아닌 유저가 팀 게시물을 수정 하는 경우 (T-S-002)
+     * 권한이 없는 유저가 접근 하는 경우 (T-S-002)
      */
     @ExceptionHandler(ResourceNotPermitException.class)
     public ResponseEntity ResourceNotPermitExHandler(ResourceNotPermitException ex) {
@@ -95,6 +97,19 @@ public class GlobalAdvice {
     @ExceptionHandler(InvalidValueException.class)
     public ResponseEntity InvalidValueExHandler(InvalidValueException ex) {
         Long messageExtra = ex.getRequestValue();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
+    }
+
+    /**
+     * 현재 모집한 팀원보다 Max 팀원을 적게 설정 할때  (T-S-003)
+     */
+    @ExceptionHandler(DuplicateRecruitException.class)
+    public ResponseEntity DuplicateRecruitExHandler(DuplicateRecruitException ex) {
+        String messageExtra = "";
+        if(ex instanceof DuplicateTeamRecruitException){
+            messageExtra = ((DuplicateTeamRecruitException) ex).getErrorDetail();
+        }
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
