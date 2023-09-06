@@ -2,9 +2,9 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
 import com.example.matchup.matchupbackend.dto.Position;
-import com.example.matchup.matchupbackend.dto.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.UserCardResponse;
+import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -38,15 +38,9 @@ public class UserService {
         return userList.stream().map(
                 user -> {
                     Position position = new Position(user.getPosition(), user.getPositionLevel());
-                    return UserCardResponse.builder()
-                            .userID(user.getId())
-                            .profileImageURL(user.getPictureUrl())
-                            .memberLevel(user.getUserLevel())
-                            .nickname(user.getName())
-                            .position(position)
-                            .score(user.getReviewScore())
-                            .like(user.getLikes())
-                            .techStacks(user.returnStackList()).build();
+                    return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
+                            user.getName(), position, user.getReviewScore(),
+                            user.getLikes(), user.returnStackList());
                 }
         ).collect(Collectors.toList());
     }

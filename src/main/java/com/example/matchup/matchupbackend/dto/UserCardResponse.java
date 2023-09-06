@@ -1,6 +1,7 @@
-package com.example.matchup.matchupbackend.dto.user;
+package com.example.matchup.matchupbackend.dto;
 
 import com.example.matchup.matchupbackend.dto.Position;
+import com.example.matchup.matchupbackend.dto.TechStack;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,19 @@ public class UserCardResponse{
         this.score = score;
         this.like = like;
         this.techStacks = TechStacks;
+    }
+
+    public static UserCardResponse of(Long userID, String profileImageURL, Long memberLevel, String nickname, Position position, Double score, Long like, List<TechStack> TechStacks) {
+        UserCardResponse build = UserCardResponse.builder()
+                .userID(userID)
+                .profileImageURL(profileImageURL)
+                .memberLevel(memberLevel)
+                .nickname(nickname)
+                .position(position)
+                .score(score)
+                .like(like)
+                .techStacks(TechStacks)
+                .build();
+        return build;
     }
 }

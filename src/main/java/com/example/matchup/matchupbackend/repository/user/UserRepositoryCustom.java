@@ -1,7 +1,6 @@
 package com.example.matchup.matchupbackend.repository.user;
 
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserTag;
 import org.springframework.data.domain.Pageable;

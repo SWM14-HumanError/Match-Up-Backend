@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.user;
+package com.example.matchup.matchupbackend.dto.request.user;
 
 import lombok.Data;
 
