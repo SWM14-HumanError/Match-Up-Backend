@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.repository.user;
 
-import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;

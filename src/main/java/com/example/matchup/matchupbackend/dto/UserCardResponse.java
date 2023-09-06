@@ -1,6 +1,7 @@
-package com.example.matchup.matchupbackend.dto.user;
+package com.example.matchup.matchupbackend.dto;
 
 import com.example.matchup.matchupbackend.dto.Position;
+import com.example.matchup.matchupbackend.dto.TechStack;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;

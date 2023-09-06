@@ -2,9 +2,9 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
 import com.example.matchup.matchupbackend.dto.Position;
-import com.example.matchup.matchupbackend.dto.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
-import com.example.matchup.matchupbackend.dto.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.UserCardResponse;
+import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;

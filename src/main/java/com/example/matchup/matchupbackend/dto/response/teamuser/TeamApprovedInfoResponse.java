@@ -1,5 +1,6 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.response.teamuser;
 
+import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
 import lombok.Builder;
 import lombok.Data;
 

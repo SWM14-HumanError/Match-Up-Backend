@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
