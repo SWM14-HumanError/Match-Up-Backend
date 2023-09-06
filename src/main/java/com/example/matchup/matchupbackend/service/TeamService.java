@@ -4,10 +4,10 @@ import com.example.matchup.matchupbackend.dto.*;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
 import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
-import com.example.matchup.matchupbackend.dto.response.team.TeamType;
+import com.example.matchup.matchupbackend.dto.response.team.TeamTypeResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
@@ -173,8 +173,8 @@ public class TeamService {
         return teamInfoByTeamId;
     }
 
-    public MeetingSpot getTeamMeetingSpot(Long teamID) {
-        MeetingSpot meetingSpotByTeamId = teamRepository.findMeetingSpotByTeamId(teamID);
+    public MeetingSpotResponse getTeamMeetingSpot(Long teamID) {
+        MeetingSpotResponse meetingSpotByTeamId = teamRepository.findMeetingSpotByTeamId(teamID);
         if (meetingSpotByTeamId == null) {
             throw new TeamDetailNotFoundException("팀 회의 장소가 없습니다");
         }
@@ -204,12 +204,12 @@ public class TeamService {
         return teamTagNames;
     }
 
-    public TeamType getTeamType(Long teamID) {
+    public TeamTypeResponse getTeamType(Long teamID) {
         Team teamById = teamRepository.findTeamById(teamID)
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        TeamType teamType = TeamType.fromTeamEntity(teamById);
+        TeamTypeResponse teamType = TeamTypeResponse.fromTeamEntity(teamById);
         return teamType;
     }
 }
