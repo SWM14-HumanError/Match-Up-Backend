@@ -120,4 +120,21 @@ public class Team extends BaseEntity {
         });
         return techStacks;
     }
+
+    public static Team of(Long leaderID, TeamCreateRequest teamCreateRequest) {
+        Team build = Team.builder()
+                .title(teamCreateRequest.getName())
+                .description(teamCreateRequest.getDescription())
+                .type(teamCreateRequest.getType().getTeamType())
+                .detailType(teamCreateRequest.getType().getDetailType())
+                .thumbnailUrl(teamCreateRequest.getThumbnailUrl())
+                .like(0L)
+                .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
+                .city(teamCreateRequest.getMeetingSpot().getCity())
+                .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
+                .recruitFinish("NF")
+                .leaderID(leaderID)
+                .build();
+        return build;
+    }
 }

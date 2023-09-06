@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,5 +33,16 @@ public class TeamRecruit {
         this.content = content;
         this.team = team;
         this.user = user;
+    }
+
+    public static TeamRecruit of(RecruitFormRequest recruitForm, User user, Team team)
+    {
+        TeamRecruit teamRecruit = TeamRecruit.builder()
+                .role(recruitForm.getRole())
+                .content(recruitForm.getContent())
+                .team(team)
+                .user(user)
+                .build();
+        return teamRecruit;
     }
 }

@@ -1,7 +1,8 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.response.teamuser;
 
 import com.example.matchup.matchupbackend.dto.user.TechStack;
 import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
+import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,20 @@ public class TeamUserCardResponse extends UserCardResponse {
         super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks);
         this.role = role;
         this.approve = approve;
+    }
+
+    public static TeamUserCardResponse fromEntity(TeamUser teamUser) {
+        return new TeamUserCardResponse(
+                teamUser.getUser().getId(),
+                teamUser.getUser().getPictureUrl(),
+                teamUser.getUser().getUserLevel(),
+                teamUser.getUser().getName(),
+                teamUser.getUser().getPosition(),
+                teamUser.getUser().getPositionLevel(),
+                teamUser.getUser().getReviewScore(),
+                teamUser.getUser().getLikes(),
+                teamUser.getUser().returnStackList(),
+                teamUser.getRole(),
+                teamUser.getApprove());
     }
 }

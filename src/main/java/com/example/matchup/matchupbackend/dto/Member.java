@@ -21,4 +21,10 @@ public class Member {
     @NotNull(message = "역할의 최대 모집 인원은 필수 값입니다")
     @Range(min = 1, max = 10, message = "역할별 모집 가능 팀원은 1~10명 사이입니다")
     private Long maxCount;
+
+    public Member(String role, List<String> stacks, Long maxCount) {
+        this.role = role;
+        this.stacks = stacks;
+        this.maxCount = maxCount;
+    }
 }

@@ -13,6 +13,7 @@ import com.example.matchup.matchupbackend.entity.TeamPosition;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamDetailNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
@@ -55,23 +56,15 @@ public class TeamService {
         Map<Long, User> userMap = getUserMap();
         teamList.stream()
                 .forEach(team -> {
-                    TeamSearchResponse teamSearchResponse = TeamSearchResponse
-                            .builder()
-                            .id(team.getId())
-                            .title(team.getTitle())
-                            .description(team.getDescription())
-                            .like(team.getLike())
-                            .thumbnailUrl(team.getThumbnailUrl())
-                            .techStacks(team.returnStackList())
-                            .leaderID(team.getLeaderID())
-                            .leaderName(userMap.get(team.getLeaderID()).getName())
-                            .leaderLevel(userMap.get(team.getLeaderID()).getUserLevel())
-                            .build();
-                    teamSearchResponseList.add(teamSearchResponse);
+                    teamSearchResponseList.add(TeamSearchResponse.from(team, userMap));
                 });
         return teamSearchResponseList;
     }
 
+    /**
+     * 모든 유저 정보를 MAP으로 만들어주는 매서드
+     * key: userID, value: user
+     */
     public Map<Long, User> getUserMap() {
         Map<Long, User> userMap = new HashMap<>();
         userRepository.findAllUser().stream().forEach(user -> userMap.put(user.getId(), user));
@@ -83,33 +76,11 @@ public class TeamService {
      */
     @Transactional
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
-        // String 으로 반환된 태그를 Tag 객체 리스트로 만듬
-        Team team = Team.builder()
-                .title(teamCreateRequest.getName())
-                .description(teamCreateRequest.getDescription())
-                .type(teamCreateRequest.getType().getTeamType())
-                .detailType(teamCreateRequest.getType().getDetailType())
-                .thumbnailUrl(teamCreateRequest.getThumbnailUrl())
-                .like(0L)
-                .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
-                .city(teamCreateRequest.getMeetingSpot().getCity())
-                .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
-                .recruitFinish("NF")
-                .leaderID(leaderID)
-                .build();
-
-        makeTeamPosition(teamCreateRequest, team);
-
-        TeamUser teamUser = TeamUser.builder()
-                .count(1L)
-                .maxCount(1L) //팀 리더는 한명으로 설정
-                .user(userRepository.findById(leaderID).orElse(null))
-                .team(team)
-                .role("Leader")
-                .approve(true)
-                .build();
-
-        return teamUserRepository.save(teamUser).getId();
+        makeTeamPosition(teamCreateRequest, Team.of(leaderID, teamCreateRequest));
+        User user = userRepository.findById(leaderID).orElseThrow(() -> {
+            throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
+        });
+        return teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, Team.of(leaderID, teamCreateRequest), user)).getId();
     }
 
     /**
@@ -119,14 +90,7 @@ public class TeamService {
     public void makeTeamPosition(TeamCreateRequest teamCreateRequest, Team team) {
         List<TeamPosition> teamPositions = new ArrayList<>();
         teamCreateRequest.getMemberList().stream().forEach(member -> {
-            TeamPosition teamPosition = TeamPosition.builder()
-                    .role(member.getRole())
-                    .count(0L)
-                    .team(team)
-                    .maxCount(member.getMaxCount())
-                    .build();
-            teamPosition.addTeam(team);
-
+            TeamPosition teamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
             teamPositions.add(teamPosition);
             teamPositionRepository.save(teamPosition);
         });
@@ -141,29 +105,15 @@ public class TeamService {
         for (TeamPosition teamPosition : teamPositions) {
             List<String> tagList = teamCreateRequest.returnTagListByRole(teamPosition.getRole());
             tagList.stream().forEach(tagName -> {
-
                 Tag isExistTag = tagRepository.findByName(tagName);
                 if (isExistTag != null) //이미 있는 태그
                 {
-                    TeamTag teamTag = TeamTag.builder()
-                            .teamPosition(teamPosition)
-                            .tagName(tagName)
-                            .team(teamPosition.getTeam())
-                            .tag(isExistTag)
-                            .build();
-                    teamTagRepository.save(teamTag);
-                } else {
+                    teamTagRepository.save(TeamTag.of(tagName, teamPosition, teamPosition.getTeam(), isExistTag));
+                } else { //새로운 태그
                     Tag newTag = Tag.builder().name(tagName).build();
                     tagRepository.save(newTag);
-                    TeamTag teamTag = TeamTag.builder()
-                            .teamPosition(teamPosition)
-                            .tagName(tagName)
-                            .team(teamPosition.getTeam())
-                            .tag(newTag)
-                            .build();
-                    teamTagRepository.save(teamTag);
+                    teamTagRepository.save(TeamTag.of(tagName, teamPosition, teamPosition.getTeam(), newTag));
                 }
-
             });
         }
     }
@@ -177,7 +127,6 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-
         isUpdatableTeam(leaderID, team, teamCreateRequest);
         log.info("Update team ID : " + team.deleteTeam().toString());
         return team.updateTeam(teamCreateRequest);
@@ -188,7 +137,7 @@ public class TeamService {
      */
     private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
         if (leaderID != team.getLeaderID()) { // 팀 수정 시도 하는 사람이 리더인지 체크
-            throw new LeaderOnlyPermitException();
+            throw new LeaderOnlyPermitException("팀 업데이트 - teamID: " + team.getId());
         }
         if (team.getIsDeleted() == 1L) { // 이미 지워진 팀을 수정 하는지 체크
             throw new TeamNotFoundException("삭제 된 게시물");
@@ -210,8 +159,8 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        if(!leaderID.equals(team.getLeaderID())) {
-            throw new LeaderOnlyPermitException();
+        if (!leaderID.equals(team.getLeaderID())) {
+            throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
         log.info("deleted team ID : " + team.deleteTeam().toString());
     }

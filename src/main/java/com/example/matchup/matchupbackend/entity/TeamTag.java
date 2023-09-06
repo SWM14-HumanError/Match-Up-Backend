@@ -38,4 +38,14 @@ public class TeamTag {
     public void addTagName(String tagName) {
         this.tagName = tagName;
     }
+
+    public static TeamTag of(String tagName, TeamPosition teamPosition, Team team, Tag tag) {
+        TeamTag build = TeamTag.builder()
+                .teamPosition(teamPosition)
+                .tagName(tagName)
+                .team(team)
+                .tag(tag)
+                .build();
+        return build;
+    }
 }

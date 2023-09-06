@@ -16,9 +16,14 @@ public enum ErrorCode {
     UNAUTHORIZED_RESOURCE_ACCESS(HttpStatus.UNAUTHORIZED, "G-004", "토큰이 유효하지 않습니다."),
     MISSING_REQUEST_HEADER(HttpStatus.UNAUTHORIZED, "G-005", "header 값이 없습니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-001", "게시글이 존재하지 않습니다."),
-    LEADER_ONLY_MODIFY(HttpStatus.UNAUTHORIZED, "T-S-002", "팀장만 게시글 수정이 가능 합니다."),
+    LEADER_ONLY_MODIFY(HttpStatus.UNAUTHORIZED, "T-S-002", "팀장만 접근이 가능 합니다."),
     MAX_MEMBER_ERROR(HttpStatus.BAD_REQUEST, "T-S-003", "현재 팀원보다 최대 팀원 수를 높게 정하세요."),
-    TEAM_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-004", "팀 정보가 존재하지 않습니다.");
+    TEAM_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-004", "팀 세부 정보가 존재하지 않습니다."),
+    TEAM_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-001", "팀원 정보가 존재하지 않습니다."),
+    TEAM_POSITION_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-002", "팀 구성 정보가 존재하지 않습니다."),
+    TEAM_USER_RECRUIT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-003", "이미 지원한 팀입니다."),
+    TEAM_USER_ACCEPT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-004", "이미 팀원입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다.");
 
     private HttpStatus status;
     private String code;
