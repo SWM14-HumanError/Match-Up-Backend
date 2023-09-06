@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.repository.team;
 
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.entity.QTeamMentoring;
@@ -85,9 +85,9 @@ public class TeamRepositoryImpl implements TeamRepositoryCustom {
     }
 
     @Override
-    public MeetingSpot findMeetingSpotByTeamId(Long teamID) {
-        MeetingSpot content = queryFactory
-                .select(Projections.bean(MeetingSpot.class,
+    public MeetingSpotResponse findMeetingSpotByTeamId(Long teamID) {
+        MeetingSpotResponse content = queryFactory
+                .select(Projections.bean(MeetingSpotResponse.class,
                         team.onOffline,
                         team.city,
                         team.detailSpot
