@@ -38,15 +38,9 @@ public class UserService {
         return userList.stream().map(
                 user -> {
                     Position position = new Position(user.getPosition(), user.getPositionLevel());
-                    return UserCardResponse.builder()
-                            .userID(user.getId())
-                            .profileImageURL(user.getPictureUrl())
-                            .memberLevel(user.getUserLevel())
-                            .nickname(user.getName())
-                            .position(position)
-                            .score(user.getReviewScore())
-                            .like(user.getLikes())
-                            .techStacks(user.returnStackList()).build();
+                    return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
+                            user.getName(), position, user.getReviewScore(),
+                            user.getLikes(), user.returnStackList());
                 }
         ).collect(Collectors.toList());
     }

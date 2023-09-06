@@ -33,4 +33,18 @@ public class UserCardResponse{
         this.like = like;
         this.techStacks = TechStacks;
     }
+
+    public static UserCardResponse of(Long userID, String profileImageURL, Long memberLevel, String nickname, Position position, Double score, Long like, List<TechStack> TechStacks) {
+        UserCardResponse build = UserCardResponse.builder()
+                .userID(userID)
+                .profileImageURL(profileImageURL)
+                .memberLevel(memberLevel)
+                .nickname(nickname)
+                .position(position)
+                .score(score)
+                .like(like)
+                .techStacks(TechStacks)
+                .build();
+        return build;
+    }
 }
