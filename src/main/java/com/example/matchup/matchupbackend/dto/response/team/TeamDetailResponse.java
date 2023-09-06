@@ -8,4 +8,5 @@ public class TeamDetailResponse {
     private String title;
     private String description;
     private Long leaderID;
+    private String thumbnailUrl;
 }

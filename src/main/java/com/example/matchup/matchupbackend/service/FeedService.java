@@ -1,13 +1,13 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.entity.Feed;
-import com.example.matchup.matchupbackend.repository.feed.FeedRepository;
+import com.example.matchup.matchupbackend.dto.feed.FeedSearchResquestDto;
+import com.example.matchup.matchupbackend.dto.feed.FeedSliceResponseDto;
+import com.example.matchup.matchupbackend.repository.feed.FeedRepositoryCustom;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,9 +15,10 @@ import java.util.List;
 @Slf4j
 public class FeedService {
 
-    private final FeedRepository feedRepository;
+    private final FeedRepositoryCustom feedRepositoryCustom;
 
-    public List<Feed> getFeedList() {
-        return feedRepository.getFeedList();
+    public FeedSliceResponseDto getSliceFeed(FeedSearchResquestDto request, Pageable pageable) {
+
+        return feedRepositoryCustom.findFeedListByFeedRequest(request, pageable);
     }
 }

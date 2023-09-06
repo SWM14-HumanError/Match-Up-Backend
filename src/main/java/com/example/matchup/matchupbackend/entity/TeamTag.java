@@ -24,6 +24,8 @@ public class TeamTag {
     @JoinColumn(name = "tag_id")
     private Tag tag;
 
+    private String imageUrl;
+
     @Builder
     public TeamTag(String tagName, TeamPosition teamPosition, Team team, Tag tag) {
         this.tagName = tagName;
