@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.repository.feed;
 
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.feed.FeedSearchResponseDto;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedSearchResponse;
 import com.example.matchup.matchupbackend.dto.FeedSearchType;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
 import com.example.matchup.matchupbackend.entity.Feed;
@@ -64,7 +64,7 @@ public class FeedRepositoryCustom {
             }
         }
 
-        List<FeedSearchResponseDto> responseFeeds = feeds.stream().map(feed -> FeedSearchResponseDto.builder()
+        List<FeedSearchResponse> responseFeeds = feeds.stream().map(feed -> FeedSearchResponse.builder()
                 .user(feed.getUser())
                 .feed(feed)
                 .build()).toList();

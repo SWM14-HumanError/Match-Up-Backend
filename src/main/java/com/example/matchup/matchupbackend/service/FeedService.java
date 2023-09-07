@@ -2,9 +2,11 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.FeedUpdateRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.feed.FeedRepository;
@@ -28,14 +30,12 @@ public class FeedService {
     private final FeedRepository  feedRepository;
     private final TokenProvider tokenProvider;
 
-    public FeedSliceResponseDto getSliceFeed(FeedSearchResquestDto request, Pageable pageable) {
-
+    public FeedSliceResponseDto getSliceFeed(FeedSearchRequest request, Pageable pageable) {
         return feedRepositoryCustom.findFeedListByFeedRequest(request, pageable);
     }
 
     @Transactional
     public Feed saveFeed(FeedCreateRequest request, String token) {
-
         Long userId = tokenProvider.getUserId(token, "createFeed");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeed"));
         Feed feed = request.toEntity(user);

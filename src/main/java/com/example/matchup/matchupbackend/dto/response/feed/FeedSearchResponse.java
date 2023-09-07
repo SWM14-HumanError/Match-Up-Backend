@@ -8,8 +8,9 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class FeedSearchResponseDto {
+public class FeedSearchResponse {
 
+    private Long id;
     private String title;
     private String content;
     private String thumbnailUrl;
@@ -20,8 +21,8 @@ public class FeedSearchResponseDto {
     private Long userId;
 
     @Builder
-    public FeedSearchResponseDto(Feed feed, User user) {
-
+    public FeedSearchResponse(Feed feed, User user) {
+        this.id = feed.getId();
         this.title = feed.getTitle();
         this.content = feed.getContent();
         this.thumbnailUrl = feed.getThumbnailUrl();

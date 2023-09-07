@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
+import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.user.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -122,13 +122,12 @@ public class User extends BaseEntity implements UserDetails {
         this.role = role;
     }
 
-    public User updateFirstLogin(AdditionalUserInfoRequestDto dto) {
+    public User updateFirstLogin(AdditionalUserInfoRequest dto) {
 
         this.userLevel = dto.getUserLevel();
         this.birthday = dto.getUserBirthday();
         this.address = dto.getAddress();
         this.expYear = dto.getExpYear();
-        this.expertize = dto.getExpertize();
         this.position = dto.getPosition();
         this.positionLevel = dto.getPositionLevel();
         this.meetingType = dto.getMeetingType();

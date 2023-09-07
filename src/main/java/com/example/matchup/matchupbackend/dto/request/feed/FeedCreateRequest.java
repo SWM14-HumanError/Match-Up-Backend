@@ -15,7 +15,6 @@ public class FeedCreateRequest {
     private ProjectDomain domain;
 
     public Feed toEntity(User user) {
-
         return Feed.builder()
                 .title(title)
                 .content(content)
