@@ -6,7 +6,7 @@ import com.example.matchup.matchupbackend.entity.User;
 import lombok.Data;
 
 @Data
-public class FeedCreateRequest {
+public class FeedCreateOrUpdateRequest {
 
     private String title;
     private String content;

@@ -1,8 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
-import com.example.matchup.matchupbackend.dto.request.feed.FeedUpdateRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.entity.User;
@@ -35,7 +34,7 @@ public class FeedService {
     }
 
     @Transactional
-    public Feed saveFeed(FeedCreateRequest request, String token) {
+    public Feed saveFeed(FeedCreateOrUpdateRequest request, String token) {
         Long userId = tokenProvider.getUserId(token, "createFeed");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeed"));
         Feed feed = request.toEntity(user);
@@ -43,8 +42,8 @@ public class FeedService {
     }
 
     @Transactional
-    public Feed updateFeed(FeedUpdateRequest request, String token) {
-        Feed feed = feedRepository.findById(request.getId()).orElseThrow(() -> new UserNotFoundException("updateFeed"));
+    public Feed updateFeed(FeedCreateOrUpdateRequest request, String token, Long feedId) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
         Long userId = tokenProvider.getUserId(token, "updateFeed");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
 
@@ -52,6 +51,23 @@ public class FeedService {
             Feed updatedFeed = feed.updateFeed(request);
             return updatedFeed;
         }
-        throw new AuthorizeException("updateFeed");
+        else {
+            throw new AuthorizeException("updateFeed");
+        }
+    }
+
+    @Transactional
+    public boolean deleteFeed(String token, Long feedId) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("deleteFeed"));
+        Long userId = tokenProvider.getUserId(token, "deleteFeed");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
+
+        if (feed.getUser().equals(user)) {
+            feedRepository.delete(feed);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.request.feed.FeedUpdateRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -43,7 +43,7 @@ public class Feed extends BaseTimeEntity{
     }
 
     //- 비즈니스 로직 -//
-    public Feed updateFeed(FeedUpdateRequest request) {
+    public Feed updateFeed(FeedCreateOrUpdateRequest request) {
         this.title = (request.getTitle() == null) ? this.title : request.getTitle();
         this.content = (request.getContent() == null) ? this.content : request.getContent();
         this.type = (request.getType() == null) ? this.type : request.getType();
