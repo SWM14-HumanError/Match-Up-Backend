@@ -23,7 +23,8 @@ public enum ErrorCode {
     TEAM_POSITION_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-002", "팀 구성 정보가 존재하지 않습니다."),
     TEAM_USER_RECRUIT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-003", "이미 지원한 팀입니다."),
     TEAM_USER_ACCEPT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-004", "이미 팀원입니다."),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다.");
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다."),
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "F-S-001", "피드 정보가 존재하지 않습니다.");
 
     private HttpStatus status;
     private String code;
