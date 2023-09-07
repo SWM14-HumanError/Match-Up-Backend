@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.feed;
+package com.example.matchup.matchupbackend.dto.response.feed;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
