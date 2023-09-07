@@ -41,4 +41,17 @@ public class FeedService {
         Feed feed = request.toEntity(user);
         return feedRepository.save(feed);
     }
+
+    @Transactional
+    public Feed updateFeed(FeedUpdateRequest request, String token) {
+        Feed feed = feedRepository.findById(request.getId()).orElseThrow(() -> new UserNotFoundException("updateFeed"));
+        Long userId = tokenProvider.getUserId(token, "updateFeed");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
+
+        if (feed.getUser().equals(user)) {
+            Feed updatedFeed = feed.updateFeed(request);
+            return updatedFeed;
+        }
+        throw new AuthorizeException("updateFeed");
+    }
 }
