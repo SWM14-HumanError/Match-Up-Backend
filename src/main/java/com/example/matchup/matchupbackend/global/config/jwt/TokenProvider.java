@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.global.config.jwt;
 
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuth2LoginUrl;
 import io.jsonwebtoken.*;
 import lombok.Getter;
@@ -54,13 +55,6 @@ public class TokenProvider {
             Jwts.parser()
                     .setSigningKey(jwtProperties.getSecretKey())
                     .parseClaimsJws(token);
-
-            // 토큰의 유효기간 검증
-//            Date expiry = getClaims(token).get("exp", Date.class);
-//            if (expiry.compareTo(new Date()) < 0) {
-//                log.info("The expired token.");
-//                throw new IllegalArgumentException("The expired token.");
-//            }
             return true;
 //        } catch (ExpiredJwtException e) {
 //            log.info("Expired JWT: " + e.getMessage(), e);
@@ -98,8 +92,9 @@ public class TokenProvider {
                 authorities);
     }
 
-    public Long getUserId(String token) {
-        if (!validToken(token)) return null;
+    public Long getUserId(String token, String callBack) {
+        if (token == null) return null;
+        if (!validToken(token)) throw new AuthorizeException(callBack);
 
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);
