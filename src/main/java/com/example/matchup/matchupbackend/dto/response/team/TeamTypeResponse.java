@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Range;
 
 @Data
 @NoArgsConstructor
-public class TeamType {
+public class TeamTypeResponse {
     @NotNull(message = "팀 구분은 필수입니다")
     @Range(max = 1, message = "0(Project) or 1(Study)로만 입력하세요")
     private Long teamType; //project or study
@@ -18,12 +18,12 @@ public class TeamType {
     private String detailType; //세부 타입 설정
 
     @Builder
-    public TeamType(Long teamType, String detailType) {
+    public TeamTypeResponse(Long teamType, String detailType) {
         this.teamType = teamType;
         this.detailType = detailType;
     }
 
-    public static TeamType fromTeamEntity(Team team) {
-        return new TeamType(team.getType(), team.getDetailType());
+    public static TeamTypeResponse fromTeamEntity(Team team) {
+        return new TeamTypeResponse(team.getType(), team.getDetailType());
     }
 }

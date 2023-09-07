@@ -3,10 +3,10 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.team.MeetingSpot;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
 import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
-import com.example.matchup.matchupbackend.dto.response.team.TeamType;
+import com.example.matchup.matchupbackend.dto.response.team.TeamTypeResponse;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamService;
@@ -85,7 +85,7 @@ public class TeamController {
     @GetMapping("/team/{teamID}/spot")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 모임 장소 API")
-    public MeetingSpot showTeamMeetingSpot(@PathVariable Long teamID) {
+    public MeetingSpotResponse showTeamMeetingSpot(@PathVariable Long teamID) {
         return teamService.getTeamMeetingSpot(teamID);
     }
 
@@ -106,7 +106,7 @@ public class TeamController {
     @GetMapping("/team/{teamID}/type")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 모임 타입 ex) 프로젝트 - 웹프로젝트")
-    public TeamType showTeamType(@PathVariable Long teamID) {
+    public TeamTypeResponse showTeamType(@PathVariable Long teamID) {
         return teamService.getTeamType(teamID);
     }
 }

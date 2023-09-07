@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.dto.response.teamuser;
 
-import com.example.matchup.matchupbackend.dto.user.TechStack;
-import com.example.matchup.matchupbackend.dto.user.UserCardResponse;
+import com.example.matchup.matchupbackend.dto.TechStack;
+import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
