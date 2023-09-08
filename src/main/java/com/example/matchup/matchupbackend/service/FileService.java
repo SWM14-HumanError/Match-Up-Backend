@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.matchup.matchupbackend.dto.UploadFile;
+import com.example.matchup.matchupbackend.error.exception.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class FileService {
                     .withCannedAcl(CannedAccessControlList.PublicRead));
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileUploadException("파일 InputStream을 만들던 중 에러가 발생하였습니다.", originalFileName);
         }
         URL S3Url = amazonS3.getUrl(bucket, storeFileName);
         return new UploadFile(originalFileName, storeFileName, S3Url);

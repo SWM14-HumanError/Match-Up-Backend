@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.FileUploadException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
@@ -116,6 +117,16 @@ public class GlobalAdvice {
         }
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
+    }
+
+    /**
+     * 파일 관련 에러가 발생한 경우
+     */
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity FileUploadExHandler(FileUploadException ex) {
+        String messageExtra = ex.getDetailInfo();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponseDto);
     }
 
     //--매서드 모음--//
