@@ -67,12 +67,12 @@ public class WebOAuthSecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
+  //                      .requestMatchers("/login/**", "/logout/**").permitAll()
+    //                    .anyRequest().authenticated());
                         .requestMatchers("/login/**", "/logout/**").permitAll()
-                        .anyRequest().authenticated());
-//                        .requestMatchers("/login/**", "/logout/**").permitAll()
 //                        .anyRequest().authenticated());
-//                      .anyRequest().permitAll());
+                        .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
                 oauth2Login

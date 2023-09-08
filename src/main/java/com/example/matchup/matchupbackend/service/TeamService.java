@@ -130,7 +130,7 @@ public class TeamService {
         isUpdatableTeam(leaderID, team, teamCreateRequest);
         fileService.deleteImage(team.getThumbnailUrl());
         UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
-        log.info("Update team ID : " + team.deleteTeam().toString());
+        log.info("Update team ID : " + teamID);
         return team.updateTeam(teamCreateRequest, uploadFile);
     }
 
@@ -155,6 +155,12 @@ public class TeamService {
         }
     }
 
+    /**
+     * 팀장이 팀 삭제하는 API
+     *
+     * @param leaderID
+     * @param teamID
+     */
     @Transactional
     public void deleteTeam(Long leaderID, Long teamID) {
         Team team = teamRepository.findById(teamID)
@@ -164,7 +170,9 @@ public class TeamService {
         if (!leaderID.equals(team.getLeaderID())) {
             throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
-        log.info("deleted team ID : " + team.deleteTeam().toString());
+        fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
+        team.deleteTeam();
+        log.info("deleted team ID : " + teamID);
     }
 
     public TeamDetailResponse getTeamInfo(Long teamID) {

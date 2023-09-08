@@ -93,9 +93,8 @@ public class Team extends BaseEntity {
         return this.id;
     }
 
-    public Long deleteTeam() {
+    public void deleteTeam() {
         isDeleted = 1L;
-        return this.id;
     }
 
     public Long numberOfUserByPosition(String position) {
