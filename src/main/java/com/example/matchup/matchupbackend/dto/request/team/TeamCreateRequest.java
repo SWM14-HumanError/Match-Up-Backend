@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Data
 public class TeamCreateRequest {
-    private MultipartFile thumbnail;
+    private MultipartFile thumbnailIMG;
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     @Size(max = 30, message = "제목은 30자를 넘을 수 없습니다.")
     private String name;
