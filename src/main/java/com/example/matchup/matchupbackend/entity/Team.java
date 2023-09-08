@@ -80,10 +80,13 @@ public class Team extends BaseEntity {
     }
 
     //== 비즈니스 로직 ==//
-    public Long updateTeam(TeamCreateRequest teamCreateRequest) {
+    public Long updateTeam(TeamCreateRequest teamCreateRequest, UploadFile uploadFile) {
+        this.thumbnailUrl = uploadFile.getStoreFileName();
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
         this.detailType = teamCreateRequest.getType().getDetailType();
+        this.description = teamCreateRequest.getDescription();
         this.onOffline = teamCreateRequest.getMeetingSpot().getOnOffline();
         this.city = teamCreateRequest.getMeetingSpot().getCity();
         this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();

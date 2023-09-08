@@ -128,8 +128,10 @@ public class TeamService {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
         isUpdatableTeam(leaderID, team, teamCreateRequest);
+        fileService.deleteImage(team.getThumbnailUrl());
+        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
         log.info("Update team ID : " + team.deleteTeam().toString());
-        return team.updateTeam(teamCreateRequest);
+        return team.updateTeam(teamCreateRequest, uploadFile);
     }
 
     /**

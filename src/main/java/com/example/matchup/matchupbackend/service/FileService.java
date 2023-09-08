@@ -65,4 +65,12 @@ public class FileService {
         int pos = originalFilename.lastIndexOf(".");
         return originalFilename.substring(pos + 1);
     }
+
+    /**
+     * 파일 삭제 하는 메서드
+     * @param originalFilename
+     */
+    public void deleteImage(String originalFilename)  {
+        amazonS3.deleteObject(bucket, originalFilename);
+    }
 }
