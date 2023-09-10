@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,36 +41,24 @@ public class WebOAuthSecurityConfig {
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("local")) {
             return (web) -> web.ignoring()
-                    .requestMatchers(toH2Console())
-                    .requestMatchers("/img/**", "/css/**", "/js/**");
-        } else {
-            return (web) -> web.ignoring()
-                    .requestMatchers("/img/**", "/css/**", "/js/**");
-        }
+                    .requestMatchers(toH2Console());
+        } return (web) -> {};
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-
-        // 폼로그인 + csrf 비활성화
+        // csrf 비활성화
         http.csrf((csrf) -> csrf.disable());
 
         // 세션 비활성화
         http.sessionManagement((sessionManagement) ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // http request의 header에서 authorization(토큰을 저장한 header field) 값을 추출 후 bearer과 분리
-        // Bearer 분리는 나중에 하기로 결정
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-//                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
-  //                      .requestMatchers("/login/**", "/logout/**").permitAll()
-    //                    .anyRequest().authenticated());
-                        .requestMatchers("/login/**", "/logout/**").permitAll()
-//                        .anyRequest().authenticated());
                         .anyRequest().permitAll());
 
         http.oauth2Login((oauth2Login) ->
@@ -94,7 +81,6 @@ public class WebOAuthSecurityConfig {
                 exceptionHandling.defaultAuthenticationEntryPointFor(
                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                                 new AntPathRequestMatcher("/api/**")));
-//                        .accessDeniedPage("/articles"));
 
         return http.build();
     }
@@ -114,11 +100,10 @@ public class WebOAuthSecurityConfig {
         return new OAuth2AuthorizationRequestBasedOnCookieRepository();
     }
 
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-
-        return new TokenAuthenticationFilter(tokenProvider);
-    }
+//    @Bean
+//    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+//        return new TokenAuthenticationFilter(tokenProvider);
+//    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
