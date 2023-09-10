@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.FileEx.FileExtensionException;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
@@ -120,12 +121,27 @@ public class GlobalAdvice {
     }
 
     /**
-     * 파일 관련 에러가 발생한 경우
+     * 파일 업로드 관련 에러가 발생한 경우
      */
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity FileUploadExHandler(FileUploadException ex) {
         String messageExtra = ex.getDetailInfo();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponseDto);
+    }
+
+    /**
+     * 파일 확장자 관련 에러가 발생한 경우
+     */
+    @ExceptionHandler(FileExtensionException.class)
+    public ResponseEntity FileExtensionExHandler(FileExtensionException ex) {
+        String requestExt = ex.getRequestExt();
+        List<String> supportExt = ex.getSupportExt();
+        log.info("지원하는 확장자: " + supportExt);
+        log.info("사용자가 보낸 확장자: " + requestExt);
+        Map<String, List<String>> extraInfo = new HashMap<>(); //ppt, [jpeg, jpg, png, gif]
+        extraInfo.put(requestExt, supportExt);
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), extraInfo);
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponseDto);
     }
 
