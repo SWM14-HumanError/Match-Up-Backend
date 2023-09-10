@@ -86,11 +86,9 @@ public class FileService {
      * @return
      */
     private void isIMGExtension(String extension) {
-        List<String> imgExtList = new ArrayList<>(Arrays.asList("JPG", "JPEG", "PNG", "GIF"));
-        for (String imgExt : imgExtList) {
-            if (!extension.equals(imgExt)) {
-                throw new FileExtensionException(imgExtList, extension);
-            }
+        List<String> imgExtList = new ArrayList<>(Arrays.asList("jpg", "jpeg", "png", "gif"));
+        if (!imgExtList.contains(extension)) {
+            throw new FileExtensionException(imgExtList, extension);
         }
     }
 
