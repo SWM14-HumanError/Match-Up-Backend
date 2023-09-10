@@ -6,7 +6,7 @@ import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
-import com.example.matchup.matchupbackend.error.exception.FileUploadException;
+import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
