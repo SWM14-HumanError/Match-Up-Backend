@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.controller;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
@@ -9,6 +10,7 @@ import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamTypeResponse;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.service.FileService;
 import com.example.matchup.matchupbackend.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,6 +33,7 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class TeamController {
     private final TeamService teamService;
     private final TokenProvider tokenProvider;
+    private final FileService fileService;
 
     @GetMapping("/list/team")
     @ResponseStatus(HttpStatus.OK)
@@ -108,5 +112,12 @@ public class TeamController {
     @Operation(description = "팀 상세페이지의 모임 타입 ex) 프로젝트 - 웹프로젝트")
     public TeamTypeResponse showTeamType(@PathVariable Long teamID) {
         return teamService.getTeamType(teamID);
+    }
+
+    @PostMapping("/file/test")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "파일 저장하는 테스트")
+    public UploadFile showTeamType(MultipartFile multipartFile) {
+        return fileService.storeFile(multipartFile);
     }
 }
