@@ -142,7 +142,7 @@ public class GlobalAdvice {
         Map<String, List<String>> extraInfo = new HashMap<>(); //ppt, [jpeg, jpg, png, gif]
         extraInfo.put(requestExt, supportExt);
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), extraInfo);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponseDto);
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
     //--매서드 모음--//
