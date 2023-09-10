@@ -12,6 +12,7 @@ import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.Invalid
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -50,6 +51,15 @@ public class GlobalAdvice {
         String messageExtra = ex.getHeaderName();
         ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MISSING_REQUEST_HEADER, messageExtra);
         return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
+    }
+
+    /**
+     * 너무 사이즈가 큰 파일을 업로드 한 경우
+     */
+    @ExceptionHandler(SizeLimitExceededException.class)
+    public ResponseEntity SizeLimitExceededExHandler(SizeLimitExceededException ex) {
+        ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MAX_FILE_SIZE_ERROR,ex.getMessage());
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
     /** 에러 난 경우 에러 메세지를 보기 위해 주석처리
