@@ -110,9 +110,9 @@ public class TokenProvider {
 
 //    public String getAccessToken(String authorizationHeader) {
 //
-////        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PRIFIX)) {
-////            return authorizationHeader.substring(TOKEN_PRIFIX.length());
-////        }
+//        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PRIFIX)) {
+//            return authorizationHeader.substring(TOKEN_PRIFIX.length());
+//        }
 //        return null;
 //    }
 }

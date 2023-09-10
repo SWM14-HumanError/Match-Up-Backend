@@ -1,6 +1,6 @@
-package com.example.matchup.matchupbackend.dto.user;
+package com.example.matchup.matchupbackend.dto.response.user;
 
-import lombok.AllArgsConstructor;
+import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import lombok.Builder;
 import lombok.Data;
 

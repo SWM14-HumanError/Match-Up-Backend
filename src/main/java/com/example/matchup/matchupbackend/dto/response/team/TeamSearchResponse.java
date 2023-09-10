@@ -1,6 +1,6 @@
-package com.example.matchup.matchupbackend.dto;
+package com.example.matchup.matchupbackend.dto.response.team;
 
-import com.example.matchup.matchupbackend.dto.user.TechStack;
+import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.User;
 import lombok.Builder;

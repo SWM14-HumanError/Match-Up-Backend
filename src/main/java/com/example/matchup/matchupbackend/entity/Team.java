@@ -1,7 +1,8 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
-import com.example.matchup.matchupbackend.dto.user.TechStack;
+import com.example.matchup.matchupbackend.dto.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,8 +30,10 @@ public class Team extends BaseEntity {
     private Long type; //스터디인지 프로젝트 모임인지
     @Column(name = "detail_type")
     private String detailType;
+    @Column(name = "thumbnail_upload_url")
+    private String thumbnailUploadUrl;
     @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
+    private String thumbnailUrl; //storeURL
     @Column(name = "content_like")
     private Long like;
     @Column(name = "On_Offline")
@@ -54,13 +57,14 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamPosition> teamPositionList = new ArrayList<>();
 
-    @Builder //신규로 팀을 만들때 사용
-    public Team(String title, String description, Long type, String detailType, String thumbnailUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
+    @Builder
+    public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
         this.title = title;
         this.description = description;
         this.type = type;
         this.detailType = detailType;
-        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailUploadUrl = thumbnailUploadUrl;
+        this.thumbnailUrl = thumbnailStoreUrl;
         this.like = like;
         this.onOffline = onOffline;
         this.city = city;
@@ -76,20 +80,21 @@ public class Team extends BaseEntity {
     }
 
     //== 비즈니스 로직 ==//
-    public Long updateTeam(TeamCreateRequest teamCreateRequest) {
-        this.thumbnailUrl = teamCreateRequest.getThumbnailUrl();
+    public Long updateTeam(TeamCreateRequest teamCreateRequest, UploadFile uploadFile) {
+        this.thumbnailUrl = uploadFile.getStoreFileName();
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
         this.detailType = teamCreateRequest.getType().getDetailType();
+        this.description = teamCreateRequest.getDescription();
         this.onOffline = teamCreateRequest.getMeetingSpot().getOnOffline();
         this.city = teamCreateRequest.getMeetingSpot().getCity();
         this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();
         return this.id;
     }
 
-    public Long deleteTeam() {
+    public void deleteTeam() {
         isDeleted = 1L;
-        return this.id;
     }
 
     public Long numberOfUserByPosition(String position) {
@@ -121,13 +126,14 @@ public class Team extends BaseEntity {
         return techStacks;
     }
 
-    public static Team of(Long leaderID, TeamCreateRequest teamCreateRequest) {
+    public static Team of(Long leaderID, TeamCreateRequest teamCreateRequest, UploadFile uploadFile) {
         Team build = Team.builder()
                 .title(teamCreateRequest.getName())
                 .description(teamCreateRequest.getDescription())
                 .type(teamCreateRequest.getType().getTeamType())
                 .detailType(teamCreateRequest.getType().getDetailType())
-                .thumbnailUrl(teamCreateRequest.getThumbnailUrl())
+                .thumbnailUploadUrl(uploadFile.getUploadFileName())
+                .thumbnailStoreUrl(uploadFile.getStoreFileName()) //todo DB에 uploadName, storeName 둘다 저장하는것이 맞는지
                 .like(0L)
                 .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
                 .city(teamCreateRequest.getMeetingSpot().getCity())

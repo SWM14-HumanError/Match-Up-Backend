@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.user;
+package com.example.matchup.matchupbackend.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;

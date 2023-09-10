@@ -1,14 +1,16 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.TeamApprovedInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
-import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.TeamUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,7 @@ public class TeamUserController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "팀 상세페이지의 유저 API - 팀장(수락+비수락)")
     public List<TeamUserCardResponse> showTeamUsers(@Nullable @RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
-        Long userId = tokenProvider.getUserId(token, "showTeamUsers");
+        Long userId = tokenProvider.getUserId(token);
         return teamUserService.getTeamUserCard(userId, teamID);
     }
 
@@ -46,7 +48,7 @@ public class TeamUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "유저가 팀에 지원하는 API")
     public Long recruitToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody RecruitFormRequest recruitForm) {
-        Long userID = tokenProvider.getUserId(token, "recruitToTeam");
+        Long userID = tokenProvider.getUserId(token);
         if (userID == null) {
             throw new AuthorizeException("TeamUserRecruit");
         }
@@ -58,7 +60,7 @@ public class TeamUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 팀원으로 수락하는 API")
     public String acceptUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
-        Long leaderID = tokenProvider.getUserId(token, "acceptUserToTeam");
+        Long leaderID = tokenProvider.getUserId(token);
         if (leaderID == null) {
             throw new AuthorizeException("TeamUserAccept");
         }
@@ -71,7 +73,7 @@ public class TeamUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 거절하는 API")
     public String refuseUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
-        Long leaderID = tokenProvider.getUserId(token, "refuseUserToTeam");
+        Long leaderID = tokenProvider.getUserId(token);
         if (leaderID == null) {
             throw new AuthorizeException("TeamUserRefuse");
         }
@@ -84,7 +86,7 @@ public class TeamUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 팀원을 강퇴하는 API")
     public String kickUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
-        Long leaderID = tokenProvider.getUserId(token, "kickUserToTeam");
+        Long leaderID = tokenProvider.getUserId(token);
         if (leaderID == null) {
             throw new AuthorizeException("TeamUserKick");
         }
@@ -99,15 +101,15 @@ public class TeamUserController {
 //        } else return null;
 //    }
 
-//    private Long getUserIdFromToken(HttpServletRequest request) {
-//        Cookie[] cookies = request.getCookies();
-//        if (cookies != null) {
-//            for (Cookie cookie : cookies) {
-//                if (cookie.getName().equals("token")) {
-//                    String token = cookie.getValue();
-//                    return tokenProvider.getUserId(token);
-//                }
-//            }
-//        } return null;
-//    }
+    private Long getUserIdFromToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("token")) {
+                    String token = cookie.getValue();
+                    return tokenProvider.getUserId(token);
+                }
+            }
+        } return null;
+    }
 }
