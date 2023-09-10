@@ -41,6 +41,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
+    private final FileService fileService;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -73,11 +74,13 @@ public class TeamService {
      */
     @Transactional
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
-        makeTeamPosition(teamCreateRequest, Team.of(leaderID, teamCreateRequest));
+        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+        Team team = Team.of(leaderID, teamCreateRequest, uploadFile);
+        makeTeamPosition(teamCreateRequest, team);
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
         });
-        return teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, Team.of(leaderID, teamCreateRequest), user)).getId();
+        return teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getId();
     }
 
     /**
@@ -125,8 +128,10 @@ public class TeamService {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
         isUpdatableTeam(leaderID, team, teamCreateRequest);
-        log.info("Update team ID : " + team.deleteTeam().toString());
-        return team.updateTeam(teamCreateRequest);
+        fileService.deleteImage(team.getThumbnailUrl());
+        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+        log.info("Update team ID : " + teamID);
+        return team.updateTeam(teamCreateRequest, uploadFile);
     }
 
     /**
@@ -150,6 +155,12 @@ public class TeamService {
         }
     }
 
+    /**
+     * 팀장이 팀 삭제하는 API
+     *
+     * @param leaderID
+     * @param teamID
+     */
     @Transactional
     public void deleteTeam(Long leaderID, Long teamID) {
         Team team = teamRepository.findById(teamID)
@@ -159,7 +170,9 @@ public class TeamService {
         if (!leaderID.equals(team.getLeaderID())) {
             throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
-        log.info("deleted team ID : " + team.deleteTeam().toString());
+        fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
+        team.deleteTeam();
+        log.info("deleted team ID : " + teamID);
     }
 
     public TeamDetailResponse getTeamInfo(Long teamID) {
