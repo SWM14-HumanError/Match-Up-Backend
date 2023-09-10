@@ -1,11 +1,12 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.AdditionalUserInfoRequestDto;
+import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class UserService {
 
     public User findById(Long userId) {
 
-        return userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Unexpected user"));
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));
     }
 
     public User findByEmail(String email) {
@@ -56,9 +57,9 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("unexpected user"));
     }
 
-    public Long saveAdditionalUserInfo(String token, AdditionalUserInfoRequestDto dto) {
+    public Long saveAdditionalUserInfo(String token, AdditionalUserInfoRequest dto) {
 
-        Long userId = tokenProvider.getUserId(token);
+        Long userId = tokenProvider.getUserId(token, "추가 정보 받는 중");
         User user = findById(userId);
         User updatedUser = user.updateFirstLogin(dto);
         userRepository.save(updatedUser);
