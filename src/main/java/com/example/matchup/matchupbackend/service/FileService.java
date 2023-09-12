@@ -34,7 +34,7 @@ public class FileService {
      */
     public UploadFile storeFile(MultipartFile file) {
         if (file.isEmpty()) {
-            return null; //예외 처리 고려
+            throw new FileUploadException("빈 파일은 업로드 할 수 없습니다.", file.getOriginalFilename());
         }
         String originalFileName = file.getOriginalFilename(); //실제 파일 이름(중복가능)
         String storeFileName = createStoreFileName(originalFileName); //저장용 파일 이름
