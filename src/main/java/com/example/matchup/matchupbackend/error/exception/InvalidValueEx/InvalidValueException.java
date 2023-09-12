@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 public class InvalidValueException extends CustomException {
-    private Long requestValue;
+    private String requestValue;
 
     public InvalidValueException(ErrorCode errorCode) {
         super(errorCode);
     }
 
-    public InvalidValueException(ErrorCode errorCode, Long requestValue) {
+    public InvalidValueException(ErrorCode errorCode, String requestValue) {
         super(errorCode);
         this.requestValue = requestValue;
     }
