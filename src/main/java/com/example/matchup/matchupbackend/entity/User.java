@@ -117,6 +117,11 @@ public class User extends BaseEntity implements UserDetails {
         return this.role.getKey();
     }
 
+    public void addReview(Feedback feedback) {
+        this.totalReviews++;
+        this.reviewScore+=feedback.getTotalScore();
+    }
+
     @Builder // OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
     public User(String email, String name, String pictureUrl, Role role) {
 

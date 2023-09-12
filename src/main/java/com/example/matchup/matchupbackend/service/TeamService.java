@@ -149,7 +149,7 @@ public class TeamService {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole().equals(member.getRole())
                         && teamUser.getCount() > member.getMaxCount()) {
-                    throw new InvalidMemberValueException(member.getMaxCount());
+                    throw new InvalidMemberValueException(member.getMaxCount().toString());
                 }
             }
         }

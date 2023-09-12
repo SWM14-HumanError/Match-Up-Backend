@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
+import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
@@ -13,6 +14,7 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Tea
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
+import com.example.matchup.matchupbackend.repository.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -37,6 +39,7 @@ public class TeamUserService {
     private final TeamPositionRepository teamPositionRepository;
     private final TeamRecruitRepository teamRecruitRepository;
     private final UserRepository userRepository;
+    private final FeedbackRepository feedbackRepository;
 
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
@@ -188,5 +191,20 @@ public class TeamUserService {
                 });
         if (team.getLeaderID() != leaderID) return false;
         return true;
+    }
+
+    @Transactional
+    public void feedbackToTeamUser(Long giverID, Long teamID, TeamUserFeedbackRequest feedbackRequest) {
+        User giverUser = userRepository.findById(giverID)
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저"));
+        User receiverUser = userRepository.findById(feedbackRequest.getReceiverID())
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저"));
+        Team team = teamRepository.findById(teamID)
+                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
+
+        Feedback feedback = Feedback.fromDTO(feedbackRequest);
+        feedback.setRelation(giverUser, receiverUser, team);
+        receiverUser.addReview(feedback);
+        feedbackRepository.save(feedback);
     }
 }
