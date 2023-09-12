@@ -84,13 +84,6 @@ public class User extends BaseEntity implements UserDetails {
         this.refreshToken = newRefreshToken;
     }
 
-    public double addUserReview(double score) {
-        double totalScore = (this.reviewScore) * (this.totalReviews);
-        this.totalReviews++;
-        this.reviewScore = (totalScore + score) / this.totalReviews;
-        return this.reviewScore;
-    }
-
     public List<String> returnTagList() {
         return userTagList.stream().map(
                 userTag -> userTag.getTag().getName()
