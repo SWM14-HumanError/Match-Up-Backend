@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -30,16 +29,16 @@ public class Mentoring {
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
-    private List<Review> mentoringReviewList = new ArrayList<>();
+    private List<Feedback> mentoringFeedbackList = new ArrayList<>();
 
     //== 비즈니스 로직 ==//
-    public Double returnMentoringReviewAverage() {
-        Double totalScore = 0.0;
-        for (Review mentoringReview : mentoringReviewList) {
-            totalScore += mentoringReview.getScore();
-        }
-        if (mentoringReviewList.size() == 0) return 0.0;
-        return totalScore / mentoringReviewList.size();
-    }
+//    public Double returnMentoringReviewAverage() {
+//        Double totalScore = 0.0;
+//        for (Feedback mentoringFeedback : mentoringFeedbackList) {
+//            totalScore += mentoringFeedback.getScore();
+//        }
+//        if (mentoringFeedbackList.size() == 0) return 0.0;
+//        return totalScore / mentoringFeedbackList.size();
+//    }
 
 }

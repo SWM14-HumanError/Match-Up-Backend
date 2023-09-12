@@ -54,7 +54,7 @@ public class User extends BaseEntity implements UserDetails {
     private Double reviewScore = 0.0;
     @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Review> userReviewList = new ArrayList<>();
+    private List<Feedback> userFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
