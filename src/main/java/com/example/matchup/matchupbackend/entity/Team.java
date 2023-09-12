@@ -81,7 +81,7 @@ public class Team extends BaseEntity {
 
     //== 비즈니스 로직 ==//
     public Long updateTeam(TeamCreateRequest teamCreateRequest, UploadFile uploadFile) {
-        this.thumbnailUrl = uploadFile.getStoreFileName();
+        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
         this.thumbnailUploadUrl = uploadFile.getUploadFileName();
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
@@ -133,7 +133,7 @@ public class Team extends BaseEntity {
                 .type(teamCreateRequest.getType().getTeamType())
                 .detailType(teamCreateRequest.getType().getDetailType())
                 .thumbnailUploadUrl(uploadFile.getUploadFileName())
-                .thumbnailStoreUrl(uploadFile.getStoreFileName()) //todo DB에 uploadName, storeName 둘다 저장하는것이 맞는지
+                .thumbnailStoreUrl(String.valueOf(uploadFile.getS3Url())) //todo DB에 uploadName, storeName 둘다 저장하는것이 맞는지
                 .like(0L)
                 .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
                 .city(teamCreateRequest.getMeetingSpot().getCity())
