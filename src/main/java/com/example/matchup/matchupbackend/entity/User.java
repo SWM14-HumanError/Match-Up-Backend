@@ -59,6 +59,10 @@ public class User extends BaseEntity implements UserDetails {
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
+    @OneToMany(mappedBy = "giver", cascade = CascadeType.ALL)
+    private List<Feedback> giveFeedbackList = new ArrayList<>();
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    private List<TeamUser> recieveFeedbackList = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
     private String refreshToken;
