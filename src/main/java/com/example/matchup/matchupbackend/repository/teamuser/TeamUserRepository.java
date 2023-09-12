@@ -22,15 +22,15 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Query("select teamuser from TeamUser teamuser where teamuser.team.id=:teamId and teamuser.user.id=:userId")
     Optional<TeamUser> findTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
     void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count - 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
     void updateTeamUserStatusByKickedUser(@Param("teamId") Long teamId, @Param("role") String role);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId")
     void deleteTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
 }
