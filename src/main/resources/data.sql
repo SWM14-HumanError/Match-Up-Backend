@@ -1,6 +1,6 @@
 INSERT
     INTO
-        users (is_first_login, is_auth, review_score, total_reviews, create_by, create_time, likes, update_by, update_time, user_birthday, user_id, address, certificateurl, exp_year, expertize, meeting_type, picture_url, position, position_level, role, user_email, user_level, user_name, refresh_token)
+        users (is_first_login, is_auth, feedback_score, total_feedbacks, create_by, create_time, likes, update_by, update_time, user_birthday, user_id, address, certificateurl, exp_year, expertize, meeting_type, picture_url, position, position_level, role, user_email, user_level, user_name, refresh_token)
     VALUES
         (true, true, 4.5, 10, 101, '2023-08-17 10:00:00', 50, 201, '2023-08-17 15:30:00', '1990-01-15', DEFAULT, '123 Main St', 'https://example.com/cert1', '5', 'Software Engineering', 'ONLINE', 'https://velog.velcdn.com/images/jujemu/post/d5c02f31-7d21-4034-a421-b4869fb15b7b/image.png', '백엔드 개발자', '1', 'MENTOR', 'user1@example.com', '3', 'John Doe', 'refresh_token_1'),
         (true, false, 3.2, 5, 102, '2023-08-17 12:30:00', 20, 202, '2023-08-17 16:45:00', '1985-07-25', DEFAULT, '456 Elm St', 'https://example.com/cert2', '8', 'Data Science', 'OFFLINE', 'https://velog.velcdn.com/images/jujemu/post/a8fd1782-c22c-4253-8bf1-ba5f9d7135ba/image.png', '프론트엔드 개발자', '2', 'MENTOR', 'user2@example.com', '2', 'Jane Smith', 'refresh_token_2'),
@@ -67,3 +67,4 @@ INSERT
 --     team_tag (tag_name, team_id, image_url)
 -- VALUES
 --     ('Spring', 1, 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg');
+

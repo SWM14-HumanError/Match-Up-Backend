@@ -29,16 +29,16 @@ public class Mentoring {
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
-    private List<Feedback> mentoringFeedbackList = new ArrayList<>();
+    private List<Review> mentoringReviewList = new ArrayList<>();
 
     //== 비즈니스 로직 ==//
-//    public Double returnMentoringReviewAverage() {
-//        Double totalScore = 0.0;
-//        for (Feedback mentoringFeedback : mentoringFeedbackList) {
-//            totalScore += mentoringFeedback.getScore();
-//        }
-//        if (mentoringFeedbackList.size() == 0) return 0.0;
-//        return totalScore / mentoringFeedbackList.size();
-//    }
+    public Double returnMentoringReviewAverage() {
+        Double totalScore = 0.0;
+        for (Review mentoringReview : mentoringReviewList) {
+            totalScore += mentoringReview.getScore(); //todo 멘토의 score는 일반 유저의 온도와 다름
+        }
+        if (mentoringReviewList.size() == 0) return 0.0;
+        return totalScore / mentoringReviewList.size();
+    }
 
 }

@@ -204,7 +204,7 @@ public class TeamUserService {
 
         Feedback feedback = Feedback.fromDTO(feedbackRequest);
         feedback.setRelation(giverUser, receiverUser, team);
-        receiverUser.addReview(feedback);
+        receiverUser.addFeedback(feedback);
         feedbackRepository.save(feedback);
     }
 }

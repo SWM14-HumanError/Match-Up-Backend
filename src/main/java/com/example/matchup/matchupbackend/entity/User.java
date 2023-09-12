@@ -48,13 +48,10 @@ public class User extends BaseEntity implements UserDetails {
     private Long positionLevel;
     @Column(name = "likes")
     private Long likes;
-    @Column(name = "total_Feedbacks")
+    @Column(name = "total_feedbacks")
     private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
     @Column(name = "feedback_score")
     private Double feedbackScore = 36.5; // 팀원 상호 평가 온도
-    @Column
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Feedback> userFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -62,7 +59,7 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "giver", cascade = CascadeType.ALL)
     private List<Feedback> giveFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
-    private List<TeamUser> recieveFeedbackList = new ArrayList<>();
+    private List<Feedback> recieveFeedbackList = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
     private String refreshToken;
@@ -110,7 +107,7 @@ public class User extends BaseEntity implements UserDetails {
         return this.role.getKey();
     }
 
-    public void addReview(Feedback feedback) {
+    public void addFeedback(Feedback feedback) {
         this.totalFeedbacks++;
         this.feedbackScore += feedback.getTotalScore();
     }

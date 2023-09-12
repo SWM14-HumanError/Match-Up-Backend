@@ -109,7 +109,7 @@ public class GlobalAdvice {
      */
     @ExceptionHandler(InvalidValueException.class)
     public ResponseEntity InvalidValueExHandler(InvalidValueException ex) {
-        Long messageExtra = ex.getRequestValue();
+        String messageExtra = ex.getRequestValue();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
