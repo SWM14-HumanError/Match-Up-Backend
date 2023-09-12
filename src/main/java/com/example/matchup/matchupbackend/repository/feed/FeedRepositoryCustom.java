@@ -1,13 +1,13 @@
 package com.example.matchup.matchupbackend.repository.feed;
 
-import com.example.matchup.matchupbackend.dto.feed.FeedSearchResponseDto;
-import com.example.matchup.matchupbackend.dto.feed.FeedSearchResquestDto;
-import com.example.matchup.matchupbackend.dto.feed.FeedSliceResponseDto;
-import com.example.matchup.matchupbackend.dto.feed.SearchType;
+import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedSearchResponse;
+import com.example.matchup.matchupbackend.dto.FeedSearchType;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
 import com.example.matchup.matchupbackend.entity.Feed;
+import com.example.matchup.matchupbackend.entity.ProjectDomain;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -15,25 +15,53 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class FeedRepositoryCustom {
 
     private final EntityManager em;
 
-    public FeedSliceResponseDto findFeedListByFeedRequest(FeedSearchResquestDto request, Pageable pageable) {
-        log.info("request : {}", request.toString());
+    public FeedSliceResponseDto findFeedListByFeedRequest(FeedSearchRequest request, Pageable pageable) {
+        List<Feed> feeds;
+        if (request.getSearchType() != null) {
+            if (request.getDomain().equals(ProjectDomain.전체)) {
+                String jpql = (request.getSearchType().equals(FeedSearchType.TITLE))
+                        ? "SELECT f FROM Feed f WHERE f.title LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC"
+                        : "SELECT f FROM Feed f join f.user u on u.name LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC";
 
-        String jpql = (request.getSearchType().equals(SearchType.TITLE))
-                ? "SELECT f FROM Feed f WHERE f.title LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC"
-                : "SELECT f FROM Feed f join f.user u on u.name LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC";
+                feeds = em.createQuery(jpql, Feed.class)
+                        .setParameter("searchValue", request.getSearchValue())
+                        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
+                        .setMaxResults(pageable.getPageSize())
+                        .getResultList();
+            } else {
+                String jpql = (request.getSearchType().equals(FeedSearchType.TITLE))
+                        ? "SELECT f FROM Feed f WHERE f.title LIKE CONCAT('%', :searchValue, '%') and f.projectDomain = :domain ORDER BY f.id DESC"
+                        : "SELECT f FROM Feed f join f.user u on u.name LIKE CONCAT('%', :searchValue, '%') and f.projectDomain = :domain ORDER BY f.id DESC";
 
-        List<Feed> feeds = em.createQuery(jpql, Feed.class)
-                .setParameter("searchValue", request.getSearchValue())
-                .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
+                feeds = em.createQuery(jpql, Feed.class)
+                        .setParameter("searchValue", request.getSearchValue())
+                        .setParameter("domain", request.getDomain())
+                        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
+                        .setMaxResults(pageable.getPageSize())
+                        .getResultList();
+            }
+        } else {
+            if (request.getDomain().equals(ProjectDomain.전체)) {
+                String jpql = "SELECT f FROM Feed f ORDER BY f.id DESC";
+                feeds = em.createQuery(jpql, Feed.class)
+                        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
+                        .setMaxResults(pageable.getPageSize())
+                        .getResultList();
+            } else {
+                String jpql = "SELECT f FROM Feed f WHERE f.projectDomain = :domain ORDER BY f.id DESC";
+                feeds = em.createQuery(jpql, Feed.class)
+                        .setParameter("domain", request.getDomain())
+                        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
+                        .setMaxResults(pageable.getPageSize())
+                        .getResultList();
+            }
+        }
 
-        List<FeedSearchResponseDto> responseFeeds = feeds.stream().map(feed -> FeedSearchResponseDto.builder()
+        List<FeedSearchResponse> responseFeeds = feeds.stream().map(feed -> FeedSearchResponse.builder()
                 .user(feed.getUser())
                 .feed(feed)
                 .build()).toList();
@@ -46,19 +74,62 @@ public class FeedRepositoryCustom {
         return response;
     }
 
-    private boolean hasNextSlice(FeedSearchResquestDto request, Pageable pageable) {
+    // 검토. hasNextSlice할 필요없이 하나의 query로 카운트 할 수 있음.
+    private boolean hasNextSlice(FeedSearchRequest request, Pageable pageable) {
 
-        String jpql = (request.getSearchType().equals(SearchType.TITLE))
-                ? "select count(f.id) from Feed f where f.title like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC"
-                : "select count(f.id) from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC";
+        if (request.getSearchType() != null) {
+            if (request.getDomain().equals(ProjectDomain.전체)) {
+                String jpql = (request.getSearchType().equals(FeedSearchType.TITLE))
+                        ? "select count(cnt) from (select f.id cnt from Feed f where f.title like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC)"
+                        : "select count(cnt) from (select f.id cnt from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC)";
 
-        try {
-            Long countQuery = em.createQuery(jpql, Long.class)
-                    .setParameter("searchValue", request.getSearchValue())
-                    .getSingleResult();
-            return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
-        } catch (Exception e) {
-            return false;
+                try {
+                    Long countQuery = em.createQuery(jpql, Long.class)
+                            .setParameter("searchValue", request.getSearchValue())
+                            .getSingleResult();
+                    return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
+                } catch (Exception e) {
+                    return false;
+                }
+            } else {
+                String jpql = (request.getSearchType().equals(FeedSearchType.TITLE))
+                        ? "select count(cnt) from (select f.id cnt from Feed f where f.title like CONCAT('%', :searchValue, '%') and f.projectDomain = :domain GROUP BY f.id order by f.id DESC)"
+                        : "select count(cnt) from (select f.id cnt from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') and f.projectDomain = :domain GROUP BY f.id order by f.id DESC)";
+
+                try {
+                    Long countQuery = em.createQuery(jpql, Long.class)
+                            .setParameter("domain", request.getDomain())
+                            .setParameter("searchValue", request.getSearchValue())
+                            .getSingleResult();
+                    return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        } else {
+            if (request.getDomain().equals(ProjectDomain.전체)) {
+                String jpql = "select count(cnt) from (select f.id cnt from Feed f GROUP BY f.id)";
+
+                try {
+                    Long countQuery = em.createQuery(jpql, Long.class)
+                            .getSingleResult();
+                    //                log.info("카운트 쿼리 " + Long.toString(countQuery));
+                    return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
+                } catch (Exception e) {
+                    return false;
+                }
+            } else {
+                String jpql = "select count(cnt) from (select f.id cnt from Feed f WHERE f.projectDomain = :domain GROUP BY f.id)";
+
+                try {
+                    Long countQuery = em.createQuery(jpql, Long.class)
+                            .setParameter("domain", request.getDomain())
+                            .getSingleResult();
+                    return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
+                } catch (Exception e) {
+                    return false;
+                }
+            }
         }
     }
 }

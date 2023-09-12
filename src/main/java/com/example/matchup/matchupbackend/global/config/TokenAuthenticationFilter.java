@@ -3,45 +3,31 @@ package com.example.matchup.matchupbackend.global.config;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
+@Slf4j
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProvider tokenProvider;
+    private final TokenProvider  tokenProvider;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
+            throws ServletException, IOException {
 
 //        String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
-//        String token = tokenProvider.getAccessToken(authorizationHeader);
-//        String token = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
+//        String token = tokenProvider.getAccessToken(authorizationHeader); Bearer 추가가 되면 이걸 사용하면 된다.
 
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("token"))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-
+        String token = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
         if (tokenProvider.validToken(token)) {
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);

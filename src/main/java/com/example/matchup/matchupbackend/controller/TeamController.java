@@ -46,7 +46,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
     public Long makeTeam(@RequestHeader(value = "Authorization") String token, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
-        Long userId = tokenProvider.getUserId(token);
+        Long userId = tokenProvider.getUserId(token, "TeamCreate");
         if (userId == null) {
             throw new AuthorizeException("TeamCreate");
         }
@@ -58,10 +58,10 @@ public class TeamController {
     @PutMapping("/team/{teamID}")
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
-        Long userId = tokenProvider.getUserId(token);
-        if (userId == null) {
-            throw new AuthorizeException("TeamUpdate");
-        }
+        Long userId = tokenProvider.getUserId(token, "updateTeam");
+//        if (userId == null) {
+//            throw new AuthorizeException("TeamUpdate");
+//        }
         teamService.updateTeam(userId, teamID, teamCreateRequest);
         log.info("제목: " + teamCreateRequest.getName() + "팀이 수정되었습니다");
         return ResponseEntity.ok("업데이트 완료");
@@ -70,7 +70,7 @@ public class TeamController {
     @DeleteMapping("/team/{teamID}")
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
     public ResponseEntity<String> deleteTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
-        Long userId = tokenProvider.getUserId(token);
+        Long userId = tokenProvider.getUserId(token, "deleteTeam");
         if (userId == null) {
             throw new AuthorizeException("TeamDelete");
         }

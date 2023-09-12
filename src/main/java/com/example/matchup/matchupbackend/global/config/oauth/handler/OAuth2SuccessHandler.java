@@ -62,7 +62,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private String getTargetUrl(String token, User user) {
 
-//        log.info("User: " + user.getIsFirstLogin() + " " + user.getEmail() + " " + user.getId());
         String isFirstLogin = user.getIsFirstLogin()
                 ? "true"
                 : "";
