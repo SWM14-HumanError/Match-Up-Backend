@@ -14,6 +14,11 @@ spring:
               - oauth
               - oauth-dev
               - mysql
+    # 파일업로드 최대 용량 설정
+    servlet:
+        multipart:
+            maxFileSize: 1MB
+            maxRequestSize: 1MB
 
 logging:
     file:
@@ -22,3 +27,4 @@ logging:
 logging.level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+

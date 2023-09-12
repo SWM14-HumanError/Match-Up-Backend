@@ -31,25 +31,25 @@ INSERT
 
 INSERT
     INTO
-        feed (create_time, feed_title, feed_content, thumbnail_url, user_id)
+        feed (project_domain, create_time, feed_title, feed_content, thumbnail_url, user_id)
     VALUES
-        ('2023-09-01', '1Spring 의 이여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 4),
-        ('2023-09-01', '2최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 4),
-        ('2023-09-01', '3맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 4),
-        ('2023-09-01', '4취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 4),
-        ('2023-09-01', '5독서 모임 참여자 모집', '매주 독서 모임을 개최하고 있습니다. 함께 읽을 동료를 찾습니다. 관심 있으신 분 연락주세요!', 'https://velog.velcdn.com/images/jujemu/post/7f78d17e-a499-4b00-b28f-ddf62117db73/image.png', 4),
-        ('2023-09-01', '6여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 4),
-        ('2023-09-01', '7최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 4),
-        ('2023-09-01', '8맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 4),
-        ('2023-09-01', '9취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 4),
-        ('2023-09-01', '10여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 4),
-        ('2023-09-01', '11최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 4),
-        ('2023-09-01', '12맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 4),
-        ('2023-09-01', '13취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 4),
-        ('2023-09-01', '14여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 4),
-        ('2023-09-01', '15최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 4),
-        ('2023-09-01', '16맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 4),
-        ('2023-09-01', '17취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 4);
+        ('교육', '2023-09-01', '1Spring 의 이여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 5),
+        ('교육', '2023-09-01', '2최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 4),
+        ('음식', '2023-09-01', '3맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 5),
+        ('문화', '2023-09-01', '4취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 5),
+        ('교육', '2023-09-01', '5독서 모임 참여자 모집', '매주 독서 모임을 개최하고 있습니다. 함께 읽을 동료를 찾습니다. 관심 있으신 분 연락주세요!', 'https://velog.velcdn.com/images/jujemu/post/7f78d17e-a499-4b00-b28f-ddf62117db73/image.png', 5),
+        ('여행', '2023-09-01', '6여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 5),
+        ('교육', '2023-09-01', '7최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 5),
+        ('음식', '2023-09-01', '8맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 5),
+        ('문화', '2023-09-01', '9취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 5),
+        ('여행', '2023-09-01', '10여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 5),
+        ('교육', '2023-09-01', '11최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 5),
+        ('음식', '2023-09-01', '12맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 5),
+        ('문화', '2023-09-01', '13취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 5),
+        ('여행', '2023-09-01', '14여름 휴가 계획', '올해 여름 휴가 계획을 세우고 있습니다. 어디로 가야 할까요?', 'https://velog.velcdn.com/images/jujemu/post/e080fd9c-9c86-485d-b526-31c1a667790f/image.png', 4),
+        ('교육', '2023-09-01', '15최신 프로그래밍 언어 트렌드', '2023년의 최신 프로그래밍 언어 트렌드는 무엇일까요?', 'https://velog.velcdn.com/images/jujemu/post/871f4b0a-704d-4b80-9578-d8aa9d0c08d2/image.png', 4),
+        ('음식', '2023-09-01', '16맛집 추천', '요즘 강남에서 핫한 맛집을 소개합니다. 꼭 가보세요!', 'https://velog.velcdn.com/images/jujemu/post/e14c4d17-7b24-4cf2-82be-dfa77433d113/image.png', 4),
+        ('문화', '2023-09-01', '17취미로 하는 일러스트 공유', '저는 주말마다 일러스트를 그리는 취미가 있습니다. 같이 공유하고 싶어요.', 'https://velog.velcdn.com/images/jujemu/post/a6668a9a-8d63-4a8c-873c-d7af5043f36a/image.png', 5);
 
 INSERT
     INTO
