@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class TeamUserFeedbackRequest {
     @NotNull(message = "피드백을 받는 유저 ID는 필수입니다.")
-    private Long userID; //피드백을 받는 유저 ID
+    private Long receiverID; //피드백을 받는 유저 ID
     @NotBlank(message = "피드백 등급은 필수입니다.(GREAT, NORMAL, BAD)")
     private FeedbackGrade grade; //피드백 등급
     /**
