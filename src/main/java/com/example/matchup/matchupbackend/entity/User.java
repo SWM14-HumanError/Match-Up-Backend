@@ -111,8 +111,8 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     public void addReview(Feedback feedback) {
-        this.totalReviews++;
-        this.reviewScore+=feedback.getTotalScore();
+        this.totalFeedbacks++;
+        this.feedbackScore += feedback.getTotalScore();
     }
 
     @Builder // OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
