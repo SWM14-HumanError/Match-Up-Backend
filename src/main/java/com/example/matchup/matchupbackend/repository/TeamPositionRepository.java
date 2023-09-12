@@ -16,11 +16,11 @@ public interface TeamPositionRepository extends JpaRepository<TeamPosition, Long
     @Query("SELECT position from TeamPosition position where position.team.id=:teamID and position.role=:role")
     Optional<TeamPosition> findTeamPositionByTeamIdAndRole(@Param("teamID") Long teamID, @Param("role") String role);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamPosition position SET position.count = position.count + 1 WHERE position.team.id = :teamId AND position.role=:role")
     void updateTeamPositionStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamPosition position SET position.count = position.count - 1 WHERE position.team.id = :teamId AND position.role=:role")
     void updateTeamPositionStatusByKickedUser(@Param("teamId") Long teamId, @Param("role") String role);
 }

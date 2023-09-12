@@ -9,14 +9,16 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
 public class TeamCreateRequest {
-    private MultipartFile thumbnailIMG;
+    private String base64Thumbnail;
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     @Size(max = 30, message = "제목은 30자를 넘을 수 없습니다.")
     private String name;
@@ -53,4 +55,12 @@ public class TeamCreateRequest {
         }
         return userStacks.stream().distinct().collect(Collectors.toList());
     }
+
+    public MultipartFile getThumbnailIMG() {
+        byte[] decodeIMG = Base64.getDecoder().decode(this.base64Thumbnail);
+        ByteArrayMultipartFileEditor byteArrayMultipartFileEditor = new ByteArrayMultipartFileEditor();
+        byteArrayMultipartFileEditor.setValue(decodeIMG);
+        return (MultipartFile) byteArrayMultipartFileEditor.getValue();
+    }
+
 }
