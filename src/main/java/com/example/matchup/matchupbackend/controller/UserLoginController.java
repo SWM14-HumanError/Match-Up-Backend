@@ -44,19 +44,14 @@ public class UserLoginController {
       */
     @PostMapping("/login/token/refresh")
     public String loginToken(HttpServletRequest request) {
+        String refreshToken = Arrays.stream(request.getCookies())
+                                .filter(cookie -> cookie.getName().equals("refresh_token"))
+                                .map(Cookie::getValue)
+                                .findFirst()
+                                .orElse(null);
+        if (refreshToken == null)  return "redirect:/login";
 
-        // Bearer
-//        String token = tokenProvider.getAccessToken(headerAuthorization.get("refreshToken"));
-//        String token = (String) headerAuthorization.get("refreshToken");
-        String token = Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals("refresh-token"))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-        if (token == null) {
-            return "redirect:/";
-        }
-        String reissuedAccessToken = tokenService.createNewAccessToken(token);
+        String reissuedAccessToken = tokenService.createNewAccessToken(refreshToken);
         return "redirect:" + tokenProvider.getOAuth2LoginUrl().getSuccessUrl() + "?token=" + reissuedAccessToken;
     }
 }

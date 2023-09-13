@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 
 ### secret ###
+application.yml
 application-oauth.yml
 
 ### STS ###

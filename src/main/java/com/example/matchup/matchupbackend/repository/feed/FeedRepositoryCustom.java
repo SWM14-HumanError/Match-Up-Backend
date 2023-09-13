@@ -3,7 +3,7 @@ package com.example.matchup.matchupbackend.repository.feed;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSearchResponse;
 import com.example.matchup.matchupbackend.dto.FeedSearchType;
-import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.entity.ProjectDomain;
 import jakarta.persistence.EntityManager;
@@ -19,7 +19,7 @@ public class FeedRepositoryCustom {
 
     private final EntityManager em;
 
-    public FeedSliceResponseDto findFeedListByFeedRequest(FeedSearchRequest request, Pageable pageable) {
+    public FeedSliceResponse findFeedListByFeedRequest(FeedSearchRequest request, Pageable pageable) {
         List<Feed> feeds;
         if (request.getSearchType() != null) {
             if (request.getDomain().equals(ProjectDomain.전체)) {
@@ -66,8 +66,8 @@ public class FeedRepositoryCustom {
                 .feed(feed)
                 .build()).toList();
 
-        FeedSliceResponseDto response = new FeedSliceResponseDto();
-        response.setFeedSearchResponsDtos(responseFeeds);
+        FeedSliceResponse response = new FeedSliceResponse();
+        response.setFeedSearchResponses(responseFeeds);
         response.setSize(feeds.size());
         response.setHasNextSlice(hasNextSlice(request, pageable));
 

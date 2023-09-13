@@ -45,8 +45,8 @@ public class TeamController {
     @PostMapping("/team")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
-    public Long makeTeam(@RequestHeader(value = "Authorization") String token, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
-        Long userId = tokenProvider.getUserId(token, "TeamCreate");
+    public Long makeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "TeamCreate");
         if (userId == null) {
             throw new AuthorizeException("TeamCreate");
         }
@@ -57,8 +57,8 @@ public class TeamController {
     //팀 내용 업데이트
     @PutMapping("/team/{teamID}")
     @Operation(description = "팀 정보 수정") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
-    public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
-        Long userId = tokenProvider.getUserId(token, "updateTeam");
+    public ResponseEntity<String> updateTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "updateTeam");
 //        if (userId == null) {
 //            throw new AuthorizeException("TeamUpdate");
 //        }
@@ -69,8 +69,8 @@ public class TeamController {
 
     @DeleteMapping("/team/{teamID}")
     @Operation(description = "팀 삭제") //인증 정보 추가돼서 팀장만 삭제할수 있도록 함
-    public ResponseEntity<String> deleteTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID) {
-        Long userId = tokenProvider.getUserId(token, "deleteTeam");
+    public ResponseEntity<String> deleteTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "deleteTeam");
         if (userId == null) {
             throw new AuthorizeException("TeamDelete");
         }

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class FeedSearchResponse {
 
     private Long id;
+    private Long userId;
     private String title;
     private String content;
     private String thumbnailUrl;
@@ -18,7 +19,6 @@ public class FeedSearchResponse {
     private String userName;
     private String userPictureUrl;
     private Long positionLevel;
-    private Long userId;
 
     @Builder
     public FeedSearchResponse(Feed feed, User user) {
