@@ -114,10 +114,10 @@ public class TeamController {
         return teamService.getTeamType(teamID);
     }
 
-    @PostMapping("/file/test")
+    @PostMapping("/file/upload")
     @ResponseStatus(HttpStatus.OK)
     @Operation(description = "파일 저장하는 테스트")
-    public UploadFile showTeamType(MultipartFile multipartFile) {
+    public UploadFile uploadFileTest(MultipartFile multipartFile) {
         return fileService.storeFile(multipartFile);
     }
 }
