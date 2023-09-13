@@ -12,9 +12,11 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
     @Query("SELECT user from User user where user.email=:userEmail")
     Optional<User> findByEmail(@Param("userEmail") String email);
     @Query("SELECT user from User user where user.refreshToken=:token")
-    Optional<User> findByRefreshToken(@Param("token") String token);
+    Optional<User> findByRefreshToken(@Param("token") String refreshToken);
     @Query("SELECT user from User user")
     List<User> findAllUser();
     @Query("SELECT user from User user where user.id=:userID")
     Optional<User> findUserById(@Param("userID") Long userID);
+
+    Optional<User> findUserByNickname(String nickname);
 }
