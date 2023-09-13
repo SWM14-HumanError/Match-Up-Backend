@@ -27,7 +27,7 @@ public class TokenService {
 
         User user = userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new AuthorizeException("등록되지 않은 refresh 토큰입니다."));
-
-        return tokenProvider.generateToken(user, Duration.ofHours(2));
+        String response = tokenProvider.generateToken(user, Duration.ofHours(2));
+        return (user.getIsFirstLogin()) ? response + "signup=true" : response;
     }
 }

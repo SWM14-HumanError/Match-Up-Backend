@@ -64,6 +64,7 @@ public class TokenProvider {
         }
         catch (Exception e) {
 //            log.info("token is not valid: {}", e.getMessage());
+//            log.info("token: {}", token);
             return TokenStatus.INVALID_OTHER;
         }
     }

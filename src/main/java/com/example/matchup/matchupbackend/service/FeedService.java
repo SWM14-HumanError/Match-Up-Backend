@@ -34,33 +34,33 @@ public class FeedService {
     }
 
     @Transactional
-    public Feed saveFeed(FeedCreateOrUpdateRequest request, String token) {
-        Long userId = tokenProvider.getUserId(token, "createFeed");
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeed"));
+    public Feed saveFeed(FeedCreateOrUpdateRequest request, String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "createFeed 중에 훼손된 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeed 중에 존재하지 않는 유저에 접근했습니다."));
         Feed feed = request.toEntity(user);
         return feedRepository.save(feed);
     }
 
     @Transactional
-    public Feed updateFeed(FeedCreateOrUpdateRequest request, String token, Long feedId) {
-        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
-        Long userId = tokenProvider.getUserId(token, "updateFeed");
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
+    public Feed updateFeed(FeedCreateOrUpdateRequest request, String authorizationHeader, Long feedId) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("updateFeed 중에 존재하지 않는 피드에 접근했습니다."));
+        Long userId = tokenProvider.getUserId(authorizationHeader, "updateFeed 중에 훼손된 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed 중에 존재하지 않는 유저에 접근했습니다."));
 
         if (feed.getUser().equals(user)) {
             Feed updatedFeed = feed.updateFeed(request);
             return updatedFeed;
         }
         else {
-            throw new AuthorizeException("updateFeed");
+            throw new AuthorizeException("updateFeed 중에 인가받지 못한 유저의 접근입니다.");
         }
     }
 
     @Transactional
     public boolean deleteFeed(String token, Long feedId) {
-        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("deleteFeed"));
-        Long userId = tokenProvider.getUserId(token, "deleteFeed");
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed"));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("deleteFeed 중에 존재하지 않는 피드에 접근했습니다."));
+        Long userId = tokenProvider.getUserId(token, "deleteFeed 중에 훼손된 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed 중에 존재하지 않는 유저에 접근했습니다."));
 
         if (feed.getUser().equals(user)) {
             feedRepository.delete(feed);

@@ -19,11 +19,11 @@ public class FeedSearchRequest {
     private String domain;
 
     public FeedSearchType getSearchType() {
-        return FeedSearchType.valueOf(this.searchType);
+        return (this.searchType != null) ? FeedSearchType.valueOf(this.searchType) : null;
     }
 
     public ProjectDomain getDomain() {
-        return ProjectDomain.valueOf(this.domain);
+        return (this.domain != null) ? ProjectDomain.valueOf(this.domain) : ProjectDomain.전체;
     }
 }
 

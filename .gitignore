@@ -8,6 +8,7 @@ build/
 ### secret ###
 application.yml
 application-oauth.yml
+application-db.yml
 
 ### STS ###
 .apt_generated
