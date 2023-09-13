@@ -7,11 +7,13 @@ import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.Dup
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
-import com.example.matchup.matchupbackend.error.exception.FileUploadException;
+import com.example.matchup.matchupbackend.error.exception.FileEx.FileExtensionException;
+import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
@@ -52,6 +54,15 @@ public class GlobalAdvice {
         String messageExtra = ex.getHeaderName();
         ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MISSING_REQUEST_HEADER, messageExtra);
         return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
+    }
+
+    /**
+     * 너무 사이즈가 큰 파일을 업로드 한 경우
+     */
+    @ExceptionHandler(SizeLimitExceededException.class)
+    public ResponseEntity SizeLimitExceededExHandler(SizeLimitExceededException ex) {
+        ErrorResult errorResponseDto = ErrorResult.of(ErrorCode.MAX_FILE_SIZE_ERROR,ex.getMessage());
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
     /** 에러 난 경우 에러 메세지를 보기 위해 주석처리
@@ -123,13 +134,28 @@ public class GlobalAdvice {
     }
 
     /**
-     * 파일 관련 에러가 발생한 경우
+     * 파일 업로드 관련 에러가 발생한 경우
      */
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity FileUploadExHandler(FileUploadException ex) {
         String messageExtra = ex.getDetailInfo();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponseDto);
+    }
+
+    /**
+     * 파일 확장자 관련 에러가 발생한 경우
+     */
+    @ExceptionHandler(FileExtensionException.class)
+    public ResponseEntity FileExtensionExHandler(FileExtensionException ex) {
+        String requestExt = ex.getRequestExt();
+        List<String> supportExt = ex.getSupportExt();
+        log.info("지원하는 확장자: " + supportExt);
+        log.info("사용자가 보낸 확장자: " + requestExt);
+        Map<String, List<String>> extraInfo = new HashMap<>(); //ppt, [jpeg, jpg, png, gif]
+        extraInfo.put(requestExt, supportExt);
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), extraInfo);
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
     /**
@@ -141,6 +167,7 @@ public class GlobalAdvice {
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
     }
+
 
     //--매서드 모음--//
     private void convertBindingResultToMap(BindingResult ex, Map<String, List<String>> messageExtra) {
