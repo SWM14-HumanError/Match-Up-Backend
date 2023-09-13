@@ -29,7 +29,7 @@ public class FeedCreateOrUpdateRequest {
     @Range(max = 1, message = "0(Project) or 1(Study)로만 입력하세요")
     private Long type;
 
-    @Enum(enumClass = ProjectDomain.class)
+    @Enum(enumClass = ProjectDomain.class, message = "적절하지 않은 도메인입니다.")
     private String domain;
 
     // todo: refactoring

@@ -15,6 +15,7 @@ public enum ErrorCode {
     REQUEST_FIELD_ERROR(HttpStatus.BAD_REQUEST, "G-003", "입력 필드에 오류가 있습니다."),
     UNAUTHORIZED_RESOURCE_ACCESS(HttpStatus.UNAUTHORIZED, "G-004", "토큰이 유효하지 않습니다."),
     MISSING_REQUEST_HEADER(HttpStatus.UNAUTHORIZED, "G-005", "header 값이 없습니다."),
+    EXPIRED_RESOURCE_ACCESS(HttpStatus.UNAUTHORIZED, "G-006", "만료된 토큰입니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-001", "게시글이 존재하지 않습니다."),
     LEADER_ONLY_MODIFY(HttpStatus.UNAUTHORIZED, "T-S-002", "팀장만 접근이 가능 합니다."),
     MAX_MEMBER_ERROR(HttpStatus.BAD_REQUEST, "T-S-003", "현재 팀원보다 최대 팀원 수를 높게 정하세요."),
@@ -24,7 +25,8 @@ public enum ErrorCode {
     TEAM_USER_RECRUIT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-003", "이미 지원한 팀입니다."),
     TEAM_USER_ACCEPT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-004", "이미 팀원입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다."),
-    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "F-S-001", "피드 정보가 존재하지 않습니다."),
+    USER_NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "UP-S-001", "유저 닉네임이 중복됩니다."),
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FE-S-001", "피드 정보가 존재하지 않습니다."),
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F-S-001", "파일을 저장 중 오류가 발생했습니다.");
 
     private HttpStatus status;

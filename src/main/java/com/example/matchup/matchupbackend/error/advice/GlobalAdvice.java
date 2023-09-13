@@ -6,12 +6,14 @@ import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.FileUploadException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -32,8 +34,9 @@ public class GlobalAdvice {
 
     /**
      * DTO의 request(@QueryParam)가 컨트롤러 @Valid에서 빈 검증 통과 못한 경우  (G-003)
+     * 혹은 Enum에 없는 값으로 요청한 경우
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
     public ResponseEntity MethodArgumentNotValidExHandler(MethodArgumentNotValidException ex) {
         Map<String, List<String>> messageExtra = new HashMap<>(); //ex) type: [에러1, 에러2, 에러3...]
         convertBindingResultToMap(ex.getBindingResult(), messageExtra);
@@ -127,6 +130,16 @@ public class GlobalAdvice {
         String messageExtra = ex.getDetailInfo();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponseDto);
+    }
+
+    /**
+     * 만료된 토큰에 대한 예외처리 (G-006)
+     */
+    @ExceptionHandler(ExpiredTokenException.class)
+    public ResponseEntity ExpiredTokenExHandler(ExpiredTokenException ex) {
+        String messageExtra = ex.getResource();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
     }
 
     //--매서드 모음--//
