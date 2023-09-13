@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
@@ -29,7 +29,7 @@ public class FeedService {
     private final FeedRepository  feedRepository;
     private final TokenProvider tokenProvider;
 
-    public FeedSliceResponseDto getSliceFeed(FeedSearchRequest request, Pageable pageable) {
+    public FeedSliceResponse getSliceFeed(FeedSearchRequest request, Pageable pageable) {
         return feedRepositoryCustom.findFeedListByFeedRequest(request, pageable);
     }
 

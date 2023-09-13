@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.service.FeedService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public class FeedController {
     private final FeedService feedService;
 
     @GetMapping("/feeds")
-    public ResponseEntity<FeedSliceResponse> showFeeds(FeedSearchRequest feedSearchRequest,
+    public ResponseEntity<FeedSliceResponse> showFeeds(@Valid FeedSearchRequest feedSearchRequest,
                                                        @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         FeedSliceResponse response = feedService.getSliceFeed(feedSearchRequest, pageable);
@@ -37,7 +38,7 @@ public class FeedController {
 
     @PostMapping("/feed")
     public ResponseEntity<URI> createFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                           @RequestBody FeedCreateOrUpdateRequest request) {
+                                           @Valid @RequestBody FeedCreateOrUpdateRequest request) {
         Feed feedCreated = feedService.saveFeed(request, authorizationHeader);
         if (feedCreated != null) {
             log.info("id: {}의 피드가 생성되었습니다.", feedCreated.getId());
@@ -49,7 +50,7 @@ public class FeedController {
 
     @PutMapping("/feed/{feed_id}")
     public ResponseEntity<Long> updateFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                           @RequestBody FeedCreateOrUpdateRequest request,
+                                           @Valid @RequestBody FeedCreateOrUpdateRequest request,
                                            @PathVariable("feed_id") Long feedId) {
         Feed feedUpdated = feedService.updateFeed(request, authorizationHeader, feedId);
         if (feedUpdated != null) {

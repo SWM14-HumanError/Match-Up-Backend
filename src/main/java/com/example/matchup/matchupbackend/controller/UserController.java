@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardRespons
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,7 @@ public class UserController {
 
     @PutMapping("/login/user/info")
     public ResponseEntity<Long> additionalUserInfo(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                                   @RequestBody AdditionalUserInfoRequest request) {
+                                                   @Valid @RequestBody AdditionalUserInfoRequest request) {
 
         Long userId = userService.saveAdditionalUserInfo(authorizationHeader, request);
         return (userId != null)

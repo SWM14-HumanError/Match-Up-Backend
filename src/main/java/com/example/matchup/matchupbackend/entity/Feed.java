@@ -46,7 +46,7 @@ public class Feed extends BaseEntity{
     public Feed updateFeed(FeedCreateOrUpdateRequest request) {
         this.title = (request.getTitle() == null) ? this.title : request.getTitle();
         this.content = (request.getContent() == null) ? this.content : request.getContent();
-        this.type = (request.getType() == null) ? this.type : request.getType();
+        this.type = request.getType();
         this.projectDomain = (request.getDomain() == null) ? this.projectDomain : request.getDomain();
         this.thumbnailUrl = (request.getImageUrl() == null) ? this.thumbnailUrl : request.getImageUrl();
         return this;
