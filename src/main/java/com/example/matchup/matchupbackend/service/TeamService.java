@@ -74,8 +74,11 @@ public class TeamService {
      */
     @Transactional
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
-        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
-        Team team = Team.of(leaderID, teamCreateRequest, uploadFile);
+        Team team = Team.of(leaderID, teamCreateRequest);
+        if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+            team.setUploadFile(uploadFile);
+        }
         makeTeamPosition(teamCreateRequest, team);
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
@@ -128,10 +131,13 @@ public class TeamService {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
         isUpdatableTeam(leaderID, team, teamCreateRequest);
-        fileService.deleteImage(team.getThumbnailUrl());
-        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+        if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
+            fileService.deleteImage(team.getThumbnailUrl());
+            UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+            team.setUploadFile(uploadFile);
+        }
         log.info("Update team ID : " + teamID);
-        return team.updateTeam(teamCreateRequest, uploadFile);
+        return team.updateTeam(teamCreateRequest);
     }
 
     /**
@@ -170,7 +176,9 @@ public class TeamService {
         if (!leaderID.equals(team.getLeaderID())) {
             throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
-        fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
+        if (!team.getThumbnailUploadUrl().isEmpty()) {
+            fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
+        }
         team.deleteTeam();
         log.info("deleted team ID : " + teamID);
     }
