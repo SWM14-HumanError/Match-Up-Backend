@@ -71,17 +71,17 @@ public class Feedback {
         this.team = team;
     }
 
-    public void setGiver(User giver) {
+    private void setGiver(User giver) {
         this.giver = giver;
         giver.getGiveFeedbackList().add(this);
     }
 
-    public void setReceiver(User receiver) {
+    private void setReceiver(User receiver) {
         this.receiver = receiver;
         receiver.getRecieveFeedbackList().add(this);
     }
 
-    public void setTeam(Team team) {
+    private void setTeam(Team team) {
         this.team = team;
         team.getTeamUserFeedbackList().add(this);
     }
