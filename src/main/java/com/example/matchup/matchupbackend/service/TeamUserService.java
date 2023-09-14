@@ -26,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -197,6 +199,7 @@ public class TeamUserService {
 
     /**
      * 팀 구성원끼리 주는 피드백을 생성하는 매서드
+     *
      * @param giverID
      * @param teamID
      * @param feedbackRequest
@@ -222,12 +225,16 @@ public class TeamUserService {
      * 2. 아직 리뷰 보낼 시간이 아닌데 리뷰를 한번 더 보내는지
      */
     public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) {
-        if(teamRepository.isFinished(teamID)){
+        if (teamRepository.isFinished(teamID)) {
             throw new InvalidFeedback("이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
         }
-        Optional<Feedback> feedbackByUserAndTeam = feedbackRepository.findFeedbackByUserAndTeam(giverID, receiverID, teamID);
-        if(feedbackByUserAndTeam.isPresent()){ //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
-
+        List<Feedback> feedbacksByUserAndTeam = feedbackRepository.findFeedbackByUserAndTeam(giverID, receiverID, teamID);
+        if (!feedbacksByUserAndTeam.isEmpty()) { //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
+            Feedback feedback = feedbacksByUserAndTeam.get(0);
+            Duration duration = Duration.between(feedback.getCreateTime(), LocalDateTime.now());
+            if (duration.toDays() < 7) {
+                throw new InvalidFeedback("피드백은 7일에 한번만 보낼 수 있습니다"); //TODO 몇일 간격으로 피드백할건지 정해야 함
+            }
         }
     }
 }
