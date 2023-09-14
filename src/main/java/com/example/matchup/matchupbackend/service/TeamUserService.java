@@ -9,6 +9,7 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormReques
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedback;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -193,6 +195,12 @@ public class TeamUserService {
         return true;
     }
 
+    /**
+     * 팀 구성원끼리 주는 피드백을 생성하는 매서드
+     * @param giverID
+     * @param teamID
+     * @param feedbackRequest
+     */
     @Transactional
     public void feedbackToTeamUser(Long giverID, Long teamID, TeamUserFeedbackRequest feedbackRequest) {
         User giverUser = userRepository.findById(giverID)
@@ -201,10 +209,25 @@ public class TeamUserService {
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저"));
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
-
+        isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
         Feedback feedback = Feedback.fromDTO(feedbackRequest);
         feedback.setRelation(giverUser, receiverUser, team);
         receiverUser.addFeedback(feedback);
         feedbackRepository.save(feedback);
+    }
+
+    /**
+     * 팀 구성원끼리 피드백을 생성할 수 있는지 검증하는 매서드
+     * 1. 프로젝트가 끝났는데 리뷰를 한번 더 보내는지
+     * 2. 아직 리뷰 보낼 시간이 아닌데 리뷰를 한번 더 보내는지
+     */
+    public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) {
+        if(teamRepository.isFinished(teamID)){
+            throw new InvalidFeedback("이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
+        }
+        Optional<Feedback> feedbackByUserAndTeam = feedbackRepository.findFeedbackByUserAndTeam(giverID, receiverID, teamID);
+        if(feedbackByUserAndTeam.isPresent()){ //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
+
+        }
     }
 }
