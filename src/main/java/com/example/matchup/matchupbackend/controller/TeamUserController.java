@@ -96,14 +96,14 @@ public class TeamUserController {
 
     @PostMapping("/team/{teamID}/feedback")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(description = "팀 구성원끼리 평점을 주는 API")
+    @Operation(description = "팀 구성원끼리 피드백을 주는 API")
     public String gradeUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamUserFeedbackRequest feedback) {
         Long giverId = tokenProvider.getUserId(token, "feedbackTeamUser");
         if (giverId == null) {
             throw new AuthorizeException("feedbackTeamUser");
         }
-        log.info("userId: " + giverId + " -> " + "userId: " + feedback.getReceiverID() + " 의 피드백이 추가 되었습니다");
         teamUserService.feedbackToTeamUser(giverId, teamID, feedback);
+        log.info("userId: " + giverId + " -> " + "userId: " + feedback.getReceiverID() + " 의 피드백이 추가 되었습니다");
         return "유저에게 평점을 주었습니다";
     }
 }
