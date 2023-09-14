@@ -82,9 +82,7 @@ public class Team extends BaseEntity {
     }
 
     //== 비즈니스 로직 ==//
-    public Long updateTeam(TeamCreateRequest teamCreateRequest, UploadFile uploadFile) {
-        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
-        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+    public Long updateTeam(TeamCreateRequest teamCreateRequest) {
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
         this.detailType = teamCreateRequest.getType().getDetailType();
@@ -128,14 +126,12 @@ public class Team extends BaseEntity {
         return techStacks;
     }
 
-    public static Team of(Long leaderID, TeamCreateRequest teamCreateRequest, UploadFile uploadFile) {
+    public static Team of(Long leaderID, TeamCreateRequest teamCreateRequest) {
         Team build = Team.builder()
                 .title(teamCreateRequest.getName())
                 .description(teamCreateRequest.getDescription())
                 .type(teamCreateRequest.getType().getTeamType())
                 .detailType(teamCreateRequest.getType().getDetailType())
-                .thumbnailUploadUrl(uploadFile.getUploadFileName())
-                .thumbnailStoreUrl(String.valueOf(uploadFile.getS3Url())) //todo DB에 uploadName, storeName 둘다 저장하는것이 맞는지
                 .like(0L)
                 .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
                 .city(teamCreateRequest.getMeetingSpot().getCity())
@@ -144,5 +140,10 @@ public class Team extends BaseEntity {
                 .leaderID(leaderID)
                 .build();
         return build;
+    }
+
+    public void setUploadFile(UploadFile uploadFile){
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
     }
 }

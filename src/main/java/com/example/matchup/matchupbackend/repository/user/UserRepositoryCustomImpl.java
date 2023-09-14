@@ -18,7 +18,7 @@ import static com.example.matchup.matchupbackend.entity.QUserTag.*;
 
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryImpl implements UserRepositoryCustom {
+public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private QUser qUser = user;
     private QUserTag qUserTag = userTag;
@@ -76,7 +76,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     private OrderSpecifier<?> orderByTo(String orderBy) {
         Order order = Order.DESC;
         if ("reviewScore".equals(orderBy)) {
-            return new OrderSpecifier<>(order, user.reviewScore);
+            return new OrderSpecifier<>(order, user.feedbackScore);
         } else if ("likes".equals(orderBy)) {
             return new OrderSpecifier<>(order, user.likes);
         } else return new OrderSpecifier<>(order, user.createTime);
