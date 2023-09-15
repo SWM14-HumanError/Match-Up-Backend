@@ -225,15 +225,18 @@ public class TeamUserService {
      */
     public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) { //todo valid 테스트
         if (teamRepository.isFinished(teamID)) {
-            throw new InvalidFeedbackException("이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
+            throw new InvalidFeedbackException("teamID: " + teamID.toString(), "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
         }
         List<Feedback> feedbacksByUserAndTeam = feedbackRepository.findFeedbackByUserAndTeam(giverID, receiverID, teamID);
         if (!feedbacksByUserAndTeam.isEmpty()) { //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
             Feedback feedback = feedbacksByUserAndTeam.get(0);
             Duration duration = Duration.between(feedback.getCreateTime(), LocalDateTime.now());
             if (duration.toDays() < 7) {
-                throw new InvalidFeedbackException("피드백은 7일에 한번만 보낼 수 있습니다");
+                throw new InvalidFeedbackException(feedback.getCreateTime().toString(), "피드백은 7일에 한번만 보낼 수 있습니다");
             }
+        }
+        if (giverID == receiverID) {
+            throw new InvalidFeedbackException("giverID: " + giverID.toString(), "자기 자신에게 피드백을 보낼 수 없습니다");
         }
     }
 }

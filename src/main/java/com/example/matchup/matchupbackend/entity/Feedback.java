@@ -108,8 +108,8 @@ public class Feedback extends BaseTimeEntity{
         if (collaboration) totalScore += addScore;
         if (fast) totalScore += addScore;
         if (actively) totalScore += addScore;
-        if(totalScore == 0.0) {
-            throw new InvalidFeedbackException("최소 1개 이상의 피드백을 선택해주세요");
+        if (totalScore == 0.0) {
+            throw new InvalidFeedbackException(totalScore.toString(), "최소 1개 이상의 피드백을 선택해주세요");
         }
         return totalScore;
     }
