@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.request.teamuser.FeedbackGrade;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackGradeException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -97,7 +98,7 @@ public class Feedback extends BaseTimeEntity{
     /**
      * Feedback에 따른 점수를 더해줌
      */
-    public Double calculateTotalScore(FeedbackGrade grade) {
+    private Double calculateTotalScore(FeedbackGrade grade) {
         Double totalScore = 0.0;
         Double addScore = addScoreByGrade(grade);
         if (contactable) totalScore += addScore;
@@ -107,6 +108,9 @@ public class Feedback extends BaseTimeEntity{
         if (collaboration) totalScore += addScore;
         if (fast) totalScore += addScore;
         if (actively) totalScore += addScore;
+        if(totalScore == 0.0) {
+            throw new InvalidFeedbackException("최소 1개 이상의 피드백을 선택해주세요");
+        }
         return totalScore;
     }
 
