@@ -1,19 +1,22 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.Position;
-import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
+import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,8 +25,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final UserPositionRepository userPositionRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -46,23 +51,17 @@ public class UserService {
         ).collect(Collectors.toList());
     }
 
-    public User findById(Long userId) {
+    @Transactional
+    public Long saveAdditionalUserInfo(String authorizationHeader, AdditionalUserInfoRequest request) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "saveAdditionalUserInfo");
 
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));
-    }
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));;
+        User updatedUser = user.updateFirstLogin(request);
+        List<UserPosition> userPositions = user.getUserPositions().stream().map(position -> position.updateUserProfile(request.getUserPositionLevels())).toList();
 
-    public User findByEmail(String email) {
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("unexpected user"));
-    }
-
-    public Long saveAdditionalUserInfo(String token, AdditionalUserInfoRequest dto) {
-
-        Long userId = tokenProvider.getUserId(token, "추가 정보 받는 중");
-        User user = findById(userId);
-        User updatedUser = user.updateFirstLogin(dto);
         userRepository.save(updatedUser);
+        userPositionRepository.saveAll(userPositions);
+
         return userId;
     }
 

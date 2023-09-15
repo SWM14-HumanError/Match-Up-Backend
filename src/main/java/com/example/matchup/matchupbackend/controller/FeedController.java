@@ -2,9 +2,10 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponseDto;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.service.FeedService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -26,32 +27,32 @@ public class FeedController {
     private final FeedService feedService;
 
     @GetMapping("/feeds")
-    public ResponseEntity<FeedSliceResponseDto> showFeeds(FeedSearchRequest feedSearchRequest,
-                                                          @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<FeedSliceResponse> showFeeds(@Valid FeedSearchRequest feedSearchRequest,
+                                                       @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        FeedSliceResponseDto response = feedService.getSliceFeed(feedSearchRequest, pageable);
+        FeedSliceResponse response = feedService.getSliceFeed(feedSearchRequest, pageable);
         return (response != null)
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/feed")
-    public ResponseEntity<Long> createFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String token,
-                                           @RequestBody FeedCreateOrUpdateRequest request) {
-        Feed feedCreated = feedService.saveFeed(request, token);
+    public ResponseEntity<URI> createFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                           @Valid @RequestBody FeedCreateOrUpdateRequest request) {
+        Feed feedCreated = feedService.saveFeed(request, authorizationHeader);
         if (feedCreated != null) {
             log.info("id: {}의 피드가 생성되었습니다.", feedCreated.getId());
             URI uri = URI.create("/feed");
-            return ResponseEntity.created(uri).build();
+            return ResponseEntity.ok(uri);
         }
         return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/feed/{feed_id}")
-    public ResponseEntity<Long> updateFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String token,
-                                           @RequestBody FeedCreateOrUpdateRequest request,
+    public ResponseEntity<Long> updateFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                           @Valid @RequestBody FeedCreateOrUpdateRequest request,
                                            @PathVariable("feed_id") Long feedId) {
-        Feed feedUpdated = feedService.updateFeed(request, token, feedId);
+        Feed feedUpdated = feedService.updateFeed(request, authorizationHeader, feedId);
         if (feedUpdated != null) {
             log.info("id: {}의 피드가 수정되었습니다.", feedUpdated.getId());
             return ResponseEntity.ok().build();
@@ -60,9 +61,9 @@ public class FeedController {
     }
 
     @DeleteMapping("/feed/{feed_id}")
-    public ResponseEntity<Long> deleteFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String token,
+    public ResponseEntity<Long> deleteFeed(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                            @PathVariable("feed_id") Long feedId) {
-        if (feedService.deleteFeed(token, feedId)) {
+        if (feedService.deleteFeed(authorizationHeader, feedId)) {
             log.info("id: {}의 피드가 삭제되었습니다.", feedId);
             return ResponseEntity.noContent().build();
         }

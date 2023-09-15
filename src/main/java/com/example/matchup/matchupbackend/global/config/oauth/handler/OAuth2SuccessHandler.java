@@ -5,7 +5,7 @@ import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.oauth.CustomOAuth2User;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
-import com.example.matchup.matchupbackend.service.UserService;
+import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final TokenProvider tokenProvider;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
@@ -34,7 +34,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        User user = userService.findByEmail(oAuth2User.getEmail());
+        User user = userRepository.findByEmail(oAuth2User.getEmail()).orElseThrow(() -> new IllegalArgumentException("unexpected user"));
+
 
         String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
         user.updateNewRefreshToken(refreshToken);
