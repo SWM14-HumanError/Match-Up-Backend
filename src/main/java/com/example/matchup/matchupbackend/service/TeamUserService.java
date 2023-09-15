@@ -30,7 +30,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -207,9 +206,9 @@ public class TeamUserService {
     @Transactional
     public void feedbackToTeamUser(Long giverID, Long teamID, TeamUserFeedbackRequest feedbackRequest) {
         User giverUser = userRepository.findById(giverID)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저"));
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 주는 유저"));
         User receiverUser = userRepository.findById(feedbackRequest.getReceiverID())
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저"));
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 받는 유저"));
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
         isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
@@ -224,7 +223,7 @@ public class TeamUserService {
      * 1. 프로젝트가 끝났는데 리뷰를 한번 더 보내는지
      * 2. 아직 리뷰 보낼 시간이 아닌데 리뷰를 한번 더 보내는지
      */
-    public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) {
+    public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) { //todo valid 테스트
         if (teamRepository.isFinished(teamID)) {
             throw new InvalidFeedback("이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
         }
@@ -233,7 +232,7 @@ public class TeamUserService {
             Feedback feedback = feedbacksByUserAndTeam.get(0);
             Duration duration = Duration.between(feedback.getCreateTime(), LocalDateTime.now());
             if (duration.toDays() < 7) {
-                throw new InvalidFeedback("피드백은 7일에 한번만 보낼 수 있습니다"); //TODO 몇일 간격으로 피드백할건지 정해야 함
+                throw new InvalidFeedback("피드백은 7일에 한번만 보낼 수 있습니다");
             }
         }
     }

@@ -108,8 +108,9 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     public void addFeedback(Feedback feedback) {
-        this.totalFeedbacks++;
-        this.feedbackScore += feedback.getTotalScore();
+        this.totalFeedbacks++; // 피드백 갯수 1 증가
+        this.feedbackScore += feedback.getTotalScore(); // 피드백에 따른 개인 점수 증가
+        this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
     @Builder // OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
