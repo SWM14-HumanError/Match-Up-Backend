@@ -36,8 +36,8 @@ public class UserProfileEditRequest {
     @Size(max = 5, message = "BACK, FRONT, FULL, AI, DESIGN의 level을 받습니다.")
     private Map<UserPositionType, Integer> userPositionLevels;
 
-    private Map<@Size(max = 50, message = "sns 이름은 20글자를 넘길 수 없습니다.") String,
-            @URL(message = "적절하지 않은 이미지 URL입니다.") String> link;
+    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String,
+            @URL(message = "적절하지 않은 Link입니다.") String> link;
 
     public MeetingType getMeetingType() {
         return (this.meetingType != null) ? MeetingType.valueOf(this.meetingType) : null;
