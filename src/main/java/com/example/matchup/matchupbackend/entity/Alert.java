@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -20,9 +21,9 @@ public class Alert extends BaseTimeEntity {
     @Column(name = "content")
     private String content;
     @Column(name = "is_read", columnDefinition = "boolean default false")
-    private Boolean isRead;
+    private boolean isRead;
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
-    private Boolean isDeleted;
+    private boolean isDeleted;
     @Column(name = "redirect_url")
     private String redirectUrl;
     @Enumerated(EnumType.STRING)
@@ -38,12 +39,20 @@ public class Alert extends BaseTimeEntity {
     }
 
     @Builder
-    public Alert(String title, String content, String redirectUrl, AlertType alertType, User user) {
+    public Alert(String title, String content, String redirectUrl, AlertType alertType) {
         this.title = title;
         this.content = content;
         this.redirectUrl = redirectUrl;
         this.alertType = alertType;
-        setUser(user);
+    }
+
+    public static Alert from(Alert alert){
+        return Alert.builder()
+                .title(alert.getTitle())
+                .content(alert.getContent())
+                .redirectUrl(alert.getRedirectUrl())
+                .alertType(alert.getAlertType())
+                .build();
     }
 }
 // 알림의 경우에 BaseTimeEntity에서 생성시간은 알림 생성 시간, 수정시간은 알림을 읽은 시간으로 설정하였습니다.

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -186,10 +187,16 @@ public class TeamService {
         if (!leaderID.equals(team.getLeaderID())) {
             throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
-        if (!team.getThumbnailUploadUrl().isEmpty()) {
+        if (StringUtils.hasText(team.getThumbnailUploadUrl())) {
             fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
         }
         team.deleteTeam();
+        // 팀 삭제 알림을 보내는 로직
+        List<User> sendAlertTarget = teamUserRepository.findAllTeamUserByTeamID(teamID)
+                .stream()
+                .map(teamUser -> teamUser.getUser())
+                .toList();
+        alertService.saveTeamDeleteAlert(sendAlertTarget, team);
         log.info("deleted team ID : " + teamID);
     }
 
