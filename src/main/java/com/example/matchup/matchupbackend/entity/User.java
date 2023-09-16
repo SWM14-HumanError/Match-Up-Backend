@@ -60,6 +60,8 @@ public class User extends BaseEntity implements UserDetails {
     private List<Feedback> giveFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Alert> alertList = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
     private String refreshToken;

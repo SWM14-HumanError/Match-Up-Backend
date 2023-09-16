@@ -19,6 +19,12 @@ import java.util.List;
 public class AlertService {
     private final AlertRepository alertRepository;
 
+    /**
+     * 팀 생성 알림 저장
+     * @param teamID
+     * @param sendTo
+     * @param teamCreateRequest
+     */
     public void saveTeamCreateAlert(Long teamID, User sendTo, TeamCreateRequest teamCreateRequest) {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 생성" : "스터디 생성")
@@ -30,4 +36,31 @@ public class AlertService {
         alertRepository.save(alert);
     }
 
+    /**
+     * 팀 업데이트 알림 저장
+     * @param teamID
+     * @param sendTo
+     * @param teamCreateRequest
+     */
+    public void updateTeamCreateAlert(Long teamID, List<User> sendTo, TeamCreateRequest teamCreateRequest) {
+        Alert alert = Alert.builder()
+                .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
+                .content(teamCreateRequest.getName() + " 팀의 정보가 업데이트 되었습니다.")
+                .redirectUrl("/project/" + teamID)
+                .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        sendAlertToUsers(sendTo, alert);
+    }
+
+    /**
+     * 여러명의 유저에게 알림을 보냄
+     * @param sendTo
+     * @param alert
+     */
+    public void sendAlertToUsers(List<User> sendTo, Alert alert) {
+        for (User user : sendTo) {
+            alert.setUser(user);
+            alertRepository.save(alert);
+        }
+    }
 }

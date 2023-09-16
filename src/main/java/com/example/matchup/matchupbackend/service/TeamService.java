@@ -139,6 +139,13 @@ public class TeamService {
             UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
             team.setUploadFile(uploadFile);
         }
+        //팀 업데이트 알림 보내는 로직
+        List<User> sendAlertTarget = teamUserRepository.findAllTeamUserByTeamID(teamID)
+                .stream()
+                .map(teamUser -> teamUser.getUser())
+                .toList();
+        alertService.updateTeamCreateAlert(teamID, sendAlertTarget, teamCreateRequest);
+
         log.info("Update team ID : " + teamID);
         return team.updateTeam(teamCreateRequest);
     }

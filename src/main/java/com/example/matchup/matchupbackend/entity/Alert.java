@@ -32,10 +32,10 @@ public class Alert extends BaseTimeEntity {
     private User user;
 
     //==연관관계 매서드==//
-//    public void setUser(User user) {
-//        this.user = user;
-//        user.getAlertList().add(this);
-//    }
+    public void setUser(User user) {
+        this.user = user;
+        user.getAlertList().add(this);
+    }
 
     @Builder
     public Alert(String title, String content, String redirectUrl, AlertType alertType, User user) {
@@ -43,7 +43,7 @@ public class Alert extends BaseTimeEntity {
         this.content = content;
         this.redirectUrl = redirectUrl;
         this.alertType = alertType;
-        this.user = user;
+        setUser(user);
     }
 }
 // 알림의 경우에 BaseTimeEntity에서 생성시간은 알림 생성 시간, 수정시간은 알림을 읽은 시간으로 설정하였습니다.
