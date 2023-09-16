@@ -144,7 +144,7 @@ public class TeamService {
                 .stream()
                 .map(teamUser -> teamUser.getUser())
                 .toList();
-        alertService.updateTeamCreateAlert(teamID, sendAlertTarget, teamCreateRequest);
+        alertService.saveTeamUpdateAlert(teamID, sendAlertTarget, teamCreateRequest);
 
         log.info("Update team ID : " + teamID);
         return team.updateTeam(teamCreateRequest);

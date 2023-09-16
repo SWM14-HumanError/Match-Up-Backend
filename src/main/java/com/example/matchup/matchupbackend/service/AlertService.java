@@ -42,7 +42,7 @@ public class AlertService {
      * @param sendTo
      * @param teamCreateRequest
      */
-    public void updateTeamCreateAlert(Long teamID, List<User> sendTo, TeamCreateRequest teamCreateRequest) {
+    public void saveTeamUpdateAlert(Long teamID, List<User> sendTo, TeamCreateRequest teamCreateRequest) {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
                 .content(teamCreateRequest.getName() + " 팀의 정보가 업데이트 되었습니다.")
@@ -51,6 +51,8 @@ public class AlertService {
                 .build();
         sendAlertToUsers(sendTo, alert);
     }
+
+
 
     /**
      * 여러명의 유저에게 알림을 보냄
