@@ -97,7 +97,7 @@ public class TeamUserController {
     @PostMapping("/team/{teamID}/feedback")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 구성원끼리 피드백을 주는 API")
-    public String gradeUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamUserFeedbackRequest feedback) {
+    public String feedbackEachTeamUser(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamUserFeedbackRequest feedback) {
         Long giverId = tokenProvider.getUserId(token, "feedbackTeamUser");
         if (giverId == null) {
             throw new AuthorizeException("feedbackTeamUser");
