@@ -29,7 +29,7 @@ public class AlertService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 생성" : "스터디 생성")
                 .content(teamCreateRequest.getName() + " 팀이 생성되었습니다.")
-                .redirectUrl("/project/" + teamID)
+                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/" : "/study/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .user(sendTo)
                 .build();
@@ -46,7 +46,7 @@ public class AlertService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
                 .content(teamCreateRequest.getName() + " 팀의 정보가 업데이트 되었습니다.")
-                .redirectUrl("/project/" + teamID)
+                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/" : "/study/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, alert);
