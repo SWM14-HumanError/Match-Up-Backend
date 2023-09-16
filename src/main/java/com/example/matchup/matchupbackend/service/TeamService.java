@@ -42,6 +42,7 @@ public class TeamService {
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
     private final FileService fileService;
+    private final AlertService alertService;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -79,11 +80,13 @@ public class TeamService {
             UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
             team.setUploadFile(uploadFile);
         }
-        makeTeamPosition(teamCreateRequest, team);
+        makeTeamPosition(teamCreateRequest, team); //팀의 직무별 팀원 모집 정보 생성
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
         });
-        return teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getId();
+        Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getTeam().getId();
+        alertService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
+        return teamID;
     }
 
     /**
