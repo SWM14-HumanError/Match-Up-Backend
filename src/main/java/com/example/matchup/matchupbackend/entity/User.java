@@ -48,10 +48,10 @@ public class User extends BaseEntity implements UserDetails {
     private Long positionLevel;
     @Column(name = "likes")
     private Long likes;
-    @Column(name = "total_feedbacks")
-    private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
-    @Column(name = "feedback_score")
-    private Double feedbackScore = 36.5; // 팀원 상호 평가 온도
+    @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
+    private Integer totalFeedbacks; // 팀원 상호 평가 갯수
+    @Column(name = "feedback_score", columnDefinition = "double default 36.5")
+    private Double feedbackScore; // 팀원 상호 평가 온도
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
