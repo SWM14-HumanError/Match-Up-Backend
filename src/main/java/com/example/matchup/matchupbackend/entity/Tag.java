@@ -21,6 +21,7 @@ public class Tag {
     private Long id;
     @Column(name = "tag_name")
     private String name;
+    private String imageUrl;
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
     private List<TeamTag> teamTagList = new ArrayList<>();
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
