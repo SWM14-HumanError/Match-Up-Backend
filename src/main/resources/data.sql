@@ -123,6 +123,17 @@ INSERT
 
 INSERT
     INTO
+        likes (user_id, feed_id, team_id)
+    VALUES
+        (5, 17, null),
+        (5, 16, null),
+        (5, 15, null),
+        (5, null, 1),
+        (5, null, 2);
+
+
+INSERT
+    INTO
         tag (tag_name, image_url)
     VALUES
         ('java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'),

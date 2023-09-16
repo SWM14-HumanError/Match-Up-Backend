@@ -19,6 +19,7 @@ public class FeedSearchResponse {
     private String userName;
     private String userPictureUrl;
     private Long positionLevel;
+    private boolean isLiked;
 
     @Builder
     public FeedSearchResponse(Feed feed, User user) {

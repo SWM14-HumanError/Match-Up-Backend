@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
+import com.example.matchup.matchupbackend.entity.Comment;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.service.FeedService;
 import jakarta.validation.Valid;
@@ -27,10 +28,11 @@ public class FeedController {
     private final FeedService feedService;
 
     @GetMapping("/feeds")
-    public ResponseEntity<FeedSliceResponse> showFeeds(@Valid FeedSearchRequest feedSearchRequest,
+    public ResponseEntity<FeedSliceResponse> showFeeds (@Valid FeedSearchRequest feedSearchRequest,
+                                                       @RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                        @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        FeedSliceResponse response = feedService.getSliceFeed(feedSearchRequest, pageable);
+        FeedSliceResponse response = feedService.getSliceFeed(feedSearchRequest, pageable, authorizationHeader);
         return (response != null)
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.badRequest().build();
@@ -69,4 +71,20 @@ public class FeedController {
         }
         return ResponseEntity.badRequest().build();
     }
+
+    @PostMapping("/feed/{feed_id}/comment")
+    public ResponseEntity<Long> createFeedComment(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                  @PathVariable("feed_id") Long feedId,
+                                                  @RequestBody String content) {
+        Comment comment = feedService.createFeedComment(authorizationHeader, feedId, content);
+        if (comment != null) {
+            log.info("id: {}의 피드 댓글이 생성되었습니다.", comment.getId());
+            return ResponseEntity.created(URI.create("/feed/comment")).build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+//    @GetMapping("/feed/{feed_id}/comment")
+//    public ResponseEntity<FeedSliceResponse> showFeedComments(@PathVariable("feed_id") Long feedId,
+
 }
