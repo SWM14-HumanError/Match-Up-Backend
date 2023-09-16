@@ -75,6 +75,17 @@ INSERT
 
 INSERT
     INTO
+        comment (feed_id, user_id, comment_content)
+    VALUES
+        (17, 5, '너무 좋은 취미네요.'),
+        (17, 5, '게임만 하나요?'),
+        (17, 5, '슬라임 귀여워요'),
+        (16, 5, '맛집 맞아요?'),
+        (16, 5, '너무 주관적인거 같아요'),
+        (16, 5, '아는 형님 가겐가요?');
+
+INSERT
+    INTO
         team_position (role, count, max_count, team_id)
     VALUES
         ('Manager', 0, 1, 1),
@@ -89,9 +100,18 @@ INSERT
         team_user (role, team_id, user_id)
     Values
         ('Back', 1, 5),
+        ('Front', 1, 4),
         ('Back', 2, 5),
-        ('Back', 5, 5),
-        ('Back', 6, 5);
+        ('Front', 2, 4),
+        ('Back', 3, 5),
+        ('Front', 3, 4);
+
+INSERT
+    INTO
+        team_recruit (team_id, user_id, content, role)
+    VALUES
+        (1, 5, '백엔드 2년차입니다. 함께하고 싶습니다.', 'Back-end/spring'),
+        (1, 4, '프론트 2년차입니다. 함께하고 싶습니다.', 'Front-end/react');
 
 INSERT
     INTO
@@ -100,4 +120,18 @@ INSERT
         ('BACK', 1, 5),
         ('FRONT', 2, 5),
         ('AI', 3, 5);
+
+INSERT
+    INTO
+        tag (tag_name, image_url)
+    VALUES
+        ('java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'),
+        ('spring', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg'),
+        ('javascript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'),
+        ('python', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg'),
+        ('django', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg'),
+        ('react', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'),
+        ('nodejs', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'),
+        ('other', null);
+
 
