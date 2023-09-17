@@ -26,6 +26,7 @@ public class AlertRepositoryCustomImpl implements AlertRepositoryCustom {
     public Slice<Alert> findAlertSliceByAlertRequest(Long userId, AlertFilterRequest alertRequest, Pageable pageable) {
         List<Alert> content = queryFactory.selectFrom(alert)
                 .where(alert.isDeleted.eq(false),
+                        alert.user.id.eq(userId),
                         alertTypeEq(alertRequest.getAlertType()))
                 .orderBy(alert.createTime.desc())
                 .offset(pageable.getOffset())
