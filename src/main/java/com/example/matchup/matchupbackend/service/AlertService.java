@@ -69,6 +69,31 @@ public class AlertService {
     }
 
     /**
+     * 유저가 팀에 지원하는 알림 저장
+     */
+    public void saveTeamRecruitAlert(User leader, User volunteer, Team team) {
+        // 팀장에게 보낼 지원 알림
+        Alert toLeader = Alert.builder()
+                .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
+                .content(volunteer.getName() + " 님이 " + team.getTitle() + " 팀으로 함께 하고 싶어 합니다.")
+                .redirectUrl("/유저 지원서 모달창") //todo 지원서 모달창 url
+                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        toLeader.setUser(leader);
+        alertRepository.save(toLeader);
+
+        // 지원자에게 보낼 지원 알림
+        Alert toVolunteer = Alert.builder()
+                .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
+                .content(team.getTitle() + " 팀에 지원하였습니다.")
+                .redirectUrl("/유저 지원서 모달창") //todo 지원서 모달창 url
+                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        toVolunteer.setUser(volunteer);
+        alertRepository.save(toVolunteer);
+    }
+
+    /**
      * 여러명의 유저에게 알림을 보냄
      * @param sendTo
      * @param alert
