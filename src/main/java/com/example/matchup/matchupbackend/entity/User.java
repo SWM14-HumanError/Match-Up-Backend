@@ -139,13 +139,6 @@ public class User extends BaseEntity implements UserDetails {
         return this;
     }
 
-    public double addUserReview(double score) {
-        double totalScore = (this.reviewScore) * (this.totalReviews);
-        this.totalReviews++;
-        this.reviewScore = (totalScore + score) / this.totalReviews;
-        return this.reviewScore;
-    }
-
     public List<String> returnTagList() {
         return userTagList.stream().map(
                 userTag -> userTag.getTag().getName()
@@ -177,20 +170,13 @@ public class User extends BaseEntity implements UserDetails {
         this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
-    @Builder // OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
-    public User(String email, String name, String pictureUrl, Role role) {
-
-        this.email = email;
-        this.name = name;
-        this.pictureUrl = pictureUrl;
-        this.role = role;
-    }
-
     public User updateFirstLogin(AdditionalUserInfoRequest request) {
         this.nickname = request.getNickname();
         this.pictureUrl = request.getPictureUrl();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
+        return this;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
