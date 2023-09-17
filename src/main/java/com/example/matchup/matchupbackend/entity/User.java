@@ -82,9 +82,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "likes")
     private Long likes;
     @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
-    private Integer totalFeedbacks; // 팀원 상호 평가 갯수
+    private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
     @Column(name = "feedback_score", columnDefinition = "double default 36.5")
-    private Double feedbackScore; // 팀원 상호 평가 온도
+    private Double feedbackScore = 36.5; // 팀원 상호 평가 온도
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -94,7 +94,7 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
@@ -105,7 +105,6 @@ public class User extends BaseEntity implements UserDetails {
     /**
      * Deprecated
      */
-    @Column(name = "user_birthday")
     private String position;
     private Long positionLevel;
 
