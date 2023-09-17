@@ -163,7 +163,7 @@ public class TeamUserService {
         //알림 저장 로직
         List<User> sendTo = teamUserRepository.findAcceptedTeamUserJoinUser(teamID)
                 .stream().map(teamUser -> teamUser.getUser()).collect(Collectors.toList());
-        alertService.saveUserAcceptToTeamAlert(sendTo, recruitUser, acceptForm);
+        alertService.saveUserAcceptedToTeamAlert(sendTo, recruitUser, acceptForm);
     }
 
     /**
@@ -176,6 +176,16 @@ public class TeamUserService {
         }
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
         log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 거절 완료");
+
+        //알림 저장 로직
+        TeamUser leader = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, leaderID)
+                .orElseThrow(() -> {
+                    throw new UserNotFoundException("팀장 정보가 없습니다");
+                });
+        User recruitUser = userRepository.findById(acceptForm.getRecruitUserID()).orElseThrow(() -> {
+            throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");
+        });
+        alertService.saveUserRefusedToTeamAlert(leader, recruitUser);
     }
 
     @Transactional
