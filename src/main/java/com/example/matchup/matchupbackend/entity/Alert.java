@@ -21,21 +21,20 @@ public class Alert extends BaseTimeEntity {
     @Column(name = "content")
     private String content;
     @Column(name = "is_read", columnDefinition = "boolean default false")
-    private boolean isRead;
+    private boolean isRead = false;
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
-    private boolean isDeleted;
+    private boolean isDeleted = false;
     @Column(name = "redirect_url")
     private String redirectUrl;
     @Enumerated(EnumType.STRING)
     private AlertType alertType;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     //==연관관계 매서드==//
     public void setUser(User user) {
         this.user = user;
-        user.getAlertList().add(this);
     }
 
     @Builder
@@ -46,7 +45,7 @@ public class Alert extends BaseTimeEntity {
         this.alertType = alertType;
     }
 
-    public static Alert from(Alert alert){
+    public static Alert from(Alert alert) {
         return Alert.builder()
                 .title(alert.getTitle())
                 .content(alert.getContent())
