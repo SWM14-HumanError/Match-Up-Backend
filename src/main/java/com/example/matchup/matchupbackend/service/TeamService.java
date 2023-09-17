@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public class TeamService {
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
     private final FileService fileService;
+    private final AlertService alertService;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -79,11 +81,13 @@ public class TeamService {
             UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
             team.setUploadFile(uploadFile);
         }
-        makeTeamPosition(teamCreateRequest, team);
+        makeTeamPosition(teamCreateRequest, team); //팀의 직무별 팀원 모집 정보 생성
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
         });
-        return teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getId();
+        Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getTeam().getId();
+        alertService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
+        return teamID;
     }
 
     /**
@@ -136,6 +140,13 @@ public class TeamService {
             UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
             team.setUploadFile(uploadFile);
         }
+        //팀 업데이트 알림 보내는 로직
+        List<User> sendAlertTarget = teamUserRepository.findAllTeamUserByTeamID(teamID)
+                .stream()
+                .map(teamUser -> teamUser.getUser())
+                .toList();
+        alertService.saveTeamUpdateAlert(teamID, sendAlertTarget, teamCreateRequest);
+
         log.info("Update team ID : " + teamID);
         return team.updateTeam(teamCreateRequest);
     }
@@ -176,10 +187,16 @@ public class TeamService {
         if (!leaderID.equals(team.getLeaderID())) {
             throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
-        if (!team.getThumbnailUploadUrl().isEmpty()) {
+        if (StringUtils.hasText(team.getThumbnailUploadUrl())) {
             fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
         }
         team.deleteTeam();
+        // 팀 삭제 알림을 보내는 로직
+        List<User> sendAlertTarget = teamUserRepository.findAllTeamUserByTeamID(teamID)
+                .stream()
+                .map(teamUser -> teamUser.getUser())
+                .toList();
+        alertService.saveTeamDeleteAlert(sendAlertTarget, team);
         log.info("deleted team ID : " + teamID);
     }
 
