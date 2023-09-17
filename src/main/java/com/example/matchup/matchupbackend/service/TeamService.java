@@ -43,7 +43,7 @@ public class TeamService {
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
     private final FileService fileService;
-    private final AlertService alertService;
+    private final AlertCreateService alertCreateService;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -86,7 +86,7 @@ public class TeamService {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
         });
         Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getTeam().getId();
-        alertService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
+        alertCreateService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
         return teamID;
     }
 
@@ -145,7 +145,7 @@ public class TeamService {
                 .stream()
                 .map(teamUser -> teamUser.getUser())
                 .toList();
-        alertService.saveTeamUpdateAlert(teamID, sendAlertTarget, teamCreateRequest);
+        alertCreateService.saveTeamUpdateAlert(teamID, sendAlertTarget, teamCreateRequest);
 
         log.info("Update team ID : " + teamID);
         return team.updateTeam(teamCreateRequest);
@@ -196,7 +196,7 @@ public class TeamService {
                 .stream()
                 .map(teamUser -> teamUser.getUser())
                 .toList();
-        alertService.saveTeamDeleteAlert(sendAlertTarget, team);
+        alertCreateService.saveTeamDeleteAlert(sendAlertTarget, team);
         log.info("deleted team ID : " + teamID);
     }
 

@@ -4,7 +4,6 @@ import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.repository.AlertRepository;
-import jakarta.persistence.PersistenceUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AlertService {
+public class AlertCreateService {
     private final AlertRepository alertRepository;
 
     /**
