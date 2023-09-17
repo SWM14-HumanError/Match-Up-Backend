@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.feed;
+package com.example.matchup.matchupbackend.dto.response.feed;
 
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.entity.User;
@@ -17,6 +17,7 @@ public class FeedSearchResponseDto {
     private String userName;
     private String userPictureUrl;
     private Long positionLevel;
+    private Long userId;
 
     @Builder
     public FeedSearchResponseDto(Feed feed, User user) {
@@ -28,5 +29,6 @@ public class FeedSearchResponseDto {
         this.userName = user.getName();
         this.userPictureUrl = user.getPictureUrl();
         this.positionLevel = user.getPositionLevel();
+        this.userId = user.getId();
     }
 }

@@ -24,12 +24,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
 
-//        String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
-//        String token = tokenProvider.getAccessToken(authorizationHeader); Bearer 추가가 되면 이걸 사용하면 된다.
+        String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
 
-        String token = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
-        if (tokenProvider.validToken(token)) {
-            Authentication authentication = tokenProvider.getAuthentication(token);
+        if (tokenProvider.validTokenInFilter(authorizationHeader)) {
+            Authentication authentication = tokenProvider.getAuthentication(authorizationHeader);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 

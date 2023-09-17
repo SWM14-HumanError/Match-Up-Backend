@@ -1,17 +1,29 @@
 package com.example.matchup.matchupbackend.dto.request.user;
 
-import com.example.matchup.matchupbackend.entity.MeetingType;
-import lombok.Getter;
+import com.example.matchup.matchupbackend.entity.UserPositionType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
+import java.util.Map;
 
-@Getter
+@Data
 public class AdditionalUserInfoRequest {
-    private Long positionLevel;
-    private LocalDate userBirthday;
-    private Long userLevel;
-    private String address;
+
+    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
+    @Size(max = 20, message = "닉네임은 20글자를 넘을 수 없습니다.")
+    private String nickname;
+
+    @URL(message = "적절하지 않은 이미지 URL입니다.")
+    private String pictureUrl;
+
+    // todo: LocalDate validation
+    private LocalDate birthDay;
+
+    @Range(max = 100L, message = "개발자 연차는 100년을 넘거나 음수일 수 없습니다.")
     private Long expYear;
-    private MeetingType meetingType;
-    private String position;
+    private Map<UserPositionType, @Range(max = 5L, message = "스택의 범위는 0~5입니다.") Integer> userPositionLevels;
 }

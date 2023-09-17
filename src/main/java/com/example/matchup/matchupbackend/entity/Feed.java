@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class Feed extends BaseTimeEntity{
+public class Feed extends BaseEntity{
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_id")
     private Long id;
@@ -46,7 +46,7 @@ public class Feed extends BaseTimeEntity{
     public Feed updateFeed(FeedCreateOrUpdateRequest request) {
         this.title = (request.getTitle() == null) ? this.title : request.getTitle();
         this.content = (request.getContent() == null) ? this.content : request.getContent();
-        this.type = (request.getType() == null) ? this.type : request.getType();
+        this.type = request.getType();
         this.projectDomain = (request.getDomain() == null) ? this.projectDomain : request.getDomain();
         this.thumbnailUrl = (request.getImageUrl() == null) ? this.thumbnailUrl : request.getImageUrl();
         return this;

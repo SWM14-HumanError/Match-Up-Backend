@@ -46,7 +46,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         if (attributes.email() == null) throw new IllegalArgumentException("Token has no email");
 
         User user = userRepository.findByEmail(attributes.email())
-                .map(entity -> entity.update(attributes.name()))
+                .map(entity -> entity.updateUserName(attributes.name()))
                 .orElse(attributes.toEntity());
         return userRepository.save(user);
     }

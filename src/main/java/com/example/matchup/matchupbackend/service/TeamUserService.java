@@ -211,6 +211,13 @@ public class TeamUserService {
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 받는 유저"));
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
+        if (team.getIsDeleted() == 1L) {
+            throw new InvalidFeedbackException("teamID: " + teamID, "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
+        }
+        List<TeamUser> twoUserByTeamIdAndUserId = teamUserRepository.findTwoUserByTeamIdAndUserIds(giverID, feedbackRequest.getReceiverID(), teamID);// 같은 팀에 속한 유저인지 검증
+        if (twoUserByTeamIdAndUserId.size() != 2) { // 같은 팀에 속한 유저끼리 한 피드백인지 검증
+            throw new InvalidFeedbackException("giverID: " + giverID + "  receiverID: " + feedbackRequest.getReceiverID(), "같은 팀끼리만 피드백을 보낼수 있습니다.");
+        }
         isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
         Feedback feedback = Feedback.fromDTO(feedbackRequest);
         feedback.setRelation(giverUser, receiverUser, team);
@@ -224,9 +231,6 @@ public class TeamUserService {
      * 2. 아직 리뷰 보낼 시간이 아닌데 리뷰를 한번 더 보내는지
      */
     public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) { //todo valid 테스트
-        if (teamRepository.isFinished(teamID)) {
-            throw new InvalidFeedbackException("teamID: " + teamID.toString(), "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
-        }
         List<Feedback> feedbacksByUserAndTeam = feedbackRepository.findFeedbackByUserAndTeam(giverID, receiverID, teamID);
         if (!feedbacksByUserAndTeam.isEmpty()) { //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
             Feedback feedback = feedbacksByUserAndTeam.get(0);
