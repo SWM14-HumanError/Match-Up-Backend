@@ -9,6 +9,7 @@ import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.Dup
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileExtensionException;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
@@ -112,8 +113,16 @@ public class GlobalAdvice {
      */
     @ExceptionHandler(InvalidValueException.class)
     public ResponseEntity InvalidValueExHandler(InvalidValueException ex) {
-        Long messageExtra = ex.getRequestValue();
-        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        String requestValue = ex.getRequestValue();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), requestValue);
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
+    }
+
+    @ExceptionHandler(InvalidFeedbackException.class)
+    public ResponseEntity InvalidFeedbackExHandler(InvalidFeedbackException ex) {
+        Map<String, String> extraInfo = new HashMap<>();
+        extraInfo.put(ex.getRequestValue(), ex.getDetailMessage());
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), extraInfo);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 

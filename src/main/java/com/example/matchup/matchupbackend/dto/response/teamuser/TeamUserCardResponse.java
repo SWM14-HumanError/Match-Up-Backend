@@ -31,7 +31,7 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamUser.getUser().getName(),
                 teamUser.getUser().getPosition(),
                 teamUser.getUser().getPositionLevel(),
-                teamUser.getUser().getReviewScore(),
+                teamUser.getUser().getFeedbackScore(),
                 teamUser.getUser().getLikes(),
                 teamUser.getUser().returnStackList(),
                 teamUser.getRole(),

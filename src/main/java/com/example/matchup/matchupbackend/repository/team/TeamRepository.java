@@ -14,4 +14,10 @@ public interface TeamRepository extends JpaRepository<Team, Long>, TeamRepositor
     List<TeamTag> findTeamTagByTeamId(@Param("teamID") Long teamID);
 
     Optional<Team> findTeamById(Long Id);
+    @Query("select " +
+            "case " +
+            "when team.isDeleted = 0L then false " +
+            "when team.isDeleted = 1L then true end " +
+            "from Team team where team.id=:teamID")
+    boolean isFinished(@Param(value = "teamID") Long teamID);
 }

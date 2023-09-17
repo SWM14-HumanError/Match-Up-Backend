@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
@@ -91,5 +92,18 @@ public class TeamUserController {
         log.info("leaderID: " + leaderID);
         teamUserService.kickUserToTeam(leaderID, teamID, acceptForm);
         return "유저가 강퇴되었습니다";
+    }
+
+    @PostMapping("/team/{teamID}/feedback")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(description = "팀 구성원끼리 피드백을 주는 API")
+    public String feedbackEachTeamUser(@RequestHeader(value = HEADER_AUTHORIZATION) String token, @PathVariable Long teamID, @Valid @RequestBody TeamUserFeedbackRequest feedback) {
+        Long giverId = tokenProvider.getUserId(token, "feedbackTeamUser");
+        if (giverId == null) {
+            throw new AuthorizeException("feedbackTeamUser");
+        }
+        teamUserService.feedbackToTeamUser(giverId, teamID, feedback);
+        log.info("userId: " + giverId + " -> " + "userId: " + feedback.getReceiverID() + " 의 피드백이 추가 되었습니다");
+        return "유저에게 평점을 주었습니다";
     }
 }

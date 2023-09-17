@@ -24,7 +24,7 @@ import static com.example.matchup.matchupbackend.entity.QTeamUser.*;
 
 @Repository
 @RequiredArgsConstructor
-public class TeamRepositoryImpl implements TeamRepositoryCustom {
+public class TeamRepositoryCustomImpl implements TeamRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private QTeam qTeam = team;
     private QTeamTag qTeamTag = teamTag;

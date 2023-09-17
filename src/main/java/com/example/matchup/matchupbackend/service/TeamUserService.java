@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
+import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
@@ -8,11 +9,13 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormReques
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
+import com.example.matchup.matchupbackend.repository.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -23,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +42,7 @@ public class TeamUserService {
     private final TeamPositionRepository teamPositionRepository;
     private final TeamRecruitRepository teamRecruitRepository;
     private final UserRepository userRepository;
+    private final FeedbackRepository feedbackRepository;
 
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
@@ -188,5 +194,53 @@ public class TeamUserService {
                 });
         if (team.getLeaderID() != leaderID) return false;
         return true;
+    }
+
+    /**
+     * 팀 구성원끼리 주는 피드백을 생성하는 매서드
+     *
+     * @param giverID
+     * @param teamID
+     * @param feedbackRequest
+     */
+    @Transactional
+    public void feedbackToTeamUser(Long giverID, Long teamID, TeamUserFeedbackRequest feedbackRequest) {
+        User giverUser = userRepository.findById(giverID)
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 주는 유저"));
+        User receiverUser = userRepository.findById(feedbackRequest.getReceiverID())
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 받는 유저"));
+        Team team = teamRepository.findById(teamID)
+                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
+        if (team.getIsDeleted() == 1L) {
+            throw new InvalidFeedbackException("teamID: " + teamID, "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
+        }
+        List<TeamUser> twoUserByTeamIdAndUserId = teamUserRepository.findTwoUserByTeamIdAndUserIds(giverID, feedbackRequest.getReceiverID(), teamID);// 같은 팀에 속한 유저인지 검증
+        if (twoUserByTeamIdAndUserId.size() != 2) { // 같은 팀에 속한 유저끼리 한 피드백인지 검증
+            throw new InvalidFeedbackException("giverID: " + giverID + "  receiverID: " + feedbackRequest.getReceiverID(), "같은 팀끼리만 피드백을 보낼수 있습니다.");
+        }
+        isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
+        Feedback feedback = Feedback.fromDTO(feedbackRequest);
+        feedback.setRelation(giverUser, receiverUser, team);
+        receiverUser.addFeedback(feedback);
+        feedbackRepository.save(feedback);
+    }
+
+    /**
+     * 팀 구성원끼리 피드백을 생성할 수 있는지 검증하는 매서드
+     * 1. 프로젝트가 끝났는데 리뷰를 한번 더 보내는지
+     * 2. 아직 리뷰 보낼 시간이 아닌데 리뷰를 한번 더 보내는지
+     */
+    public void isPossibleFeedback(Long giverID, Long receiverID, Long teamID) { //todo valid 테스트
+        List<Feedback> feedbacksByUserAndTeam = feedbackRepository.findFeedbackByUserAndTeam(giverID, receiverID, teamID);
+        if (!feedbacksByUserAndTeam.isEmpty()) { //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
+            Feedback feedback = feedbacksByUserAndTeam.get(0);
+            Duration duration = Duration.between(feedback.getCreateTime(), LocalDateTime.now());
+            if (duration.toDays() < 7) {
+                throw new InvalidFeedbackException(feedback.getCreateTime().toString(), "피드백은 7일에 한번만 보낼 수 있습니다");
+            }
+        }
+        if (giverID == receiverID) {
+            throw new InvalidFeedbackException("giverID: " + giverID.toString(), "자기 자신에게 피드백을 보낼 수 없습니다");
+        }
     }
 }

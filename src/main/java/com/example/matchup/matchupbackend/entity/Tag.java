@@ -25,6 +25,7 @@ public class Tag {
     private List<TeamTag> teamTagList = new ArrayList<>();
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
+    private String imageUrl;
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id")
 //    private User user;
