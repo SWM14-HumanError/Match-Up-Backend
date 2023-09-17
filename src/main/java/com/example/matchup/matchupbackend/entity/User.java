@@ -94,7 +94,7 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();

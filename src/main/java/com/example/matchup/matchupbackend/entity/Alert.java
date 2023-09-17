@@ -28,14 +28,13 @@ public class Alert extends BaseTimeEntity {
     private String redirectUrl;
     @Enumerated(EnumType.STRING)
     private AlertType alertType;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     //==연관관계 매서드==//
     public void setUser(User user) {
         this.user = user;
-        user.getAlertList().add(this);
     }
 
     @Builder
