@@ -36,7 +36,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(unique = true)
     private String nickname;
+    @Column(name = "user_level")
     private Long userLevel;
+    @Column(name = "user_birthday")
     private LocalDate birthDay;
 
     @Column(name = "picture_url")
