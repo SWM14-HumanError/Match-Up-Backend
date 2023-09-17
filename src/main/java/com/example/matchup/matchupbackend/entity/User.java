@@ -52,7 +52,7 @@ public class User extends BaseEntity implements UserDetails {
     private String refreshToken;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
-    private LocalDateTime  lastLogin = LocalDateTime.now();
+    private LocalDateTime lastLogin = LocalDateTime.now();
 
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isMentor = false;
@@ -96,17 +96,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Alert> alertList = new ArrayList<>();
-    @Enumerated(EnumType.STRING)
-    private Role role;
-    private String refreshToken;
-    private Boolean isAuth;
-//    @Column(columnDefinition = "BOOLEAN DEFAULT true") // 처음 로그인할 때, 이용약관 동의, 추가 정보 조회에 관여
-    private Boolean isFirstLogin = true;
-    //링크는 조인해서 가져온다
-    private String expertize;
-    private Long expYear;
-    private String certificateURL;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY)
@@ -160,7 +149,7 @@ public class User extends BaseEntity implements UserDetails {
         ).collect(Collectors.toList());
     }
 
-    public List<TechStack> returnStackList(){
+    public List<TechStack> returnStackList() {
         List<TechStack> techStacks = new ArrayList<>();
         userTagList.stream().forEach(userTag -> {
             techStacks.add(TechStack.builder().tagID(userTag.getId())
