@@ -4,7 +4,7 @@ import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler;
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
-import com.example.matchup.matchupbackend.service.UserService;
+import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,7 +34,7 @@ public class WebOAuthSecurityConfig {
 
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final TokenProvider tokenProvider;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final Environment environment;
 
     @Bean
@@ -49,7 +50,7 @@ public class WebOAuthSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // csrf 비활성화
-        http.csrf((csrf) -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         // 세션 비활성화
         http.sessionManagement((sessionManagement) ->
@@ -91,7 +92,7 @@ public class WebOAuthSecurityConfig {
         return new OAuth2SuccessHandler(
                 tokenProvider,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
-                userService);
+                userRepository);
     }
 
     @Bean

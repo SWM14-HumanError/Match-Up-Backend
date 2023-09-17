@@ -7,9 +7,9 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class FeedSliceResponseDto {
+public class FeedSliceResponse {
 
-    private List<FeedSearchResponse> feedSearchResponsDtos;
+    private List<FeedSearchResponse> feedSearchResponses;
     private int size;
     private Boolean hasNextSlice;
 }

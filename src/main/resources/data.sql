@@ -1,12 +1,28 @@
 INSERT
     INTO
-        users (is_first_login, is_auth, feedback_score, total_feedbacks, create_by, create_time, likes, update_by, update_time, user_birthday, user_id, address, certificateurl, exp_year, expertize, meeting_type, picture_url, position, position_level, role, user_email, user_level, user_name, refresh_token)
+        users (is_first_login, is_auth, review_score, total_reviews, create_by, create_time, likes, update_by, update_time, user_birthday, user_id, address, certificateurl, exp_year, expertize, meeting_type, picture_url, position, position_level, role, user_email, user_level, user_name, refresh_token)
     VALUES
-        (true, true, 4.5, 10, 101, '2023-08-17 10:00:00', 50, 201, '2023-08-17 15:30:00', '1990-01-15', DEFAULT, '123 Main St', 'https://example.com/cert1', '5', 'Software Engineering', 'ONLINE', 'https://velog.velcdn.com/images/jujemu/post/d5c02f31-7d21-4034-a421-b4869fb15b7b/image.png', '백엔드 개발자', '1', 'MENTOR', 'user1@example.com', '3', 'John Doe', 'refresh_token_1'),
-        (true, false, 3.2, 5, 102, '2023-08-17 12:30:00', 20, 202, '2023-08-17 16:45:00', '1985-07-25', DEFAULT, '456 Elm St', 'https://example.com/cert2', '8', 'Data Science', 'OFFLINE', 'https://velog.velcdn.com/images/jujemu/post/a8fd1782-c22c-4253-8bf1-ba5f9d7135ba/image.png', '프론트엔드 개발자', '2', 'MENTOR', 'user2@example.com', '2', 'Jane Smith', 'refresh_token_2'),
-        (true, true, 4.8, 15, 103, '2023-08-17 09:15:00', 100, 203, '2023-08-17 14:15:00', '1982-03-10', DEFAULT, '789 Oak St', 'https://example.com/cert3', '12', 'Marketing Strategy', 'FREE', 'https://velog.velcdn.com/images/jujemu/post/9b98b118-aad7-4912-9e97-bec36834e895/image.png', 'AI/NLP', '3', 'MENTOR', 'user3@example.com', '1', 'Michael Johnson', 'refresh_token_3'),
-        (false, true, 4.8, 15, 103, '2023-08-17 09:15:00', 100, 203, '2023-08-17 14:15:00', '1982-03-10', DEFAULT, '789 Oak St', 'https://example.com/cert3', '12', 'Marketing Strategy', 'FREE', 'https://velog.velcdn.com/images/jujemu/post/eae8fe88-cbba-47fc-83e8-4ed91a9df18d/image.png', '백엔드 개발자', '4', 'MENTOR', 'jujemu30@gmail.com', '4', 'jujemu', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXRjaC11cC54eXoiLCJpYXQiOjE2OTQwMjc5MjcsImV4cCI6MTcwODUyNzYwMCwic3ViIjoianVqZW11QG5hdmVyLmNvbSIsImlkIjo1fQ.Mz9OcDdroQ9Xp2vmpmqUVnmpJGEEfkGEJ-OBwVmbIm8'),
-        (false, true, 4.8, 15, 103, '2023-08-17 09:15:00', 100, 203, '2023-08-17 14:15:00', '1982-03-10', DEFAULT, '789 Oak St', 'https://example.com/cert3', '12', 'Marketing Strategy', 'FREE', 'https://velog.velcdn.com/images/jujemu/post/eae8fe88-cbba-47fc-83e8-4ed91a9df18d/image.png', '백엔드 개발자', '4', 'MENTOR', 'jujemu@naver.com', '4', 'jujemu', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXRjaC11cC54eXoiLCJpYXQiOjE2OTQwMjc5MjcsImV4cCI6MTcwODUyNzYwMCwic3ViIjoianVqZW11QG5hdmVyLmNvbSIsImlkIjo1fQ.Mz9OcDdroQ9Xp2vmpmqUVnmpJGEEfkGEJ-OBwVmbIm8');
+        ('GITHUB', 'https://github.com/user1', 1),
+        ('discord', '디스코드', 1),
+        ('kakao', '오픈채팅', 1);
+
+INSERT
+    INTO
+        users (user_profile_id, nickname, is_first_login, is_auth, review_score, total_reviews, create_time, likes, update_time, user_birthday, meeting_type, role, user_email, user_name)
+    VALUES
+        (null, 'OMG', true, true, 4.5, 10, '2023-08-17 10:00:00', 50, '2023-08-17 15:30:00', '1990-01-15', 'ONLINE', 'MENTOR', 'user1@example.com', 'John Doe'),
+        (null, 'OMGd', true, false, 3.2, 5, '2023-08-17 12:30:00', 20, '2023-08-17 16:45:00', '1985-07-25', 'OFFLINE', 'MENTOR', 'user2@example.com', 'Jane Smith'),
+        (null, 'OMGs', true, true, 4.8, 15, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10', 'FREE', 'MENTOR', 'user3@example.com', 'Michael Johnson'),
+        (null, 'OMG_google', false, true, 4.8, 15, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu30@gmail.com', 'jujemu'),
+        (1, 'OMG_naver', false, true, 4.8, 15, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu@naver.com', 'jujemu');
+
+UPDATE
+    users
+    SET
+        refresh_token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXRjaC11cC54eXoiLCJpYXQiOjE2OTQ1NDM3OTQsImV4cCI6MTY5NTc1MzM5NCwic3ViIjoianVqZW11QG5hdmVyLmNvbSIsImlkIjo1LCJ1bmtub3duIjp0cnVlfQ.WpmbcpwE8zF3Dvr1z8Z37jn-l5z91eP9fRZnqnFhBo0',
+        picture_url='https://velog.velcdn.com/images/jujemu/post/eae8fe88-cbba-47fc-83e8-4ed91a9df18d/image.png'
+    WHERE
+        user_id=5;
 
 INSERT
     INTO
@@ -67,4 +83,3 @@ INSERT
 --     team_tag (tag_name, team_id, image_url)
 -- VALUES
 --     ('Spring', 1, 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg');
-

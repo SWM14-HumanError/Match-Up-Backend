@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.TechStack;
+import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,9 +13,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Entity
@@ -22,30 +25,58 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User extends BaseEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
     @Column(name = "user_name")
     private String name;
+
+    @Column(unique = true)
+    private String nickname;
+    private Long userLevel;
+    private LocalDate birthDay;
+
     @Column(name = "picture_url")
     private String pictureUrl;
-    @Column(name = "user_level")
-    private Long userLevel;
+
     @Enumerated(EnumType.STRING)
     private MeetingType meetingType;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    private String refreshToken;
+
+    @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
+    private LocalDateTime  lastLogin = LocalDateTime.now();
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isMentor = false;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isAuth = false;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT true")
+    private Boolean isFirstLogin = true;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT true")
+    private Boolean isUnknown = true; // 소개를 적지 않은 유저
+
+    //링크는 조인해서 가져온다
+    private String expertize;
+    private Long expYear;
+    private String certificateURL;
+
     /**
      * address(선호하는 장소)를 어떻게 받을지 고민
      */
     private String address;
+
     @Column(name = "user_email", unique = true)
     private String email;
-    @Column(name = "user_birthday")
-    private LocalDate birthday;
-    @Column(name = "position")
-    private String position;
-    @Column(name = "position_level")
-    private Long positionLevel;
+
     @Column(name = "likes")
     private Long likes;
     @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
@@ -60,25 +91,59 @@ public class User extends BaseEntity implements UserDetails {
     private List<Feedback> giveFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
-    @Enumerated(EnumType.STRING)
-    private Role role;
-    private String refreshToken;
-    private Boolean isAuth;
-//    @Column(columnDefinition = "BOOLEAN DEFAULT true") // 처음 로그인할 때, 이용약관 동의, 추가 정보 조회에 관여
-    private Boolean isFirstLogin = true;
-    //링크는 조인해서 가져온다
-    private String expertize;
-    private Long expYear;
-    private String certificateURL;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserPosition> userPositions = new ArrayList<>();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_profile_id", unique = true)
+    private UserProfile userProfile;
+
+    /**
+     * Deprecated
+     */
+    @Column(name = "user_birthday")
+    private String position;
+    private Long positionLevel;
+
+    /**
+     * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
+     */
+    @Builder
+    public User(String email, String name, String pictureUrl, Role role) {
+        this.email = email;
+        this.name = name;
+        this.pictureUrl = pictureUrl;
+        this.role = role;
+    }
+
+    private Optional<UserProfile> getUserProfileOpt() {
+        return Optional.ofNullable(this.userProfile);
+    }
+
+    public UserProfile getUserProfile() {
+        return getUserProfileOpt().orElse(UserProfile.builder().user(this).build());
+    }
 
 //    public void addTeamUser(TeamUser teamUser) {
 //        teamUserList.add(teamUser);
 //        teamUser.setTag(this);
 //    }
+
     //== 비즈니스 로직 ==//
     public void updateNewRefreshToken(String newRefreshToken) {
         this.refreshToken = newRefreshToken;
+    }
+
+    public User updateUserLevel() {
+        this.userLevel = this.userPositions.stream().mapToLong(UserPosition::getPositionLevel).max().orElse(0L);
+        return this;
+    }
+
+    public double addUserReview(double score) {
+        double totalScore = (this.reviewScore) * (this.totalReviews);
+        this.totalReviews++;
+        this.reviewScore = (totalScore + score) / this.totalReviews;
+        return this.reviewScore;
     }
 
     public List<String> returnTagList() {
@@ -96,9 +161,8 @@ public class User extends BaseEntity implements UserDetails {
         return techStacks;
     }
 
-    public User update(String nickname) {
-
-        this.name = nickname;
+    public User updateUserName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -122,17 +186,11 @@ public class User extends BaseEntity implements UserDetails {
         this.role = role;
     }
 
-    public User updateFirstLogin(AdditionalUserInfoRequest dto) {
-
-        this.userLevel = dto.getUserLevel();
-        this.birthday = dto.getUserBirthday();
-        this.address = dto.getAddress();
-        this.expYear = dto.getExpYear();
-        this.position = dto.getPosition();
-        this.positionLevel = dto.getPositionLevel();
-        this.meetingType = dto.getMeetingType();
-        return this;
-    }
+    public User updateFirstLogin(AdditionalUserInfoRequest request) {
+        this.nickname = request.getNickname();
+        this.pictureUrl = request.getPictureUrl();
+        this.birthDay = request.getBirthDay();
+        this.expYear = request.getExpYear();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -168,6 +226,13 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public User updateUserProfile(UserProfileEditRequest request) {
+        this.pictureUrl = request.getPictureUrl();
+        this.nickname = request.getNickname();
+        this.isUnknown = false;
+        return this;
     }
 }
 
