@@ -105,7 +105,6 @@ public class User extends BaseEntity implements UserDetails {
     /**
      * Deprecated
      */
-    @Column(name = "user_birthday")
     private String position;
     private Long positionLevel;
 
