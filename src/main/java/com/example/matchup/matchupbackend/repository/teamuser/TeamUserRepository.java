@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Query("select teamuser from TeamUser teamuser JOIN FETCH User user ON user.id=teamuser.user.id WHERE teamuser.team.id=:teamId")
-    List<TeamUser> findAllTeamUserByTeamID(@Param("teamId") Long teamId);
+    List<TeamUser> findAllTeamUserByTeamID(@Param("teamId") Long teamId); //todo N+1 문제 해결
 
     @Query("select teamuser from TeamUser teamuser JOIN FETCH User user ON user.id=teamuser.user.id WHERE teamuser.team.id=:teamId and teamuser.approve=true")
     List<TeamUser> findAcceptedTeamUserByTeamID(@Param("teamId") Long teamId);

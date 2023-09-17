@@ -95,6 +95,19 @@ public class User extends BaseEntity implements UserDetails {
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Alert> alertList = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    private String refreshToken;
+    private Boolean isAuth;
+//    @Column(columnDefinition = "BOOLEAN DEFAULT true") // 처음 로그인할 때, 이용약관 동의, 추가 정보 조회에 관여
+    private Boolean isFirstLogin = true;
+    //링크는 조인해서 가져온다
+    private String expertize;
+    private Long expYear;
+    private String certificateURL;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_profile_id", unique = true)
