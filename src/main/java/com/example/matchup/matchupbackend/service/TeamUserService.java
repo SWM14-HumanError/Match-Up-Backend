@@ -193,7 +193,7 @@ public class TeamUserService {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new LeaderOnlyPermitException("유저 강퇴 부분");
         }
-        teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID()).orElseThrow(
+        TeamUser kickedUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID()).orElseThrow(
                 () -> {
                     throw new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다");
                 });
@@ -203,6 +203,9 @@ public class TeamUserService {
 
         teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, acceptForm.getRole());
         log.info("teamPosition 업데이트 완료");
+
+        // 알림 저장 로직
+        alertService.saveUserKickedToTeamAlert(kickedUser);
 
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
         log.info("userID:" + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");

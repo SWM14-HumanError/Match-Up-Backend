@@ -106,7 +106,7 @@ public class AlertService {
         // 지원자에게 보낼 알림
         Alert toVolunteer = Alert.builder()
                 .title("팀원 수락")
-                .content("축하드립니다! " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 하게 되었습니다")
+                .content("축하드립니다! " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 하게 되었습니다.")
                 .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
@@ -144,12 +144,30 @@ public class AlertService {
         // 지원자에게 보낼 지원 알림
         Alert toVolunteer = Alert.builder()
                 .title("팀원 거절")
-                .content(team.getTitle() + " - 지원이 거절 되었습니다 (클릭하여 거절 사유 보기)")
+                .content(team.getTitle() + " - 지원이 거절 되었습니다. (클릭하여 거절 사유 보기)")
                 .redirectUrl("/거절사유URL") //todo 거절 사유 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
         alertRepository.save(toVolunteer);
+    }
+
+    /**
+     * 팀장이 유저를 강퇴하였을때 알림 생성
+     * @param kickedUser
+     */
+    public void saveUserKickedToTeamAlert(TeamUser kickedUser) {
+        Team team = kickedUser.getTeam();
+
+        // 강퇴 유저에게 보낼 알림
+        Alert toKickedUser = Alert.builder()
+                .title("강퇴 알림")
+                .content(team.getTitle() + " - 팀장에 의해서 강퇴되었습니다.")
+                .redirectUrl("/방출사유URL")
+                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        toKickedUser.setUser(kickedUser.getUser());
+        alertRepository.save(toKickedUser);
     }
 
     /**
