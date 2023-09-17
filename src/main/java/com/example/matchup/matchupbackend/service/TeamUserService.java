@@ -44,6 +44,7 @@ public class TeamUserService {
     private final UserRepository userRepository;
     private final FeedbackRepository feedbackRepository;
     private final AlertService alertService;
+
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
      */
@@ -56,7 +57,7 @@ public class TeamUserService {
             ).collect(Collectors.toList());
         }
         //팀 리더의 경우
-        List<TeamUser> teamUsers = teamUserRepository.findAllTeamUserByTeamID(teamID);
+        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUser(teamID);
         if (teamUsers.isEmpty()) {
             throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
         }
@@ -122,7 +123,7 @@ public class TeamUserService {
         //알림 저장 로직
         User teamLeader = userRepository.findById(team.getLeaderID()).orElseThrow(() ->
                 new UserNotFoundException("팀장 정보를 찾을수 없습니다"));
-        alertService.saveTeamRecruitAlert(teamLeader, user, team);
+        alertService.saveTeamUserRecruitAlert(teamLeader, user, team);
         return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
     }
 
@@ -143,13 +144,14 @@ public class TeamUserService {
         if (!isTeamLeader(leaderID, teamID)) { // 일반 사용자인 경우
             throw new LeaderOnlyPermitException("팀원으로 유저 수락 부분");
         }
-        TeamUser recruitUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID())
+        TeamUser recruitUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID())
                 .orElseThrow(() -> {
                     throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");
                 });
         if (recruitUser.getApprove()) { // 이미 팀에 속한 팀원인 경우
             throw new DuplicateAcceptTeamUserException(acceptForm.getRecruitUserID(), teamID);
         }
+
         recruitUser.approveUser();
 
         teamUserRepository.updateTeamUserStatusByAcceptUser(teamID, acceptForm.getRole());
@@ -157,6 +159,11 @@ public class TeamUserService {
 
         teamPositionRepository.updateTeamPositionStatusByAcceptUser(teamID, acceptForm.getRole());
         log.info("teamPosition 업데이트 완료");
+
+        //알림 저장 로직
+        List<User> sendTo = teamUserRepository.findAcceptedTeamUserJoinUser(teamID)
+                .stream().map(teamUser -> teamUser.getUser()).collect(Collectors.toList());
+        alertService.saveUserAcceptToTeamAlert(sendTo, recruitUser, acceptForm);
     }
 
     /**
@@ -176,7 +183,7 @@ public class TeamUserService {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new LeaderOnlyPermitException("유저 강퇴 부분");
         }
-        teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID()).orElseThrow(
+        teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID()).orElseThrow(
                 () -> {
                     throw new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다");
                 });

@@ -141,7 +141,7 @@ public class TeamService {
             team.setUploadFile(uploadFile);
         }
         //팀 업데이트 알림 보내는 로직
-        List<User> sendAlertTarget = teamUserRepository.findAllTeamUserByTeamID(teamID)
+        List<User> sendAlertTarget = teamUserRepository.findTeamUserJoinUser(teamID)
                 .stream()
                 .map(teamUser -> teamUser.getUser())
                 .toList();
@@ -192,7 +192,7 @@ public class TeamService {
         }
         team.deleteTeam();
         // 팀 삭제 알림을 보내는 로직
-        List<User> sendAlertTarget = teamUserRepository.findAllTeamUserByTeamID(teamID)
+        List<User> sendAlertTarget = teamUserRepository.findTeamUserJoinUser(teamID)
                 .stream()
                 .map(teamUser -> teamUser.getUser())
                 .toList();
