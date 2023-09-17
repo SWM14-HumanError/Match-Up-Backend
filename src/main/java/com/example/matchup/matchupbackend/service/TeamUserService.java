@@ -222,16 +222,15 @@ public class TeamUserService {
 
     /**
      * 팀 구성원끼리 주는 피드백을 생성하는 매서드
-     *
      * @param giverID
      * @param teamID
      * @param feedbackRequest
      */
     @Transactional
     public void feedbackToTeamUser(Long giverID, Long teamID, TeamUserFeedbackRequest feedbackRequest) {
-        User giverUser = userRepository.findById(giverID)
+        User giver = userRepository.findById(giverID)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 주는 유저"));
-        User receiverUser = userRepository.findById(feedbackRequest.getReceiverID())
+        User receiver = userRepository.findById(feedbackRequest.getReceiverID())
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 받는 유저"));
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
@@ -244,9 +243,10 @@ public class TeamUserService {
         }
         isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
         Feedback feedback = Feedback.fromDTO(feedbackRequest);
-        feedback.setRelation(giverUser, receiverUser, team);
-        receiverUser.addFeedback(feedback);
+        feedback.setRelation(giver, receiver, team);
+        receiver.addFeedback(feedback);
         feedbackRepository.save(feedback);
+        alertService.saveFeedbackAlert(giver, receiver, team);
     }
 
     /**

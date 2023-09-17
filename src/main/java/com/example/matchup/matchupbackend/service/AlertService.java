@@ -171,6 +171,34 @@ public class AlertService {
     }
 
     /**
+     * 피드백을 보냈을때 알림 생성
+     * @param giver
+     * @param receiver
+     * @param team
+     */
+    public void saveFeedbackAlert(User giver, User receiver, Team team) {
+        // 피드백 보낸 사람 알림
+        Alert toGiver = Alert.builder()
+                .title("피드백이 발송되었습니다")
+                .content(team.getTitle() + " - " + receiver.getName() + "님에게 피드백을 전달했습니다.") // 휴먼에러 - 준혁님에게 피드백을 전달했습니다
+                .redirectUrl("/피드백URL")
+                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        toGiver.setUser(giver);
+        alertRepository.save(toGiver);
+
+        // 피드백 받은 사람 알림
+        Alert toReceiver = Alert.builder()
+                .title("피드백이 도착하였습니다")
+                .content(team.getTitle() + " - 피드백이 도착했습니다.")
+                .redirectUrl("/피드백URL")
+                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        toReceiver.setUser(receiver);
+        alertRepository.save(toReceiver);
+    }
+
+    /**
      * 여러명의 유저에게 "같은 알림"을 보내는 메서드
      * @param sendTo
      * @param alert
