@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.repository.AlertRepository;
+import jakarta.persistence.PersistenceUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -102,7 +103,9 @@ public class AlertService {
      */
     public void saveUserAcceptedToTeamAlert(List<User> sendTo, TeamUser volunteer, AcceptFormRequest acceptForm) {
         Team team = volunteer.getTeam();
-
+        User user = volunteer.getUser();
+        log.info(user.getAddress());
+        log.info(user.toString());
         // 지원자에게 보낼 알림
         Alert toVolunteer = Alert.builder()
                 .title("팀원 수락")
@@ -110,7 +113,7 @@ public class AlertService {
                 .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
-        toVolunteer.setUser(volunteer.getUser());
+        toVolunteer.setUser(user); //todo 여기에 유저가 프록시임
         alertRepository.save(toVolunteer);
 
         // 기존 유저에게 보낼 알림

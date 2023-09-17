@@ -151,7 +151,6 @@ public class TeamUserService {
         if (recruitUser.getApprove()) { // 이미 팀에 속한 팀원인 경우
             throw new DuplicateAcceptTeamUserException(acceptForm.getRecruitUserID(), teamID);
         }
-
         recruitUser.approveUser();
 
         teamUserRepository.updateTeamUserStatusByAcceptUser(teamID, acceptForm.getRole());
