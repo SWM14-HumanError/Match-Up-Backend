@@ -7,7 +7,7 @@ import com.example.matchup.matchupbackend.dto.response.userposition.UserPosition
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidUserNicknameException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserSnsLinkRepository;
@@ -72,7 +72,7 @@ public class UserProfileService {
     public void checkDuplicateNickname(String nickname) {
         User user = userRepository.findUserByNickname(nickname).orElse(null);
         if (user != null) {
-            throw new InvalidUserNicknameException();
+            throw new DuplicateUserNicknameException();
         }
     }
 
