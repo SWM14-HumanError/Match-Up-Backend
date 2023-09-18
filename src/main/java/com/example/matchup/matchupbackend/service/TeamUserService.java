@@ -6,6 +6,8 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormReques
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
+import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
@@ -43,7 +45,7 @@ public class TeamUserService {
     private final TeamRecruitRepository teamRecruitRepository;
     private final UserRepository userRepository;
     private final FeedbackRepository feedbackRepository;
-    private final AlertService alertService;
+    private final AlertCreateService alertCreateService;
 
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
@@ -120,6 +122,10 @@ public class TeamUserService {
         }
         //성공 로직
         teamRecruitRepository.save(TeamRecruit.of(recruitForm, user, team));
+        //알림 저장 로직
+        User teamLeader = userRepository.findById(team.getLeaderID()).orElseThrow(() ->
+                new UserNotFoundException("팀장 정보를 찾을수 없습니다"));
+        alertCreateService.saveTeamUserRecruitAlert(teamLeader, user, team);
         return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
     }
 
@@ -158,7 +164,7 @@ public class TeamUserService {
         //알림 저장 로직
         List<User> sendTo = teamUserRepository.findAcceptedTeamUserJoinUser(teamID)
                 .stream().map(teamUser -> teamUser.getUser()).collect(Collectors.toList());
-        alertService.saveUserAcceptedToTeamAlert(sendTo, recruitUser, acceptForm);
+        alertCreateService.saveUserAcceptedToTeamAlert(sendTo, recruitUser, acceptForm);
     }
 
     /**
@@ -180,7 +186,7 @@ public class TeamUserService {
         User recruitUser = userRepository.findById(acceptForm.getRecruitUserID()).orElseThrow(() -> {
             throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");
         });
-        alertService.saveUserRefusedToTeamAlert(leader, recruitUser);
+        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser);
     }
 
     @Transactional
@@ -200,7 +206,7 @@ public class TeamUserService {
         log.info("teamPosition 업데이트 완료");
 
         // 알림 저장 로직
-        alertService.saveUserKickedToTeamAlert(kickedUser);
+        alertCreateService.saveUserKickedToTeamAlert(kickedUser);
 
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
         log.info("userID:" + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
@@ -241,7 +247,7 @@ public class TeamUserService {
         feedback.setRelation(giver, receiver, team);
         receiver.addFeedback(feedback);
         feedbackRepository.save(feedback);
-        alertService.saveFeedbackAlert(giver, receiver, team);
+        alertCreateService.saveFeedbackAlert(giver, receiver, team);
     }
 
     /**

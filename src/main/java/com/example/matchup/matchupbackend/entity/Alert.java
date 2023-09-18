@@ -53,5 +53,14 @@ public class Alert extends BaseTimeEntity {
                 .alertType(alert.getAlertType())
                 .build();
     }
+
+    //==비즈니스 로직==//
+    public void readAlert() {
+        isRead = true;
+    }
+
+    public void deleteAlert() {
+        isDeleted = true;
+    }
 }
 // 알림의 경우에 BaseTimeEntity에서 생성시간은 알림 생성 시간, 수정시간은 알림을 읽은 시간으로 설정하였습니다.

@@ -33,7 +33,9 @@ public enum ErrorCode {
     FEED_TEAM_LIKE_ALREADY(HttpStatus.BAD_REQUEST, "FE-S-002", "이미 좋아요를 누른 피드입니다."),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C-S-001", "찾을 수 없는 댓글입니다."),
     INVALID_FEEDBACK_GRADE(HttpStatus.BAD_REQUEST, "FB-E-001", "피드백 점수는 GREAT, NORMAL, BAD만 가능합니다."),
-    TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다.");
+    TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다."),
+    ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "A-S-001", "알림 정보가 존재하지 않습니다."),
+    ALERT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "A-S-002", "이미 삭제된 알림입니다.");
 
     private HttpStatus status;
     private String code;

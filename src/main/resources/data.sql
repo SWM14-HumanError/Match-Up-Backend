@@ -1,8 +1,8 @@
 INSERT
 INTO
-    user_profile (introduce, meeting_address, meeting_time, meeting_note, meeting_type)
+    user_profile (introduce, meeting_address, meeting_time, meeting_note)
 VALUES
-    ('나를 소개하는 글입니다.', '서울 어디든', '오후', '반갑습니다.', 'FREE');
+    ('나를 소개하는 글입니다.', '서울 어디든', '오후', '반갑습니다.');
 
 INSERT
 INTO
