@@ -50,6 +50,7 @@ public class FeedService {
     private final CommentRepository commentRepository;
     private final CommentRepositoryCustom commentRepositoryCustom;
     private final LikeRepository likeRepository;
+    private final AlertCreateService alertCreateService;
 
     /**
      * 유저가 로그인을 한 경우라면 유저가 표시한 좋아요 여부를 같이 응답
@@ -180,14 +181,14 @@ public class FeedService {
     public Comment createFeedComment(String authorizationHeader, Long feedId, FeedCommentCreateOrUpdateRequest request) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "피드 댓글을 생성하는 과정에서 유효하지 않은 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드 댓글을 생성하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
-        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 생성하는 과정에서 존재하지 않는 피드 id를 받았습니다."));
+        Feed feed = feedRepository.findFeedJoinUserById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 생성하는 과정에서 존재하지 않는 피드 id를 받았습니다."));
 
         Comment comment = Comment.builder()
                 .content(request.getContent())
                 .feed(feed)
                 .user(user)
                 .build();
-
+        alertCreateService.saveCommentCreateAlert(feed, user, comment); // 댓글 작성 알림 생성
         return commentRepository.save(comment);
     }
 
@@ -195,9 +196,9 @@ public class FeedService {
     public Comment updateFeedComment(String authorizationHeader, Long feedId, Long commentId, FeedCommentCreateOrUpdateRequest request) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "피드 댓글을 업데이트하는 과정에서 유효하지 않은 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
-        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않은 피드 id를 받았습니다."));
+        Feed feed = feedRepository.findFeedJoinUserById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않은 피드 id를 받았습니다."));
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않은 댓글 id를 받았습니다."));
-
+        alertCreateService.saveCommentCreateAlert(feed, user, comment); // 댓글 작성 알림 생성
         if (comment.getUser().equals(user) && comment.getFeed().equals(feed)) {
             Comment updatedComment = comment.updateFeedComment(request);
             return commentRepository.save(updatedComment);

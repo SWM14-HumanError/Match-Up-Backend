@@ -200,6 +200,23 @@ public class AlertCreateService {
     }
 
     /**
+     * 피드에 댓글을 작성했을때 알림 생성
+     * @param feed
+     * @param commenter
+     * @param comment
+     */
+    public void saveCommentCreateAlert(Feed feed, User commenter, Comment comment) {
+        Alert alert = Alert.builder()
+                .title(commenter.getName() + " 님이 댓글을 작성했습니다.")
+                .content(comment.getContent())
+                .redirectUrl("/feed/" + feed.getId())
+                .alertType(AlertType.FEED)
+                .build();
+        alert.setUser(feed.getUser());
+        alertRepository.save(alert);
+    }
+
+    /**
      * 여러명의 유저에게 "같은 알림"을 보내는 메서드
      * @param sendTo
      * @param alert
