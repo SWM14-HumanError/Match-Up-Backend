@@ -217,6 +217,23 @@ public class AlertCreateService {
     }
 
     /**
+     * 피드에 좋아요를 눌렀을때 알림 생성
+     * @param liker
+     * @param feed
+     * @param likes
+     */
+    public void saveFeedLikeAlert(User liker, Feed feed, Integer likes) {
+        Alert alert = Alert.builder()
+                .title(liker.getName() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .content("누적 좋아요 갯수 - " + likes)
+                .redirectUrl("/feed/" + feed.getId())
+                .alertType(AlertType.FEED)
+                .build();
+        alert.setUser(feed.getUser());
+        alertRepository.save(alert);
+    }
+
+    /**
      * 여러명의 유저에게 "같은 알림"을 보내는 메서드
      * @param sendTo
      * @param alert
