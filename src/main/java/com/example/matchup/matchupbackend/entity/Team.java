@@ -34,8 +34,6 @@ public class Team extends BaseEntity {
     private String thumbnailUploadUrl;
     @Column(name = "thumbnail_url")
     private String thumbnailUrl; //storeURL
-    @Column(name = "content_like")
-    private Long like;
     @Column(name = "On_Offline")
     private String onOffline;
     @Column(name = "city")
@@ -56,18 +54,19 @@ public class Team extends BaseEntity {
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamPosition> teamPositionList = new ArrayList<>();
+    @OneToMany(mappedBy = "team")
+    private List<Likes> likes = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<Feedback> teamUserFeedbackList = new ArrayList<>();
 
     @Builder
-    public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, Long like, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
+    public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
         this.title = title;
         this.description = description;
         this.type = type;
         this.detailType = detailType;
         this.thumbnailUploadUrl = thumbnailUploadUrl;
         this.thumbnailUrl = thumbnailStoreUrl;
-        this.like = like;
         this.onOffline = onOffline;
         this.city = city;
         this.detailSpot = detailSpot;
@@ -132,7 +131,6 @@ public class Team extends BaseEntity {
                 .description(teamCreateRequest.getDescription())
                 .type(teamCreateRequest.getType().getTeamType())
                 .detailType(teamCreateRequest.getType().getDetailType())
-                .like(0L)
                 .onOffline(teamCreateRequest.getMeetingSpot().getOnOffline())
                 .city(teamCreateRequest.getMeetingSpot().getCity())
                 .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())

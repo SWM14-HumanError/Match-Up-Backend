@@ -39,7 +39,6 @@ public class TeamSearchResponse {
                 .id(team.getId())
                 .title(team.getTitle())
                 .description(team.getDescription())
-                .like(team.getLike())
                 .thumbnailUrl(team.getThumbnailUrl())
                 .techStacks(team.returnStackList())
                 .leaderID(team.getLeaderID())

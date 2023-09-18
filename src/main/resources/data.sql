@@ -31,16 +31,16 @@ WHERE
         user_id=5;
 
 INSERT
-INTO
-    team (team_id, team_title, description, type, detail_type, thumbnail_url, content_like, On_Offline, city, detail_spot, recruit_finish, is_deleted, leader_id)
-VALUES
-    (DEFAULT, 'IT직군 멘토-멘티 찾기', '멘토와 멘티를 매칭하는 앱 프로젝트입니다.', 0, 'Detail Type 1', 'https://velog.velcdn.com/images/jujemu/post/8e058525-b6a1-46ae-bc58-30fb17c068e7/image.png', 10, 'Offline', 'City 1', 'Spot 1', '2023-08-31', 0, 5),
-    (DEFAULT, '나만의 단짝 찾기', '나의 단짝은 어딨을까?', 0, 'Detail Type 2', 'https://velog.velcdn.com/images/jujemu/post/791a5c26-4fde-4bbb-8921-35c564833768/image.png', 5, 'Online', 'City 2', 'Spot 2', '2023-09-15', 0, 5),
-    (DEFAULT, '부동산 투자 용어 공부', '강남찾아 인생을 찾아', 0, 'Detail Type 1', 'https://velog.velcdn.com/images/jujemu/post/3f9b6044-5dc5-4a88-8c01-4f96d110a01c/image.png', 20, 'Offline', 'City 3', 'Spot 3', '2023-08-20', 0, 5),
-    (DEFAULT, '대학교 카풀 서비스', '대학생만을 위한 카풀 서비스 개발!', 0, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/e17c2fdc-5651-4d2a-8333-93b022209dd0/image.png', 8, 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5),
-    (DEFAULT, 'CS 공부', '기초 네트워크부터 시작', 1, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/fffac160-dd1b-4fa2-a866-9292e00d44ad/image.png', 8, 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5),
-    (DEFAULT, '운영체제 복습반', '공룡책 모임', 1, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/fbc44b28-deb0-47bc-a46e-5208ec43abfe/image.png', 8, 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5),
-    (DEFAULT, 'NLP 초보자를 위한 트랜스포머 모임', '논문 읽기 모임', 1, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/ecdbe8d5-f6c7-4208-8c2b-e3deb46232f0/image.png', 8, 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5);
+    INTO
+        team (team_id, team_title, description, type, detail_type, thumbnail_url, On_Offline, city, detail_spot, recruit_finish, is_deleted, leader_id)
+    VALUES
+        (DEFAULT, 'IT직군 멘토-멘티 찾기', '멘토와 멘티를 매칭하는 앱 프로젝트입니다.', 0, 'Detail Type 1', 'https://velog.velcdn.com/images/jujemu/post/8e058525-b6a1-46ae-bc58-30fb17c068e7/image.png', 'Offline', 'City 1', 'Spot 1', '2023-08-31', 0, 5),
+        (DEFAULT, '나만의 단짝 찾기', '나의 단짝은 어딨을까?', 0, 'Detail Type 2', 'https://velog.velcdn.com/images/jujemu/post/791a5c26-4fde-4bbb-8921-35c564833768/image.png', 'Online', 'City 2', 'Spot 2', '2023-09-15', 0, 5),
+        (DEFAULT, '부동산 투자 용어 공부', '강남찾아 인생을 찾아', 0, 'Detail Type 1', 'https://velog.velcdn.com/images/jujemu/post/3f9b6044-5dc5-4a88-8c01-4f96d110a01c/image.png', 'Offline', 'City 3', 'Spot 3', '2023-08-20', 0, 5),
+        (DEFAULT, '대학교 카풀 서비스', '대학생만을 위한 카풀 서비스 개발!', 0, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/e17c2fdc-5651-4d2a-8333-93b022209dd0/image.png', 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5),
+        (DEFAULT, 'CS 공부', '기초 네트워크부터 시작', 1, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/fffac160-dd1b-4fa2-a866-9292e00d44ad/image.png', 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5),
+        (DEFAULT, '운영체제 복습반', '공룡책 모임', 1, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/fbc44b28-deb0-47bc-a46e-5208ec43abfe/image.png', 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5),
+        (DEFAULT, 'NLP 초보자를 위한 트랜스포머 모임', '논문 읽기 모임', 1, 'Detail Type 3', 'https://velog.velcdn.com/images/jujemu/post/ecdbe8d5-f6c7-4208-8c2b-e3deb46232f0/image.png', 'Online', 'City 4', 'Spot 4', '2023-09-05', 0, 5);
 
 INSERT
 INTO
@@ -121,28 +121,26 @@ VALUES
     ('FRONT', 2, 5),
     ('AI', 3, 5);
 
--- INSERT
--- INTO
---     likes (user_id, feed_id, team_id)
--- VALUES
---     (5, 17, null),
---     (5, 16, null),
---     (5, 15, null),
---     (5, null, 1),
---     (5, null, 2);
+INSERT
+    INTO
+        likes (user_id, feed_id, team_id)
+    VALUES
+        (5, 17, null),
+        (5, 16, null),
+        (5, 15, null),
+        (5, null, 1),
+        (5, null, 2);
 
 
 INSERT
-INTO
-    tag (tag_name, image_url)
-VALUES
-    ('java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'),
-    ('spring', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg'),
-    ('javascript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'),
-    ('python', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg'),
-    ('django', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg'),
-    ('react', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'),
-    ('nodejs', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'),
-    ('other', null);
-
-
+    INTO
+        tag (tag_name, image_url)
+    VALUES
+        ('java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'),
+        ('spring', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg'),
+        ('javascript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'),
+        ('python', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg'),
+        ('django', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg'),
+        ('react', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'),
+        ('nodejs', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'),
+        ('other', null);

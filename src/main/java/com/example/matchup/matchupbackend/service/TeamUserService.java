@@ -1,14 +1,16 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
+import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
