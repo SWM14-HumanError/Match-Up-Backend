@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -22,9 +24,20 @@ public class AlertController {
     @GetMapping("/alert")
     @Operation(description = "알림 리스트 조회")
     @ResponseStatus(value = HttpStatus.OK)
-    public SliceAlertResponse getSliceAlertResponse(@RequestHeader(value = "Authorization") String authorizationHeader, @RequestBody AlertFilterRequest alertRequest, Pageable pageable) {
+    public SliceAlertResponse getSliceAlertResponse(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @RequestBody AlertFilterRequest alertRequest, Pageable pageable) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "getAlert");
         return alertService.getSliceAlertResponse(userId, alertRequest, pageable);
     }
+
+    @PostMapping("/alert/{alertId}")
+    @Operation(description = "알림 읽음 표시")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Long setAlertStatusRead(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long alertId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "readAlert");
+        return alertService.setAlertStatusRead(alertId, userId);
+    }
+
+
+    //todo 알림 삭제는 204
 
 }
