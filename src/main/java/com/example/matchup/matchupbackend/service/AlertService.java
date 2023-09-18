@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.alert.AlertFilterRequest;
 import com.example.matchup.matchupbackend.dto.response.alert.AlertResponse;
 import com.example.matchup.matchupbackend.dto.response.alert.SliceAlertResponse;
 import com.example.matchup.matchupbackend.entity.Alert;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.AlertDeletedException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.AlertNotFoundException;
 import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,22 @@ public class AlertService {
 
     @Transactional
     public void setAlertStatusRead(Long alertId, Long userId) {
+        Alert alert = getAlertWithValid(alertId, userId);
+        alert.readAlert();
+    }
+
+    @Transactional
+    public void deleteAlert(Long alertId, Long userId) {
+        Alert alert = getAlertWithValid(alertId, userId);
+        alert.deleteAlert();
+    }
+
+    @Transactional // 트렌젝션 안붙여도 이전 메서드에서 트렌젝션 전파 되나?
+    public Alert getAlertWithValid(Long alertId, Long userId) {
         Alert alert = alertRepository.findByIdAndUserId(alertId, userId)
                 .orElseThrow(() -> new AlertNotFoundException("alertID: " + alertId));
-        alert.readAlert();
+        if (alert.isDeleted() == true) // 알림이 이미 삭제 된 경우
+            throw new AlertDeletedException("alertID: " + alertId);
+        return alert;
     }
 }
