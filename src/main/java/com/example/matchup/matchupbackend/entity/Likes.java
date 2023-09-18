@@ -30,19 +30,12 @@ public class Likes extends BaseEntity{
 
     /**
      * 피드 좋아요
+     * 혹은 프로젝트, 스터디 좋아요
      */
     @Builder
-    public Likes(User user, Feed feed) {
+    public Likes(User user, Feed feed, Team team) {
         this.user = user;
         this.feed = feed;
-    }
-
-    /**
-     * 프로젝트, 스터디 좋아요
-     */
-    @Builder
-    public Likes(User user, Team team) {
-        this.user = user;
         this.team = team;
     }
 }

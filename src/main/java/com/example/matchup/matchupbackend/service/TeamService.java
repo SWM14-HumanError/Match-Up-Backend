@@ -1,17 +1,19 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.*;
+import com.example.matchup.matchupbackend.dto.Member;
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.team.*;
 import com.example.matchup.matchupbackend.entity.*;
-import com.example.matchup.matchupbackend.entity.TeamPosition;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateLikeException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamDetailNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -30,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.matchup.matchupbackend.error.ErrorCode.COMMENT_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,6 +46,8 @@ public class TeamService {
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
     private final FileService fileService;
+    private final TokenProvider tokenProvider;
+    private final LikeRepository likeRepository;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -221,6 +227,40 @@ public class TeamService {
                 });
         TeamTypeResponse teamType = TeamTypeResponse.fromTeamEntity(teamById);
         return teamType;
+    }
+
+    public int getTeamLikes(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("팀의 좋아요 개수를 조회하는 과정에서 존재하지 않는 팀 id를 요청했습니다."));
+        return team.getLikes().size();
+    }
+
+    @Transactional
+    public Long likeTeam(String authorizationHeader, Long teamId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "팀의 좋아요를 반영하면서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("팀의 좋아요를 반영하면서 존재하지 않는 유저 id를 받았습니다."));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("팀의 좋아요를 반영하면서 존재하지 않는 팀 id를 받았습니다."));
+
+        if (likeRepository.existsLikeByTeamAndUser(team, user)) {
+            throw new DuplicateLikeException("이미 좋아요를 누른 사용자가 같은 팀에 요청을 보냈습니다.");
+        }
+        likeRepository.save(Likes.builder().user(user).team(team).build());
+
+        return userId;
+    }
+
+    @Transactional
+    public Long undoLikeTeam(String authorizationHeader, Long teamId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "팀의 좋아요를 취소하는 과정에서 훼손된 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("팀의 좋아요를 취소하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("팀의 좋아요를 취소하는 과정에서 존재하지 않는 피드 id를 받았습니다."));
+        Likes like = likeRepository.findLikesByTeamAndUser(team, user).orElseThrow(() -> new CommentNotFoundException("팀의 좋아요를 취소하는 과정에서 존재하지 않는 좋아요 id를 받았습니다."));
+
+        if (like.getUser().equals(user) && like.getTeam().equals(team)) {
+            likeRepository.delete(like);
+            return userId;
+        } else {
+            throw new ResourceNotPermitException(COMMENT_NOT_FOUND, "팀의 좋아요를 삭제하는 과정에서 존재하지 않는 댓글에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
+        }
     }
 }
 

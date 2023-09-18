@@ -10,7 +10,7 @@ import com.example.matchup.matchupbackend.dto.response.feed.comment.FeedCommentR
 import com.example.matchup.matchupbackend.dto.response.feed.comment.FeedCommentSliceResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateFeedLikeException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateLikeException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.CommentNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.FeedNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
@@ -249,7 +249,7 @@ public class FeedService {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드의 좋아요를 반영하면서 존재하지 않는 피드 id를 받았습니다."));
 
         if (likeRepository.existsLikeByFeedAndUser(feed, user)) {
-            throw new DuplicateFeedLikeException("이미 좋아요를 누른 사용자가 같은 피드에 요청을 보냈습니다.");
+            throw new DuplicateLikeException("이미 좋아요를 누른 사용자가 같은 피드에 요청을 보냈습니다.");
         }
         likeRepository.save(Likes.builder().user(user).feed(feed).build());
 
@@ -269,5 +269,10 @@ public class FeedService {
         } else {
             throw new ResourceNotPermitException(COMMENT_NOT_FOUND, "피드의 좋아요를 삭제하는 과정에서 존재하지 않는 댓글에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
         }
+    }
+
+    public int getFeedLikes(Long feedId) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 좋아요 개수를 조회하는 과정에서 존재하지 않는 피드 id를 요청했습니다."));
+        return feed.getLikes().size();
     }
 }

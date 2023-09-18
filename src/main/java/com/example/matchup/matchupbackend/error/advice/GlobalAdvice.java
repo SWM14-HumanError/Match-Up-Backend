@@ -3,7 +3,7 @@ package com.example.matchup.matchupbackend.error.advice;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.ErrorResult;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateFeedLikeException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateLikeException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateRecruitException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
@@ -173,8 +173,8 @@ public class GlobalAdvice {
      *  이미 좋아요를 누른 피드에 대해서
      *  좋아요 요청이 다시 보내졌을 경우
      */
-    @ExceptionHandler(DuplicateFeedLikeException.class)
-    public ResponseEntity DuplicateFeedLikeExHandler(DuplicateFeedLikeException ex) {
+    @ExceptionHandler(DuplicateLikeException.class)
+    public ResponseEntity DuplicateFeedLikeExHandler(DuplicateLikeException ex) {
         String messageExtra = ex.getResource();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
