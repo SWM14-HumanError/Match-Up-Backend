@@ -10,17 +10,22 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
-    @Query("select teamuser from TeamUser teamuser JOIN FETCH User user ON user.id=teamuser.user.id WHERE teamuser.team.id=:teamId")
-    List<TeamUser> findAllTeamUserByTeamID(@Param("teamId") Long teamId);
+    @Query("select teamuser from TeamUser teamuser " +
+            "left join fetch teamuser.user " +
+            "WHERE teamuser.team.id=:teamId")
+    List<TeamUser> findTeamUserJoinUser(@Param("teamId") Long teamId);
 
-    @Query("select teamuser from TeamUser teamuser JOIN FETCH User user ON user.id=teamuser.user.id WHERE teamuser.team.id=:teamId and teamuser.approve=true")
+    @Query("select teamuser from TeamUser teamuser LEFT JOIN FETCH teamuser.user WHERE teamuser.team.id=:teamId and teamuser.approve=true")
     List<TeamUser> findAcceptedTeamUserByTeamID(@Param("teamId") Long teamId);
 
     @Query("select teamuser from TeamUser teamuser where teamuser.user.id=:userId and teamuser.team.id=:teamId")
     List<TeamUser> isUserRecruitDuplicated(@Param("userId") Long userId, @Param("teamId") Long teamId);
 
-    @Query("select teamuser from TeamUser teamuser where teamuser.team.id=:teamId and teamuser.user.id=:userId")
-    Optional<TeamUser> findTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
+    @Query("select teamuser from TeamUser teamuser " +
+            "left join fetch teamuser.team " +
+            "left join fetch teamuser.user " +
+            "where teamuser.team.id=:teamId and teamuser.user.id=:userId")
+    Optional<TeamUser> findTeamUserJoinTeamAndUser(@Param("teamId") Long teamId, @Param("userId") Long userId);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
@@ -33,4 +38,11 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId")
     void deleteTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
+
+    @Query("select teamuser from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId1 OR teamuser.user.id=:userId2")
+    List<TeamUser> findTwoUserByTeamIdAndUserIds(@Param("teamId") Long teamId, @Param("userId1") Long userId1, @Param("userId2")Long userId2);
+    @Query("select teamuser from TeamUser teamuser " +
+            "left join fetch teamuser.user " +
+            "WHERE teamuser.team.id=:teamId and teamuser.approve=true")
+    List<TeamUser> findAcceptedTeamUserJoinUser(@Param("teamId") Long teamId);
 }

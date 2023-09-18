@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ public class TeamService {
     private final TagRepository tagRepository;
     private final TeamPositionRepository teamPositionRepository;
     private final FileService fileService;
+    private final AlertService alertService;
     private final TokenProvider tokenProvider;
     private final LikeRepository likeRepository;
 
@@ -80,13 +82,18 @@ public class TeamService {
      */
     @Transactional
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
-        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
-        Team team = Team.of(leaderID, teamCreateRequest, uploadFile);
-        makeTeamPosition(teamCreateRequest, team);
+        Team team = Team.of(leaderID, teamCreateRequest);
+        if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+            team.setUploadFile(uploadFile);
+        }
+        makeTeamPosition(teamCreateRequest, team); //팀의 직무별 팀원 모집 정보 생성
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
         });
-        return teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getId();
+        Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getTeam().getId();
+        alertService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
+        return teamID;
     }
 
     /**
@@ -134,10 +141,20 @@ public class TeamService {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
         isUpdatableTeam(leaderID, team, teamCreateRequest);
-        fileService.deleteImage(team.getThumbnailUrl());
-        UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+        if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
+            fileService.deleteImage(team.getThumbnailUrl());
+            UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+            team.setUploadFile(uploadFile);
+        }
+        //팀 업데이트 알림 보내는 로직
+        List<User> sendAlertTarget = teamUserRepository.findTeamUserJoinUser(teamID)
+                .stream()
+                .map(teamUser -> teamUser.getUser())
+                .toList();
+        alertService.saveTeamUpdateAlert(teamID, sendAlertTarget, teamCreateRequest);
+
         log.info("Update team ID : " + teamID);
-        return team.updateTeam(teamCreateRequest, uploadFile);
+        return team.updateTeam(teamCreateRequest);
     }
 
     /**
@@ -155,7 +172,7 @@ public class TeamService {
             for (Member member : teamCreateRequest.getMemberList()) {
                 if (teamUser.getRole().equals(member.getRole())
                         && teamUser.getCount() > member.getMaxCount()) {
-                    throw new InvalidMemberValueException(member.getMaxCount());
+                    throw new InvalidMemberValueException(member.getMaxCount().toString());
                 }
             }
         }
@@ -176,8 +193,16 @@ public class TeamService {
         if (!leaderID.equals(team.getLeaderID())) {
             throw new LeaderOnlyPermitException("팀 삭제 - teamID: " + teamID);
         }
-        fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
+        if (StringUtils.hasText(team.getThumbnailUploadUrl())) {
+            fileService.deleteImage(team.getThumbnailUrl()); // 비용절감을 위해 삭제된 팀은 S3에서 섬네일 삭제
+        }
         team.deleteTeam();
+        // 팀 삭제 알림을 보내는 로직
+        List<User> sendAlertTarget = teamUserRepository.findTeamUserJoinUser(teamID)
+                .stream()
+                .map(teamUser -> teamUser.getUser())
+                .toList();
+        alertService.saveTeamDeleteAlert(sendAlertTarget, team);
         log.info("deleted team ID : " + teamID);
     }
 

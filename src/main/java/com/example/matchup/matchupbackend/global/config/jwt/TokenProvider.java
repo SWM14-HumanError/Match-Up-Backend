@@ -102,7 +102,7 @@ public class TokenProvider {
         if (validToken(token) == TokenStatus.INVALID_OTHER) {
             throw new AuthorizeException(callBack);
         } else if (validToken(token) == TokenStatus.EXPIRED) {
-            throw new ExpiredTokenException();
+            throw new ExpiredTokenException(callBack);
         }
 
         Claims claims = getClaims(token);

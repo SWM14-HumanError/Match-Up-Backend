@@ -5,11 +5,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### secret ###
-application.yml
-application-oauth.yml
-application-db.yml
-
 ### STS ###
 .apt_generated
 .classpath
@@ -43,3 +38,7 @@ out/
 
 ### Mac OS ###
 .DS_Store
+
+### yml ###
+*.yml
+```

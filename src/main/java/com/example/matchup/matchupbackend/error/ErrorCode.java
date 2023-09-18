@@ -25,13 +25,15 @@ public enum ErrorCode {
     TEAM_USER_RECRUIT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-003", "이미 지원한 팀입니다."),
     TEAM_USER_ACCEPT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-004", "이미 팀원입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다."),
-    USER_NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "UP-S-001", "유저 닉네임이 중복됩니다."),
+    USER_NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "UP-S-001", "유저 닉네임이 중복되거나 제한된 글자 수를 초과했습니다."),
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F-S-001", "파일을 저장 중 오류가 발생했습니다."),
     FILE_EXTENSION_ERROR(HttpStatus.BAD_REQUEST, "F-S-002", "지원하지 않는 파일 확장자 입니다."),
     MAX_FILE_SIZE_ERROR(HttpStatus.BAD_REQUEST, "F-S-003", "너무 큰 파일을 업로드 하였습니다."),
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FE-S-001", "피드 정보가 존재하지 않습니다."),
     FEED_TEAM_LIKE_ALREADY(HttpStatus.BAD_REQUEST, "FE-S-002", "이미 좋아요를 누른 피드입니다."),
-    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C-S-001", "찾을 수 없는 댓글입니다.");
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C-S-001", "찾을 수 없는 댓글입니다."),
+    INVALID_FEEDBACK_GRADE(HttpStatus.BAD_REQUEST, "FB-E-001", "피드백 점수는 GREAT, NORMAL, BAD만 가능합니다."),
+    TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다.");
 
     private HttpStatus status;
     private String code;

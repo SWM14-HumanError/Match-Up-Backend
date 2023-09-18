@@ -45,7 +45,7 @@ public class UserService {
                 user -> {
                     Position position = new Position(user.getPosition(), user.getPositionLevel());
                     return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
-                            user.getName(), position, user.getReviewScore(),
+                            user.getName(), position, user.getFeedbackScore(),
                             user.getLikes(), user.returnStackList());
                 }
         ).collect(Collectors.toList());

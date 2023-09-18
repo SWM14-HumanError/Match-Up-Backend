@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -36,7 +35,7 @@ public class Mentoring {
     public Double returnMentoringReviewAverage() {
         Double totalScore = 0.0;
         for (Review mentoringReview : mentoringReviewList) {
-            totalScore += mentoringReview.getScore();
+            totalScore += mentoringReview.getScore(); //todo 멘토의 score는 일반 유저의 온도와 다름
         }
         if (mentoringReviewList.size() == 0) return 0.0;
         return totalScore / mentoringReviewList.size();

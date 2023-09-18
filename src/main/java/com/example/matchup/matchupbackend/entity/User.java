@@ -36,7 +36,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(unique = true)
     private String nickname;
+    @Column(name = "user_level")
     private Long userLevel;
+    @Column(name = "user_birthday")
     private LocalDate birthDay;
 
     @Column(name = "picture_url")
@@ -50,7 +52,7 @@ public class User extends BaseEntity implements UserDetails {
     private String refreshToken;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
-    private LocalDateTime  lastLogin = LocalDateTime.now();
+    private LocalDateTime lastLogin = LocalDateTime.now();
 
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isMentor = false;
@@ -79,20 +81,21 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "likes")
     private Long likes;
-
-    @Column(name = "total_reviews")
-    private Integer totalReviews = 0;
-
-    @Column(name = "review_score")
-    private Double reviewScore = 0.0;
-
-    @Column
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Review> userReviewList = new ArrayList<>();
+    @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
+    private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
+    @Column(name = "feedback_score", columnDefinition = "double default 36.5")
+    private Double feedbackScore = 36.5; // 팀원 상호 평가 온도
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
+    @OneToMany(mappedBy = "giver", cascade = CascadeType.ALL)
+    private List<Feedback> giveFeedbackList = new ArrayList<>();
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    private List<Feedback> recieveFeedbackList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY)
@@ -102,7 +105,6 @@ public class User extends BaseEntity implements UserDetails {
     /**
      * Deprecated
      */
-    @Column(name = "user_birthday")
     private String position;
     private Long positionLevel;
 
@@ -140,20 +142,13 @@ public class User extends BaseEntity implements UserDetails {
         return this;
     }
 
-    public double addUserReview(double score) {
-        double totalScore = (this.reviewScore) * (this.totalReviews);
-        this.totalReviews++;
-        this.reviewScore = (totalScore + score) / this.totalReviews;
-        return this.reviewScore;
-    }
-
     public List<String> returnTagList() {
         return userTagList.stream().map(
                 userTag -> userTag.getTag().getName()
         ).collect(Collectors.toList());
     }
 
-    public List<TechStack> returnStackList(){
+    public List<TechStack> returnStackList() {
         List<TechStack> techStacks = new ArrayList<>();
         userTagList.stream().forEach(userTag -> {
             techStacks.add(TechStack.builder().tagID(userTag.getId())
@@ -170,6 +165,12 @@ public class User extends BaseEntity implements UserDetails {
     public String getRoleKey() {
 
         return this.role.getKey();
+    }
+
+    public void addFeedback(Feedback feedback) {
+        this.totalFeedbacks++; // 피드백 갯수 1 증가
+        this.feedbackScore += feedback.getTotalScore(); // 피드백에 따른 개인 점수 증가
+        this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
     public User updateFirstLogin(AdditionalUserInfoRequest request) {

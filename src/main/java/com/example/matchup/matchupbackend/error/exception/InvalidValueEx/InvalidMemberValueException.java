@@ -9,7 +9,7 @@ public class InvalidMemberValueException extends InvalidValueException {
         super(ErrorCode.MAX_MEMBER_ERROR);
     }
 
-    public InvalidMemberValueException(Long requestValue) {
+    public InvalidMemberValueException(String requestValue) {
         super(ErrorCode.MAX_MEMBER_ERROR, requestValue);
     }
 }

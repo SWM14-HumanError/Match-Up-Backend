@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.UserProfileService;
 import jakarta.validation.Valid;
@@ -29,7 +30,7 @@ public class UserProfileController {
     @GetMapping("/profile/unique")
     public ResponseEntity<Void> checkDuplicateNickname(@RequestParam("nickname") String nickname) {
         if (nickname.length() > 20) {
-            return ResponseEntity.badRequest().build();
+            throw new DuplicateUserNicknameException();
         }
         userProfileService.checkDuplicateNickname(nickname);
         return ResponseEntity.ok().build();
