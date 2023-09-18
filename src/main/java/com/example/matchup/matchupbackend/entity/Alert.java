@@ -36,6 +36,9 @@ public class Alert extends BaseTimeEntity {
     public void setUser(User user) {
         this.user = user;
     }
+    public void readAlert() {
+        isRead = true;
+    }
 
     @Builder
     public Alert(String title, String content, String redirectUrl, AlertType alertType) {
