@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.alert.AlertFilterRequest;
 import com.example.matchup.matchupbackend.dto.response.alert.AlertResponse;
 import com.example.matchup.matchupbackend.dto.response.alert.SliceAlertResponse;
 import com.example.matchup.matchupbackend.entity.Alert;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.AlertNotFoundException;
 import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +32,9 @@ public class AlertService {
     }
 
     @Transactional
-    public Long setAlertStatusRead(Long alertId, Long userId) {
+    public void setAlertStatusRead(Long alertId, Long userId) {
         Alert alert = alertRepository.findByIdAndUserId(alertId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
+                .orElseThrow(() -> new AlertNotFoundException("alertID: " + alertId));
         alert.readAlert();
-        return alert.getId();
     }
 }

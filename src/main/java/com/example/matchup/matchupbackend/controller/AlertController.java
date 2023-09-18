@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/alert")
 @RequiredArgsConstructor
 @Slf4j
 public class AlertController {
     private final AlertService alertService;
     private final TokenProvider tokenProvider;
 
-    @GetMapping("/alert")
+    @GetMapping("/")
     @Operation(description = "알림 리스트 조회")
     @ResponseStatus(value = HttpStatus.OK)
     public SliceAlertResponse getSliceAlertResponse(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @RequestBody AlertFilterRequest alertRequest, Pageable pageable) {
@@ -29,15 +29,19 @@ public class AlertController {
         return alertService.getSliceAlertResponse(userId, alertRequest, pageable);
     }
 
-    @PostMapping("/alert/{alertId}")
+    @PostMapping("/read/{alertId}")
     @Operation(description = "알림 읽음 표시")
     @ResponseStatus(value = HttpStatus.OK)
-    public Long setAlertStatusRead(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long alertId) {
+    public String setAlertStatusRead(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long alertId) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "readAlert");
-        return alertService.setAlertStatusRead(alertId, userId);
+        alertService.setAlertStatusRead(alertId, userId);
+        return "alertId: " + alertId + " - 읽어졌습니다.";
     }
 
 
     //todo 알림 삭제는 204
-
+    @PostMapping("/delete/{alertId}")
+    @Operation(description = "알림 삭제")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public Long
 }
