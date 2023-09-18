@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.request.feed.comment.FeedCommentCreateOrUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -36,5 +37,10 @@ public class Comment extends BaseEntity{
         this.content = content;
         this.feed = feed;
         this.user = user;
+    }
+
+    public Comment updateFeedComment(FeedCommentCreateOrUpdateRequest request) {
+        this.content = request.getContent();
+        return this;
     }
 }

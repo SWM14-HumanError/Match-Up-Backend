@@ -3,9 +3,10 @@ package com.example.matchup.matchupbackend.error.advice;
 import com.example.matchup.matchupbackend.error.ErrorCode;
 import com.example.matchup.matchupbackend.error.ErrorResult;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateRecruitException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateFeedLikeException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateRecruitException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileExtensionException;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
@@ -166,6 +167,17 @@ public class GlobalAdvice {
         String messageExtra = ex.getResource();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(UNAUTHORIZED).body(errorResponseDto);
+    }
+
+    /**
+     *  이미 좋아요를 누른 피드에 대해서
+     *  좋아요 요청이 다시 보내졌을 경우
+     */
+    @ExceptionHandler(DuplicateFeedLikeException.class)
+    public ResponseEntity DuplicateFeedLikeExHandler(DuplicateFeedLikeException ex) {
+        String messageExtra = ex.getResource();
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
+        return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
     }
 
 

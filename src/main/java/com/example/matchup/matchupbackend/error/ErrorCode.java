@@ -29,7 +29,9 @@ public enum ErrorCode {
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F-S-001", "파일을 저장 중 오류가 발생했습니다."),
     FILE_EXTENSION_ERROR(HttpStatus.BAD_REQUEST, "F-S-002", "지원하지 않는 파일 확장자 입니다."),
     MAX_FILE_SIZE_ERROR(HttpStatus.BAD_REQUEST, "F-S-003", "너무 큰 파일을 업로드 하였습니다."),
-    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FE-S-001", "피드 정보가 존재하지 않습니다.");
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FE-S-001", "피드 정보가 존재하지 않습니다."),
+    FEED_LIKE_ALREADY(HttpStatus.BAD_REQUEST, "FE-S-002", "이미 좋아요를 누른 피드입니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C-S-001", "찾을 수 없는 댓글입니다.");
 
     private HttpStatus status;
     private String code;

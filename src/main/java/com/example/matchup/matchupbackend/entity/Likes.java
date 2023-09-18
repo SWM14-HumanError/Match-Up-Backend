@@ -1,9 +1,13 @@
 package com.example.matchup.matchupbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Likes extends BaseEntity{
 
@@ -23,4 +27,22 @@ public class Likes extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    /**
+     * 피드 좋아요
+     */
+    @Builder
+    public Likes(User user, Feed feed) {
+        this.user = user;
+        this.feed = feed;
+    }
+
+    /**
+     * 프로젝트, 스터디 좋아요
+     */
+    @Builder
+    public Likes(User user, Team team) {
+        this.user = user;
+        this.team = team;
+    }
 }

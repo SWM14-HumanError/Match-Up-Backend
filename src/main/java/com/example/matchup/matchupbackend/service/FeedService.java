@@ -3,18 +3,22 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.FeedSearchType;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.comment.FeedCommentCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
-import com.example.matchup.matchupbackend.entity.Comment;
-import com.example.matchup.matchupbackend.entity.Feed;
-import com.example.matchup.matchupbackend.entity.ProjectDomain;
-import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.dto.response.feed.comment.FeedCommentResponse;
+import com.example.matchup.matchupbackend.dto.response.feed.comment.FeedCommentSliceResponse;
+import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateFeedLikeException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.CommentNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.FeedNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.comment.CommentRepository;
+import com.example.matchup.matchupbackend.repository.comment.CommentRepositoryCustom;
 import com.example.matchup.matchupbackend.repository.feed.FeedRepository;
 import com.example.matchup.matchupbackend.repository.feed.FeedRepositoryCustom;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -29,6 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.error.ErrorCode.COMMENT_NOT_FOUND;
+import static com.example.matchup.matchupbackend.error.ErrorCode.FEED_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Getter
@@ -41,6 +48,7 @@ public class FeedService {
     private final FeedRepository  feedRepository;
     private final TokenProvider tokenProvider;
     private final CommentRepository commentRepository;
+    private final CommentRepositoryCustom commentRepositoryCustom;
     private final LikeRepository likeRepository;
 
     /**
@@ -67,19 +75,19 @@ public class FeedService {
         FeedSliceResponse response = new FeedSliceResponse();
         response.setFeedSearchResponses(responseFeeds);
         response.setSize(feeds.size());
-        response.setHasNextSlice(hasNextSlice(request, pageable));
+        response.setHasNextSlice(hasNextFeedSlice(request, pageable));
 
         return response;
     }
 
     // todo: refactoring, hasNextSlice할 필요없이 하나의 query로 카운트 할 수 있음.
-    private boolean hasNextSlice(FeedSearchRequest request, Pageable pageable) {
+    private boolean hasNextFeedSlice(FeedSearchRequest request, Pageable pageable) {
 
         if (request.getSearchType() != null) {
             if (request.getDomain() == ProjectDomain.전체) {
                 String jpql = (request.getSearchType() == FeedSearchType.TITLE)
-                        ? "select count(cnt) from (select f.id cnt from Feed f where f.title like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC)"
-                        : "select count(cnt) from (select f.id cnt from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC)";
+                        ? "select count(cnt) from (select f.id AS cnt from Feed f where f.title like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC)"
+                        : "select count(cnt) from (select f.id AS cnt from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') GROUP BY f.id order by f.id DESC)";
 
                 try {
                     Long countQuery = em.createQuery(jpql, Long.class)
@@ -91,8 +99,8 @@ public class FeedService {
                 }
             } else {
                 String jpql = (request.getSearchType() == FeedSearchType.TITLE)
-                        ? "select count(cnt) from (select f.id cnt from Feed f where f.title like CONCAT('%', :searchValue, '%') and f.projectDomain = :domain GROUP BY f.id order by f.id DESC)"
-                        : "select count(cnt) from (select f.id cnt from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') and f.projectDomain = :domain GROUP BY f.id order by f.id DESC)";
+                        ? "select count(cnt) from (select f.id AS cnt from Feed f where f.title like CONCAT('%', :searchValue, '%') and f.projectDomain = :domain GROUP BY f.id order by f.id DESC)"
+                        : "select count(cnt) from (select f.id AS cnt from Feed f join f.user u on u.name like CONCAT('%', :searchValue, '%') and f.projectDomain = :domain GROUP BY f.id order by f.id DESC)";
 
                 try {
                     Long countQuery = em.createQuery(jpql, Long.class)
@@ -106,7 +114,7 @@ public class FeedService {
             }
         } else {
             if (request.getDomain() == ProjectDomain.전체) {
-                String jpql = "select count(cnt) from (select f.id cnt from Feed f GROUP BY f.id)";
+                String jpql = "select count(cnt) from (select f.id AS cnt from Feed f GROUP BY f.id)";
 
                 try {
                     Long countQuery = em.createQuery(jpql, Long.class)
@@ -117,7 +125,7 @@ public class FeedService {
                     return false;
                 }
             } else {
-                String jpql = "select count(cnt) from (select f.id cnt from Feed f WHERE f.projectDomain = :domain GROUP BY f.id)";
+                String jpql = "select count(cnt) from (select f.id AS cnt from Feed f WHERE f.projectDomain = :domain GROUP BY f.id)";
 
                 try {
                     Long countQuery = em.createQuery(jpql, Long.class)
@@ -146,8 +154,7 @@ public class FeedService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed 중에 존재하지 않는 유저에 접근했습니다."));
 
         if (feed.getUser().equals(user)) {
-            Feed updatedFeed = feed.updateFeed(request);
-            return updatedFeed;
+            return feed.updateFeed(request);
         }
         else {
             throw new AuthorizeException("updateFeed 중에 인가받지 못한 유저의 접근입니다.");
@@ -170,17 +177,97 @@ public class FeedService {
     }
 
     @Transactional
-    public Comment createFeedComment(String authorizationHeader, Long feedId, String content) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "createFeedComment");
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeedComment"));
-        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("createFeedComment"));
+    public Comment createFeedComment(String authorizationHeader, Long feedId, FeedCommentCreateOrUpdateRequest request) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "피드 댓글을 생성하는 과정에서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드 댓글을 생성하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 생성하는 과정에서 존재하지 않는 피드 id를 받았습니다."));
 
         Comment comment = Comment.builder()
-                .content(content)
+                .content(request.getContent())
                 .feed(feed)
                 .user(user)
                 .build();
 
         return commentRepository.save(comment);
+    }
+
+    @Transactional
+    public Comment updateFeedComment(String authorizationHeader, Long feedId, Long commentId, FeedCommentCreateOrUpdateRequest request) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "피드 댓글을 업데이트하는 과정에서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않은 피드 id를 받았습니다."));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException("피드 댓글을 업데이트하는 과정에서 존재하지 않은 댓글 id를 받았습니다."));
+
+        if (comment.getUser().equals(user) && comment.getFeed().equals(feed)) {
+            Comment updatedComment = comment.updateFeedComment(request);
+            return commentRepository.save(updatedComment);
+        } else {
+            throw new ResourceNotPermitException(FEED_NOT_FOUND, "피드 댓글을 업데이트하는 과정에서 존재하지 않는 피드에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
+        }
+    }
+
+    @Transactional
+    public void deleteFeedComment(String authorizationHeader, Long feedId, Long commentId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "피드 댓글을 삭제하는 과정에서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드 댓글을 삭제하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 삭제하는 과정에서 존재하지 않은 피드 id를 받았습니다."));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException("피드 댓글을 삭제하는 과정에서 존재하지 않은 댓글 id를 받았습니다."));
+
+        if (comment.getUser().equals(user) && comment.getFeed().equals(feed)) {
+            commentRepository.delete(comment);
+        } else {
+            throw new ResourceNotPermitException(FEED_NOT_FOUND, "피드 댓글을 삭제하는 과정에서 존재하지 않는 피드에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
+        }
+    }
+
+    public FeedCommentSliceResponse getSliceFeedComments(Long feedId, Pageable pageable) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 조회하면서 존재하지 않는 피드 id를 받았습니다."));
+
+        List<Comment> comments = commentRepositoryCustom.findFeedCommentsByFeed(feed, pageable);
+
+        List<FeedCommentResponse> responseComments = comments.stream()
+                .map(comment -> FeedCommentResponse.builder().comment(comment).build()).toList();
+
+        FeedCommentSliceResponse response = new FeedCommentSliceResponse();
+        response.setComments(responseComments);
+        response.setSize(comments.size());
+        response.setHasNextSlice(hasNextFeedCommentSlice(feedId, pageable));
+
+        return response;
+    }
+
+    private Boolean hasNextFeedCommentSlice(Long feedId, Pageable pageable) {
+        String jpql = "select count(cnt) from (select c.id AS cnt from Comment c where c.feed.id = :feedId)";
+        Long countQuery = em.createQuery(jpql, Long.class).setParameter("feedId", feedId).getSingleResult();
+        return countQuery > ((pageable.getPageNumber() + 1L) * pageable.getPageSize());
+    }
+
+    @Transactional
+    public Long likeFeed(String authorizationHeader, Long feedId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "피드의 좋아요를 반영하면서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드의 좋아요를 반영하면서 존재하지 않는 유저 id를 받았습니다."));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드의 좋아요를 반영하면서 존재하지 않는 피드 id를 받았습니다."));
+
+        if (likeRepository.existsLikeByFeedAndUser(feed, user)) {
+            throw new DuplicateFeedLikeException("이미 좋아요를 누른 사용자가 같은 피드에 요청을 보냈습니다.");
+        }
+        likeRepository.save(Likes.builder().user(user).feed(feed).build());
+
+        return userId;
+    }
+
+    @Transactional
+    public Long undoLikeFeed(String authorizationHeader, Long feedId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "피드의 좋아요를 취소하는 과정에서 훼손된 토큰을 받았습니다.");
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드의 좋아요를 취소하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드의 좋아요를 취소하는 과정에서 존재하지 않는 피드 id를 받았습니다."));
+        Likes like = likeRepository.findLikesByFeedAndUser(feed, user).orElseThrow(() -> new CommentNotFoundException("피드의 좋아요를 취소하는 과정에서 존재하지 않는 좋아요 id를 받았습니다."));
+
+        if (like.getUser().equals(user) && like.getFeed().equals(feed)) {
+            likeRepository.delete(like);
+            return userId;
+        } else {
+            throw new ResourceNotPermitException(COMMENT_NOT_FOUND, "피드의 좋아요를 삭제하는 과정에서 존재하지 않는 댓글에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
+        }
     }
 }

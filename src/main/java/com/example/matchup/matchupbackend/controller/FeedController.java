@@ -2,7 +2,9 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.comment.FeedCommentCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.feed.comment.FeedCommentSliceResponse;
 import com.example.matchup.matchupbackend.entity.Comment;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.service.FeedService;
@@ -75,16 +77,59 @@ public class FeedController {
     @PostMapping("/feed/{feed_id}/comment")
     public ResponseEntity<Long> createFeedComment(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                                   @PathVariable("feed_id") Long feedId,
-                                                  @RequestBody String content) {
-        Comment comment = feedService.createFeedComment(authorizationHeader, feedId, content);
+                                                  @Valid @RequestBody FeedCommentCreateOrUpdateRequest request) {
+        Comment comment = feedService.createFeedComment(authorizationHeader, feedId, request);
         if (comment != null) {
-            log.info("id: {}의 피드 댓글이 생성되었습니다.", comment.getId());
+            log.info("피드 id: {}의 댓글 id: {}가 생성되었습니다.", feedId, comment.getId());
             return ResponseEntity.created(URI.create("/feed/comment")).build();
         }
         return ResponseEntity.badRequest().build();
     }
 
-//    @GetMapping("/feed/{feed_id}/comment")
-//    public ResponseEntity<FeedSliceResponse> showFeedComments(@PathVariable("feed_id") Long feedId,
+    @GetMapping("/feed/{feed_id}/comment")
+    public ResponseEntity<FeedCommentSliceResponse> showFeedComments(@PathVariable("feed_id") Long feedId,
+                                                                     @PageableDefault(page = 0, size = 3, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        FeedCommentSliceResponse response = feedService.getSliceFeedComments(feedId, pageable);
+        return (response != null)
+                ? ResponseEntity.ok(response)
+                : ResponseEntity.badRequest().build();
+    }
 
+    @PutMapping("/feed/{feed_id}/comment/{comment_id}")
+    public ResponseEntity<Long> updateFeedComment(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                  @PathVariable("feed_id") Long feedId,
+                                                  @PathVariable("comment_id") Long commentId,
+                                                  @Valid @RequestBody FeedCommentCreateOrUpdateRequest request) {
+        Comment comment = feedService.updateFeedComment(authorizationHeader, feedId, commentId, request);
+        if (comment != null) {
+            log.info("피드 id: {}의 댓글 id: {}가 수정되었습니다.", feedId, commentId);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @DeleteMapping("/feed/{feed_id}/comment/{comment_id}")
+    public ResponseEntity<Long> deleteFeedComment(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                  @PathVariable("comment_id") Long commentId,
+                                                  @PathVariable("feed_id") Long feedId) {
+        feedService.deleteFeedComment(authorizationHeader, feedId, commentId);
+        log.info("피드 id: {}의 댓글 id: {}가 삭제되었습니다.", feedId, commentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/feed/{feed_id}/like")
+    public ResponseEntity<Long> addFeedLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                            @PathVariable("feed_id") Long feedId) {
+        Long userId = feedService.likeFeed(authorizationHeader, feedId);
+        log.info("user id: {}가 {} 피드에 좋아요를 눌렀습니다.", userId, feedId);
+        return ResponseEntity.created(URI.create("/feed")).build();
+    }
+
+    @DeleteMapping("/feed/{feed_id}/like")
+    public ResponseEntity<Long> deleteFeedLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                            @PathVariable("feed_id") Long feedId) {
+        Long userId = feedService.undoLikeFeed(authorizationHeader, feedId);
+        log.info("user id: {}가 {} 피드에 좋아요를 취소했습니다.", userId, feedId);
+        return ResponseEntity.noContent().build();
+    }
 }
