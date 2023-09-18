@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx;
+package com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx;
 
 import lombok.Getter;
 

@@ -2,14 +2,12 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
-import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidUserNicknameException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.UserProfileService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +30,7 @@ public class UserProfileController {
     @GetMapping("/profile/unique")
     public ResponseEntity<Void> checkDuplicateNickname(@RequestParam("nickname") String nickname) {
         if (nickname.length() > 20) {
-            throw new InvalidUserNicknameException();
+            throw new DuplicateUserNicknameException();
         }
         userProfileService.checkDuplicateNickname(nickname);
         return ResponseEntity.ok().build();

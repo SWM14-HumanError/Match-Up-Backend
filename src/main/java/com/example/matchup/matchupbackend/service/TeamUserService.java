@@ -1,14 +1,14 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
+import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
-import com.example.matchup.matchupbackend.error.exception.DuplicateRecruitEx.DuplicateTeamRecruitException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
+import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
@@ -120,10 +120,6 @@ public class TeamUserService {
         }
         //성공 로직
         teamRecruitRepository.save(TeamRecruit.of(recruitForm, user, team));
-        //알림 저장 로직
-        User teamLeader = userRepository.findById(team.getLeaderID()).orElseThrow(() ->
-                new UserNotFoundException("팀장 정보를 찾을수 없습니다"));
-        alertService.saveTeamUserRecruitAlert(teamLeader, user, team);
         return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
     }
 

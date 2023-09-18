@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.List;
 
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
@@ -119,5 +120,27 @@ public class TeamController {
     @Operation(description = "파일 저장하는 테스트")
     public UploadFile uploadFileTest(MultipartFile multipartFile) {
         return fileService.storeFile(multipartFile);
+    }
+
+    @GetMapping("/team/{team_id}/like")
+    @ResponseStatus(HttpStatus.OK)
+    public int checkFeedLike(@PathVariable("team_id") Long teamId) {
+        return teamService.getTeamLikes(teamId);
+    }
+
+    @PostMapping("/team/{team_id}/like")
+    public ResponseEntity<Void> addTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                            @PathVariable("team_id") Long teamId) {
+        Long userId = teamService.likeTeam(authorizationHeader, teamId);
+        log.info("user id: {}가 {} 팀의 좋아요를 눌렀습니다.", userId, teamId);
+        return ResponseEntity.created(URI.create("/team")).build();
+    }
+
+    @DeleteMapping("/team/{team_id}/like")
+    public ResponseEntity<Void> deleteTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                               @PathVariable("team_id") Long teamId) {
+        Long userId = teamService.undoLikeTeam(authorizationHeader, teamId);
+        log.info("user id: {}가 {} 팀의 좋아요를 취소했습니다.", userId, teamId);
+        return ResponseEntity.noContent().build();
     }
 }

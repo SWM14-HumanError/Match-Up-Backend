@@ -7,10 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 public class Feed extends BaseEntity{
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_id")
     private Long id;
@@ -25,20 +29,21 @@ public class Feed extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private ProjectDomain projectDomain;
     private String thumbnailUrl;
-    private Long likeCount; // 아직 미구현(디자인 상에 구현되어 있지 않음)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "feed")
+    private List<Likes> likes = new ArrayList<>();
+
     @Builder
-    public Feed(String title, String content, Long type, ProjectDomain projectDomain, String thumbnailUrl, Long likeCount, User user) {
+    public Feed(String title, String content, Long type, ProjectDomain projectDomain, String thumbnailUrl, User user) {
         this.title = title;
         this.content = content;
         this.type = type;
         this.projectDomain = projectDomain;
         this.thumbnailUrl = thumbnailUrl;
-        this.likeCount = likeCount;
         this.user = user;
     }
 
