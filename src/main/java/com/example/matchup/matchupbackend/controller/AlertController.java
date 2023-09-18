@@ -38,10 +38,12 @@ public class AlertController {
         return "alertId: " + alertId + " - 읽어졌습니다.";
     }
 
-
-    //todo 알림 삭제는 204
     @PostMapping("/delete/{alertId}")
     @Operation(description = "알림 삭제")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public Long
+    public String deleteAlert(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long alertId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "deleteAlert");
+        alertService.deleteAlert(alertId, userId);
+        return "alertId: " + alertId + " - 삭제 되었습니다.";
+    }
 }
