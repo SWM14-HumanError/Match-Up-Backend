@@ -31,7 +31,8 @@ public enum ErrorCode {
     MAX_FILE_SIZE_ERROR(HttpStatus.BAD_REQUEST, "F-S-003", "너무 큰 파일을 업로드 하였습니다."),
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FE-S-001", "피드 정보가 존재하지 않습니다."),
     INVALID_FEEDBACK_GRADE(HttpStatus.BAD_REQUEST, "FB-E-001", "피드백 점수는 GREAT, NORMAL, BAD만 가능합니다."),
-    TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다."),;
+    TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다."),
+    ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "A-S-001", "알림 정보가 존재하지 않습니다.");
 
     private HttpStatus status;
     private String code;
