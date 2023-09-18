@@ -29,4 +29,12 @@ public class AlertService {
                 .collect(Collectors.toList());
         return new SliceAlertResponse(alertResponseList, alertSlice.getSize(), alertSlice.hasNext());
     }
+
+    @Transactional
+    public Long setAlertStatusRead(Long alertId, Long userId) {
+        Alert alert = alertRepository.findByIdAndUserId(alertId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
+        alert.readAlert();
+        return alert.getId();
+    }
 }
