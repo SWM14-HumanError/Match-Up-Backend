@@ -10,18 +10,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AlertService {
     private final AlertRepository alertRepository;
 
     public SliceAlertResponse getSliceAlertResponse(Long userId, AlertFilterRequest alertFilterRequest, Pageable pageable) {
-        return null;
-    }
-
-    public AlertResponse getAlertResponse(Long userId, AlertFilterRequest alertFilterRequest, Pageable pageable) {
-        Slice<Alert> alertSlice = alertRepository.findAlertSliceByAlertRequest(userId,alertFilterRequest, pageable);
+        Slice<Alert> alertSlice = alertRepository.findAlertSliceByAlertRequest(userId, alertFilterRequest, pageable);
+        List<AlertResponse> alertResponseList = alertSlice.getContent().stream()
+                .map(alert -> AlertResponse.from(alert))
+                .collect(Collectors.toList());
+        return new SliceAlertResponse(alertResponseList, alertSlice.getSize(), alertSlice.hasNext());
     }
 }
