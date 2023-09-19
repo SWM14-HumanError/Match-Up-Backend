@@ -23,6 +23,7 @@ public class FeedbackCustomRepositoryImpl implements FeedbackCustomRepository {
         return queryFactory.selectFrom(feedback)
                 .where(feedback.receiver.id.eq(userID),
                         gradeEq(grade))
+                .orderBy(feedback.createTime.desc())
                 .fetch();
     }
 
