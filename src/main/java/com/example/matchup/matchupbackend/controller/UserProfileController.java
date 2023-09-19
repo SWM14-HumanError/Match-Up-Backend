@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
+import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedbackResponse;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.UserProfileService;
@@ -44,5 +45,10 @@ public class UserProfileController {
         String newToken = userProfileService.putUserProfile(authorizationHeader, userId, request);
         log.info("유저 id: {}의 프로필이 수정되었습니다.", userId);
         return (newToken != null) ? ResponseEntity.ok(newToken) : ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/profile/{user_id}/feedbacks/{grade}")
+    public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable("grade") String grade) {
+        userProfileService.getUserProfileFeedbacks(userId, grade);
     }
 }
