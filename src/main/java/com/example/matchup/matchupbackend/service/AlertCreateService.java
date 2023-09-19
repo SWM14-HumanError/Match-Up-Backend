@@ -200,6 +200,56 @@ public class AlertCreateService {
     }
 
     /**
+     * 피드에 댓글을 작성했을때 알림 생성
+     * @param feed
+     * @param commenter
+     * @param comment
+     */
+    public void saveCommentCreateAlert(Feed feed, User commenter, Comment comment) {
+        Alert alert = Alert.builder()
+                .title(commenter.getName() + " 님이 댓글을 작성했습니다.")
+                .content(comment.getContent())
+                .redirectUrl("/feed/" + feed.getId())
+                .alertType(AlertType.FEED)
+                .build();
+        alert.setUser(feed.getUser());
+        alertRepository.save(alert);
+    }
+
+    /**
+     * 피드에 좋아요를 눌렀을때 알림 생성
+     * @param liker
+     * @param feed
+     * @param likes
+     */
+    public void saveFeedLikeAlert(User liker, Feed feed, Integer likes) { //todo 유저 많아지면 알림을 한번에 몰아서 보내는 방법도 생각해야 함
+        Alert alert = Alert.builder()
+                .title(liker.getName() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .content("누적 좋아요 갯수 - " + likes)
+                .redirectUrl("/feed/" + feed.getId())
+                .alertType(AlertType.FEED)
+                .build();
+        alert.setUser(feed.getUser());
+        alertRepository.save(alert);
+    }
+
+    /**
+     * 팀에 좋아요를 눌렀을때 알림 생성
+     * @param liker
+     * @param team
+     * @param likes
+     */
+    public void saveTeamLikeAlert(User liker, Team team, Integer likes) { //todo 유저 많아지면 알림을 한번에 몰아서 보내는 방법도 생각해야 함
+        Alert alert = Alert.builder()
+                .title(liker.getName() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .content("누적 좋아요 갯수 - " + likes)
+                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
+                .build();
+        sendAlertToTeamUsers(team.getTeamUserList(), alert);
+    }
+
+    /**
      * 여러명의 유저에게 "같은 알림"을 보내는 메서드
      * @param sendTo
      * @param alert
@@ -208,6 +258,19 @@ public class AlertCreateService {
         for (User user : sendTo) {
             Alert newAlert = Alert.from(alert);
             newAlert.setUser(user);
+            alertRepository.save(newAlert);
+        }
+    }
+
+    /**
+     * 여러명의 "팀원"에게 "같은 알림"을 보내는 메서드
+     * @param sendTo
+     * @param alert
+     */
+    public void sendAlertToTeamUsers(List<TeamUser> sendTo, Alert alert) {
+        for (TeamUser teamUser : sendTo) {
+            Alert newAlert = Alert.from(alert);
+            newAlert.setUser(teamUser.getUser());
             alertRepository.save(newAlert);
         }
     }

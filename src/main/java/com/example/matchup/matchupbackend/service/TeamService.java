@@ -48,7 +48,6 @@ public class TeamService {
     private final TeamPositionRepository teamPositionRepository;
     private final FileService fileService;
     private final AlertCreateService alertCreateService;
-    private final AlertService alertService;
     private final TokenProvider tokenProvider;
     private final LikeRepository likeRepository;
 
@@ -264,13 +263,13 @@ public class TeamService {
     public Long likeTeam(String authorizationHeader, Long teamId) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "팀의 좋아요를 반영하면서 유효하지 않은 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("팀의 좋아요를 반영하면서 존재하지 않는 유저 id를 받았습니다."));
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("팀의 좋아요를 반영하면서 존재하지 않는 팀 id를 받았습니다."));
+        Team team = teamRepository.findTeamJoinTeamUserById(teamId).orElseThrow(() -> new TeamNotFoundException("팀의 좋아요를 반영하면서 존재하지 않는 팀 id를 받았습니다."));
 
         if (likeRepository.existsLikeByTeamAndUser(team, user)) {
             throw new DuplicateLikeException("이미 좋아요를 누른 사용자가 같은 팀에 요청을 보냈습니다.");
         }
         likeRepository.save(Likes.builder().user(user).team(team).build());
-
+        alertCreateService.saveTeamLikeAlert(user, team, team.getLikes().size());
         return userId;
     }
 
