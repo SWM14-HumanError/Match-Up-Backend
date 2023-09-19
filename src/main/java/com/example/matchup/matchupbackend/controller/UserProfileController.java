@@ -49,6 +49,9 @@ public class UserProfileController {
 
     @GetMapping("/profile/{user_id}/feedbacks/{grade}")
     public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable("grade") String grade) {
-        userProfileService.getUserProfileFeedbacks(userId, grade);
+        UserProfileFeedbackResponse response = userProfileService.getUserProfileFeedbacks(userId, grade);
+        return (response != null)
+                ? ResponseEntity.ok(response)
+                : ResponseEntity.notFound().build();
     }
 }

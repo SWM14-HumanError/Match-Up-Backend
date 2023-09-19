@@ -107,14 +107,6 @@ public class UserProfileService {
 
     public UserProfileFeedbackResponse getUserProfileFeedbacks(Long userId, String grade) {
        List<Feedback> feedbacks = feedbackRepository.findUserFeedbackByGrade(userId, grade);
-       if(!grade.isEmpty()) {
-              return UserProfileFeedbackResponse.of(grade, getDetailFeedbackList(feedbacks));
-        }
-
-
-    }
-
-    public List<String> getDetailFeedbackList(List<Feedback> feedbacks){
-        return feedbacks.stream().map(feedback -> feedback.getCommentToUser()).toList();
+       return UserProfileFeedbackResponse.from(feedbacks);
     }
 }
