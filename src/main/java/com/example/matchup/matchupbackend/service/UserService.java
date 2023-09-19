@@ -7,10 +7,14 @@ import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserPosition;
+import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +22,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +33,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final UserPositionRepository userPositionRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
@@ -68,5 +74,19 @@ public class UserService {
     public User findRefreshToken(String refreshToken) {
         return userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new IllegalArgumentException("Unexpected refresh token."));
+    }
+
+    public String tokenRefresh(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            String refreshToken = Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals("refresh_token"))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+            return tokenService.createNewAccessToken(refreshToken);
+        } else {
+            throw new ExpiredTokenException("만료된 refresh 토큰으로 접근하였거나 토큰이 없습니다.");
+        }
     }
 }
