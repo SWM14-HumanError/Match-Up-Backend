@@ -25,7 +25,7 @@ VALUES
 UPDATE
     users
 SET
-    refresh_token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXRjaC11cC54eXoiLCJpYXQiOjE2OTQ1NDM3OTQsImV4cCI6MTY5NTc1MzM5NCwic3ViIjoianVqZW11QG5hdmVyLmNvbSIsImlkIjo1LCJ1bmtub3duIjp0cnVlfQ.WpmbcpwE8zF3Dvr1z8Z37jn-l5z91eP9fRZnqnFhBo0',
+    refresh_token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYXRjaC11cC54eXoiLCJpYXQiOjE2OTQ2MzgyNTUsImV4cCI6MTcwNTAwNjI1NSwic3ViIjoianVqZW11QG5hdmVyLmNvbSIsImlkIjo1LCJ1bmtub3duIjp0cnVlfQ.MlwsS8NEOfxVjKML6xeiDEoHhSk5hBiT9oejXKnNDr4',
     picture_url='https://velog.velcdn.com/images/jujemu/post/eae8fe88-cbba-47fc-83e8-4ed91a9df18d/image.png'
 WHERE
         user_id=5;

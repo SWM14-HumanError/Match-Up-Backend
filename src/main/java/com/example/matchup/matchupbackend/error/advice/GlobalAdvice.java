@@ -14,6 +14,7 @@ import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.Invalid
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidValueException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.TokenRefreshNotPermitException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
@@ -187,6 +188,12 @@ public class GlobalAdvice {
         String messageExtra = ex.getResource();
         ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode(), messageExtra);
         return ResponseEntity.status(BAD_REQUEST).body(errorResponseDto);
+    }
+
+    @ExceptionHandler(TokenRefreshNotPermitException.class)
+    public ResponseEntity TokenRefreshNotPermitExHandler(TokenRefreshNotPermitException ex) {
+        ErrorResult errorResponseDto = ErrorResult.of(ex.getErrorCode());
+        return ResponseEntity.status(ex.getErrorCode().getStatus()).body(errorResponseDto);
     }
 
 
