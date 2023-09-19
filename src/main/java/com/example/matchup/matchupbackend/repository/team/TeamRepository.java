@@ -20,4 +20,7 @@ public interface TeamRepository extends JpaRepository<Team, Long>, TeamRepositor
             "when team.isDeleted = 1L then true end " +
             "from Team team where team.id=:teamID")
     boolean isFinished(@Param(value = "teamID") Long teamID);
+
+    @Query("select team from Team team join fetch team.teamUserList where team.id=:id")
+    Optional<Team> findTeamJoinTeamUserById(@Param("id") Long Id);
 }
