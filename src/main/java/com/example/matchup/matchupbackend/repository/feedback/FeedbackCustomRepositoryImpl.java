@@ -19,9 +19,8 @@ public class FeedbackCustomRepositoryImpl implements FeedbackCustomRepository {
     private final QFeedback qFeedback = feedback;
 
     @Override
-    public List<Feedback> findUserFeedbackJoinUser(Long userID, String grade) {
+    public List<Feedback> findUserFeedbackByGrade(Long userID, String grade) {
         return queryFactory.selectFrom(feedback)
-                .join(feedback.receiver).fetchJoin().on(feedback.receiver.id.eq(userID))
                 .where(feedback.receiver.id.eq(userID),
                         gradeEq(grade))
                 .fetch();
