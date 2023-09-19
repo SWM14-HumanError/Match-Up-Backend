@@ -51,8 +51,9 @@ public class TeamController {
         if (userId == null) {
             throw new AuthorizeException("TeamCreate");
         }
+        Long teamId = teamService.makeNewTeam(userId, teamCreateRequest);
         log.info("제목: " + teamCreateRequest.getName() + "팀이 생성되었습니다");
-        return teamService.makeNewTeam(userId, teamCreateRequest);
+        return teamId;
     }
 
     //팀 내용 업데이트
