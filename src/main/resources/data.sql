@@ -93,7 +93,35 @@ VALUES
     ('Front-end/react', 2, 3, 1),
     ('Manager', 0, 1, 2),
     ('Back-end/Django', 1, 2, 2),
-    ('Front-end/react', 3, 3, 2);
+    ('Front-end/react', 3, 3, 2),
+    ('Manager', 0, 1, 3),
+    ('Back-end/Django', 1, 2, 3),
+    ('Front-end/react', 3, 3, 3),
+    ('Manager', 0, 1, 4),
+    ('Back-end/Django', 1, 2, 4),
+    ('Front-end/react', 3, 3, 4);
+
+INSERT
+INTO
+    tag (tag_name, image_url)
+VALUES
+    ('java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'),
+    ('spring', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg'),
+    ('javascript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'),
+    ('python', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg'),
+    ('django', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg'),
+    ('react', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'),
+    ('nodejs', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'),
+    ('other', null);
+
+INSERT
+INTO
+    team_tag (tag_name, position_id, team_id, tag_id)
+VALUES
+    ('spring', 2, 1, 2),
+    ('spring', 5, 2, 2),
+    ('spring', 8, 3, 2),
+    ('spring', 11, 4, 2);
 
 INSERT
 INTO
@@ -130,17 +158,3 @@ INSERT
         (5, 15, null),
         (5, null, 1),
         (5, null, 2);
-
-
-INSERT
-    INTO
-        tag (tag_name, image_url)
-    VALUES
-        ('java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'),
-        ('spring', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg'),
-        ('javascript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'),
-        ('python', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg'),
-        ('django', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg'),
-        ('react', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'),
-        ('nodejs', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'),
-        ('other', null);
