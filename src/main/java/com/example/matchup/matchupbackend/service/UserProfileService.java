@@ -117,7 +117,7 @@ public class UserProfileService {
     }
 
     /**
-     * 피드백 목록을 숨김/보여주기 설정하는 매서드
+     * 피드백 목록을 숨김/공개 설정하는 매서드
      * @param userId
      */
     public String hideFeedbacks(Long userId) {
