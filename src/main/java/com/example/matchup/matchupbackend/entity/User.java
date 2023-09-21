@@ -66,6 +66,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isUnknown = true; // 소개를 적지 않은 유저
 
+    @Column(name ="feedbackHider", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean feedbackHider = false;
+
     //링크는 조인해서 가져온다
     private String expertize;
     private Long expYear;
