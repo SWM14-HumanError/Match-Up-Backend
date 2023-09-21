@@ -56,4 +56,11 @@ public class UserProfileController {
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/profile/{user_id}/feedbacks/hide")
+    @Operation(description = "피드백 공개 여부를 변경 하는 API")
+    public String hideFeedbacks(@PathVariable("user_id") Long userId) {
+        return userProfileService.hideFeedbacks(userId);
+    }
+
 }

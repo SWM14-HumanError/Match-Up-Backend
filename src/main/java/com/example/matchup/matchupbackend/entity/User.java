@@ -130,6 +130,9 @@ public class User extends BaseEntity implements UserDetails {
         return getUserProfileOpt().orElse(UserProfile.builder().user(this).build());
     }
 
+    public void changeFeedbackHide(){
+        this.feedbackHider = !this.feedbackHider;
+    }
 //    public void addTeamUser(TeamUser teamUser) {
 //        teamUserList.add(teamUser);
 //        teamUser.setTag(this);
