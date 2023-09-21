@@ -41,7 +41,8 @@ public class Feedback extends BaseTimeEntity{
     private String commentToAdmin;
     @Column(name = "total_score")
     private Double totalScore;
-
+    @Column(name ="is_hidden")
+    private Boolean isHidden;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "giver_id")
     private User giver;
