@@ -78,7 +78,8 @@ public class TeamRepositoryCustomImpl implements TeamRepositoryCustom {
                         team.title,
                         team.description,
                         team.leaderID,
-                        team.thumbnailUrl))
+                        team.thumbnailUrl,
+                        team.meetingTime))
                 .from(team)
                 .where(team.id.eq(teamID))
                 .fetchOne();

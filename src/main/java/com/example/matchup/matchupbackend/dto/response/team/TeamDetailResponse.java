@@ -9,4 +9,5 @@ public class TeamDetailResponse {
     private String description;
     private Long leaderID;
     private String thumbnailUrl;
+    private String meetingTime;
 }

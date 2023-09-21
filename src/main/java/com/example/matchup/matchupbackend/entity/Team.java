@@ -40,6 +40,8 @@ public class Team extends BaseEntity {
     private String city;
     @Column(name = "detail_spot")
     private String detailSpot;
+    @Column(name = "meeting_time")
+    private String meetingTime;
     @Column(name = "recruit_finish")
     private String recruitFinish;
     @Column(name = "is_deleted")
@@ -60,7 +62,7 @@ public class Team extends BaseEntity {
     private List<Feedback> teamUserFeedbackList = new ArrayList<>();
 
     @Builder
-    public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList) {
+    public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList,String meetingTime) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -73,6 +75,7 @@ public class Team extends BaseEntity {
         this.recruitFinish = recruitFinish;
         this.leaderID = leaderID;
         this.teamPositionList = teamPositionList;
+        this.meetingTime = meetingTime;
     }
 
     //== 연관관계 메서드 ==//
@@ -89,6 +92,7 @@ public class Team extends BaseEntity {
         this.onOffline = teamCreateRequest.getMeetingSpot().getOnOffline();
         this.city = teamCreateRequest.getMeetingSpot().getCity();
         this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();
+        this.meetingTime = teamCreateRequest.getMeetingDate();
         return this.id;
     }
 
@@ -136,6 +140,7 @@ public class Team extends BaseEntity {
                 .detailSpot(teamCreateRequest.getMeetingSpot().getDetailSpot())
                 .recruitFinish("NF")
                 .leaderID(leaderID)
+                .meetingTime(teamCreateRequest.getMeetingDate())
                 .build();
         return build;
     }
