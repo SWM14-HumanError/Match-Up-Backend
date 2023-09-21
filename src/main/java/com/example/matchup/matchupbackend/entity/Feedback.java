@@ -41,7 +41,6 @@ public class Feedback extends BaseTimeEntity{
     private String commentToAdmin;
     @Column(name = "total_score")
     private Double totalScore;
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "giver_id")
     private User giver;

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
+    private final TokenProvider tokenProvider;
 
     @GetMapping("/profile/{user_id}")
     public ResponseEntity<UserProfileDetailResponse> showProfile(@PathVariable("user_id") Long userId) {
@@ -56,4 +57,12 @@ public class UserProfileController {
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/profile/feedbacks/hide")
+    @Operation(description = "피드백 숨김/공개를 변경 하는 API")
+    public String hideFeedbacks(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "hideFeedbacks");
+        return userProfileService.hideFeedbacks(userId);
+    }
+
 }

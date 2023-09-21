@@ -66,6 +66,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isUnknown = true; // 소개를 적지 않은 유저
 
+    @Column(name ="feedbackHider", columnDefinition = "Boolean DEFAULT false")
+    private Boolean feedbackHider = false;
+
     //링크는 조인해서 가져온다
     private String expertize;
     private Long expYear;
@@ -127,6 +130,9 @@ public class User extends BaseEntity implements UserDetails {
         return getUserProfileOpt().orElse(UserProfile.builder().user(this).build());
     }
 
+    public void changeFeedbackHide(){
+        this.feedbackHider = !this.feedbackHider;
+    }
 //    public void addTeamUser(TeamUser teamUser) {
 //        teamUserList.add(teamUser);
 //        teamUser.setTag(this);
