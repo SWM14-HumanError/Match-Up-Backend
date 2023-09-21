@@ -6,8 +6,6 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormReques
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
-import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
@@ -17,7 +15,7 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Tea
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
-import com.example.matchup.matchupbackend.repository.FeedbackRepository;
+import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;

@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
+import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedbackResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.userposition.UserPositionDetailResponse;
 import com.example.matchup.matchupbackend.entity.*;
@@ -9,6 +10,7 @@ import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserSnsLinkRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
@@ -34,6 +36,7 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserPositionRepository userPositionRepository;
     private final UserSnsLinkRepository userSnsLinkRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public UserProfileDetailResponse showUserProfile(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("showUserProfile"));
@@ -100,5 +103,10 @@ public class UserProfileService {
         else {
             throw new AuthorizeException("토큰에 저장된 회원 정보와 요청한 프로필 회원 정보가 달라서 수정할 수 없습니다.");
         }
+    }
+
+    public UserProfileFeedbackResponse getUserProfileFeedbacks(Long userId, String grade) {
+       List<Feedback> feedbacks = feedbackRepository.findUserFeedbackByGrade(userId, grade);
+       return UserProfileFeedbackResponse.from(feedbacks);
     }
 }
