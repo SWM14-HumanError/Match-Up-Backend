@@ -120,9 +120,10 @@ public class UserProfileService {
      * 피드백 목록을 숨김/공개 설정하는 매서드
      * @param userId
      */
+    @Transactional
     public String hideFeedbacks(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("피드백 숨김 여부 설정에서 유저를 가져올수 없습니다."));
         user.changeFeedbackHide();
-        return "피드백 공개 여부가 " + (user.getFeedbackHider() ? "숨김" : "공개") + "로(으로) 변경되었습니다.";
+        return "피드백 공개 여부가 " + (user.getFeedbackHider() ? "숨김" : "공개") + " 처리 되었습니다.";
     }
 }
