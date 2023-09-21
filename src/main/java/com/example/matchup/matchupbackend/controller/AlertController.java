@@ -21,7 +21,7 @@ public class AlertController {
     private final AlertService alertService;
     private final TokenProvider tokenProvider;
 
-    @GetMapping("/")
+    @GetMapping("")
     @Operation(description = "알림 리스트 조회")
     @ResponseStatus(value = HttpStatus.OK)
     public SliceAlertResponse getSliceAlertResponse(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @RequestBody AlertFilterRequest alertRequest, Pageable pageable) {
