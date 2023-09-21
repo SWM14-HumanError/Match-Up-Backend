@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedba
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.UserProfileService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,8 @@ public class UserProfileController {
     }
 
     @GetMapping("/profile/{user_id}/feedbacks/{grade}")
-    public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable("grade") String grade) {
+    @Operation(description = "유저 프로필 페이지 / 피드백 API")
+    public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable(value = "grade", required = false) String grade) {
         UserProfileFeedbackResponse response = userProfileService.getUserProfileFeedbacks(userId, grade);
         return (response != null)
                 ? ResponseEntity.ok(response)
