@@ -7,6 +7,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Optional;
 
@@ -22,9 +23,7 @@ public class AuditingConfig implements AuditorAware<Long> {
         if(authentication == null || !authentication.isAuthenticated()) { // 인증이 안되어있는 경우
             return Optional.empty();
         }
-        log.info("AuditorAware: {}", authentication.getPrincipal());
-//        String name = authentication.getPrincipal().getClass().getName();
-//        log.info("AuditorAware: {}", name);
-        return Optional.of(1L); //todo value에 세션에서 유저 아이디 가져와서 넣어야 합니다
+        User principal = (User) authentication.getPrincipal();
+        return Optional.of(Long.parseLong(principal.getUsername()));
     }
 }
