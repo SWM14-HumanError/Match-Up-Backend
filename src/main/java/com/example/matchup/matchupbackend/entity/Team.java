@@ -84,7 +84,7 @@ public class Team extends BaseEntity {
     }
 
     //== 비즈니스 로직 ==//
-    public Long updateTeam(TeamCreateRequest teamCreateRequest) {
+    public void updateTeam(TeamCreateRequest teamCreateRequest) {
         this.title = teamCreateRequest.getName();
         this.type = teamCreateRequest.getType().getTeamType();
         this.detailType = teamCreateRequest.getType().getDetailType();
@@ -93,7 +93,6 @@ public class Team extends BaseEntity {
         this.city = teamCreateRequest.getMeetingSpot().getCity();
         this.detailSpot = teamCreateRequest.getMeetingSpot().getDetailSpot();
         this.meetingTime = teamCreateRequest.getMeetingDate();
-        return this.id;
     }
 
     public void deleteTeam() {

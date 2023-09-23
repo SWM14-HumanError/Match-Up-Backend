@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -46,6 +47,12 @@ public class TeamPosition {
             tagList.add(tag.getTag().getName());
         });
         return tagList;
+    }
+
+    public TeamPosition updateTeamPosition(Member members)
+    {
+        this.maxCount = members.getMaxCount();
+        return this;
     }
 
     public static TeamPosition of(String role, Long count, Long maxCount, Team team) {

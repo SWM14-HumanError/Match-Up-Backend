@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.repository;
 
+import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamPosition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,9 @@ public interface TeamPositionRepository extends JpaRepository<TeamPosition, Long
     @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamPosition position SET position.count = position.count - 1 WHERE position.team.id = :teamId AND position.role=:role")
     void updateTeamPositionStatusByKickedUser(@Param("teamId") Long teamId, @Param("role") String role);
+
+    @Query("SELECT position from TeamPosition position join fetch position.team where position.team.id=:teamId")
+    List<TeamPosition> findPositionJoinTeamByTeamId(@Param("teamId") Long teamId);
+
+    List<TeamPosition> findByTeam(Team team);
 }

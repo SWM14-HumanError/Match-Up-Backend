@@ -91,7 +91,7 @@ public class TeamService {
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
         });
-        Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true, 1L, team, user)).getTeam().getId();
+        Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true,  team, user)).getTeam().getId();
         alertCreateService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
         return teamID;
     }
@@ -136,16 +136,27 @@ public class TeamService {
      */
     @Transactional
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
-        Team team = teamRepository.findById(teamID)
+        Team team = teamRepository.findTeamById(teamID)
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
+        List<TeamPosition> teamPositions = teamPositionRepository.findByTeam(team);
+
+        //팀 검증 로직
         isUpdatableTeam(leaderID, team, teamCreateRequest);
-        if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
+
+        //썸네일 사진 수정 로직
+        if (teamCreateRequest.getBase64Thumbnail() != null) {
             fileService.deleteImage(team.getThumbnailUrl());
             UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
             team.setUploadFile(uploadFile);
         }
+
+        //실제 수정 로직
+        teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
+        team.updateTeam(teamCreateRequest); // 팀의 기본 정보 업데이트
+        updateTeamPosition(teamPositions, teamCreateRequest); // 팀의 직무별 팀원 모집 정보 업데이트
+
         //팀 업데이트 알림 보내는 로직
         List<User> sendAlertTarget = teamUserRepository.findTeamUserJoinUser(teamID)
                 .stream()
@@ -154,7 +165,27 @@ public class TeamService {
         alertCreateService.saveTeamUpdateAlert(teamID, sendAlertTarget, teamCreateRequest);
 
         log.info("Update team ID : " + teamID);
-        return team.updateTeam(teamCreateRequest);
+        return teamID;
+    }
+
+    @Transactional
+    public void updateTeamPosition(List<TeamPosition> teamPositionList, TeamCreateRequest teamCreateRequest) {
+        List<TeamPosition> newTeamPositionList = new ArrayList<>();
+        Map<String, TeamPosition> teamPositionMap = new HashMap<>();
+        teamPositionList.stream().forEach(teamPosition ->
+                teamPositionMap.put(teamPosition.getRole(), teamPosition)); // ex) teamPositionMap.put("FrontEnd", teamPosition)
+
+        for (Member member : teamCreateRequest.getMemberList()) {
+            if (teamPositionMap.containsKey(member.getRole()) == true) { // 이미 있는 포지션인 경우
+                newTeamPositionList.add(teamPositionMap.get(member.getRole()).updateTeamPosition(member));
+            } else if (teamPositionMap.containsKey(member.getRole()) == false) { // 새로 추가한 포지션인 경우
+                TeamPosition newTeamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), teamPositionList.get(0).getTeam());
+                teamPositionRepository.save(newTeamPosition);
+                newTeamPositionList.add(newTeamPosition);
+            }
+        }
+
+        makeTeamPositionTag(newTeamPositionList, teamCreateRequest); // 팀의 기술 스택 종합 업데이트
     }
 
     /**
