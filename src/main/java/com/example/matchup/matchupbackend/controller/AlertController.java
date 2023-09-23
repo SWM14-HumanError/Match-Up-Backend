@@ -24,7 +24,7 @@ public class AlertController {
     @GetMapping("")
     @Operation(description = "알림 리스트 조회")
     @ResponseStatus(value = HttpStatus.OK)
-    public SliceAlertResponse getSliceAlertResponse(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @RequestBody AlertFilterRequest alertRequest, Pageable pageable) {
+    public SliceAlertResponse getSliceAlertResponse(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, AlertFilterRequest alertRequest, Pageable pageable) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "getAlert");
         return alertService.getSliceAlertResponse(userId, alertRequest, pageable);
     }
