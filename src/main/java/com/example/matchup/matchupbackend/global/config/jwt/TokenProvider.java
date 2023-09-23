@@ -95,6 +95,11 @@ public class TokenProvider {
                 authorities);
     }
 
+    /**
+     * Bearer 토큰을 받아 userId를 반환
+     * @param authorizationHeader: String
+     * @param callBack: String
+     */
     public Long getUserId(String authorizationHeader, String callBack) {
         String token = getAccessToken(authorizationHeader);
 
