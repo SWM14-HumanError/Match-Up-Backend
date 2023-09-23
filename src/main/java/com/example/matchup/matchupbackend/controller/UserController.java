@@ -3,8 +3,6 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,8 +23,6 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class UserController {
 
     private final UserService userService;
-    private final TokenProvider tokenProvider;
-    private final TokenService tokenService;
 
     @GetMapping("/list/user")
     @ResponseStatus(HttpStatus.OK)
@@ -54,5 +50,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public String loginToken(HttpServletRequest request) {
         return userService.tokenRefresh(request);
+    }
+
+    /**
+     * 유저가 이용약관에 동의
+     */
+    @GetMapping("/login/user/term")
+    @ResponseStatus(HttpStatus.OK)
+    public void userAgreeTermOfService(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        userService.userAgreeTermOfService(authorizationHeader);
     }
 }
