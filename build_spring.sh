@@ -1,6 +1,6 @@
 #!/bin/bash
 set -a
-build_part="server"
+build_part="spring"
 version="${build_part}-v1.0"
 docker_image_name="ghcr.io/jujemu/match-up"
 docker_version="${version}-$(date +"%y%m%d")"
@@ -24,12 +24,12 @@ then
   docker rmi -f ${docker_image_name}:${docker_version}
 fi
 
-if [ "${TEST}" = "test" ]
-then
-    echo "\n"
-    echo -e "\033[1;33m # Docker run image built for test\033[0m"
-    if docker ps -a | grep -q "${build_part}"; then
-        docker rm -f "${build_part}"
-    fi
-    docker run -d --name "${build_part}" -p 8080:8080 --network private "${build_part}":test
-fi
+# if [ "${TEST}" = "test" ]
+# then
+#     echo "\n"
+#     echo -e "\033[1;33m # Docker run image built for test\033[0m"
+#     if docker ps -a | grep -q "${build_part}"; then
+#         docker rm -f "${build_part}"
+#     fi
+#     docker run -d --name "${build_part}" -p 8080:8080 --network private "${build_part}":test
+# fi

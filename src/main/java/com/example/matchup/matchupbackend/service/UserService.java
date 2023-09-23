@@ -60,8 +60,11 @@ public class UserService {
     @Transactional
     public Long saveAdditionalUserInfo(String authorizationHeader, AdditionalUserInfoRequest request) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "saveAdditionalUserInfo");
-
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));;
+
+        if (!user.getIsFirstLogin()) {
+            return null;
+        }
         User updatedUser = user.updateFirstLogin(request);
         List<UserPosition> userPositions = user.getUserPositions().stream().map(position -> position.updateUserProfile(request.getUserPositionLevels())).toList();
 
@@ -88,5 +91,13 @@ public class UserService {
         } else {
             throw new ExpiredTokenException("만료된 refresh 토큰으로 접근하였거나 토큰이 없습니다.");
         }
+    }
+
+    @Transactional
+    public void userAgreeTermOfService(String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "유저의 이용약관 동의를 저장하고 있습니다.");
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저의 이용약관 동의를 저장하면서 존재하지 않는 유저 id로 요청했습니다."));
+
+        user.updateTermService();
     }
 }
