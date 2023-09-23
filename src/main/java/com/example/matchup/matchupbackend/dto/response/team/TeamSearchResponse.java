@@ -14,22 +14,20 @@ public class TeamSearchResponse {
     private Long id;
     private String title;
     private String description;
-    private Long like;
     private String thumbnailUrl;
     private List<TechStack> techStacks;
     private Long leaderID;
-    private String leaderName;
+    private String leaderNickname;
     private Long leaderLevel;
     @Builder
-    public TeamSearchResponse(Long id, String title, String description, Long like, String thumbnailUrl, List<TechStack> techStacks, Long leaderID, String leaderName, Long leaderLevel) {
+    public TeamSearchResponse(Long id, String title, String description, String thumbnailUrl, List<TechStack> techStacks, Long leaderID, String leaderNickname, Long leaderLevel) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.like = like;
         this.thumbnailUrl = thumbnailUrl;
         this.techStacks = techStacks;
         this.leaderID = leaderID;
-        this.leaderName = leaderName;
+        this.leaderNickname = leaderNickname;
         this.leaderLevel = leaderLevel;
     }
 
@@ -42,7 +40,7 @@ public class TeamSearchResponse {
                 .thumbnailUrl(team.getThumbnailUrl())
                 .techStacks(team.returnStackList())
                 .leaderID(team.getLeaderID())
-                .leaderName(userMap.get(team.getLeaderID()).getName())
+                .leaderNickname(userMap.get(team.getLeaderID()).getNickname())
                 .leaderLevel(userMap.get(team.getLeaderID()).getUserLevel())
                 .build();
         return build;
