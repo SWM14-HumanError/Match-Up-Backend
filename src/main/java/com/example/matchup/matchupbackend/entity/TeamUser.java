@@ -23,8 +23,6 @@ public class TeamUser {
     private Long count;
     @Column(name = "approve")
     private Boolean approve;
-    @Column(name = "max_count")
-    private Long maxCount;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -34,11 +32,10 @@ public class TeamUser {
     private User user;
 
     @Builder
-    public TeamUser(String role, Long count, Boolean approve, Long maxCount, Team team, User user) {
+    public TeamUser(String role, Long count, Boolean approve, Team team, User user) {
         this.role = role;
         this.count = count;
         this.approve = approve;
-        this.maxCount = maxCount;
         this.team = team;
         this.user = user;
     }
@@ -54,17 +51,15 @@ public class TeamUser {
                 .role(recruitForm.getRole())
                 .approve(false)
                 .count(teamPosition.getCount())
-                .maxCount(teamPosition.getMaxCount())
                 .team(team)
                 .user(user)
                 .build();
         return build;
     }
 
-    public static TeamUser of(String role, Long count, Boolean approve, Long maxCount, Team team, User user) {
+    public static TeamUser of(String role, Long count, Boolean approve, Team team, User user) {
         TeamUser build = TeamUser.builder()
                 .count(count)
-                .maxCount(maxCount) //팀 리더는 한명으로 설정
                 .user(user)
                 .team(team)
                 .role(role)
