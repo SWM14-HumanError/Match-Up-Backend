@@ -60,4 +60,13 @@ public class UserController {
     public void userAgreeTermOfService(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         userService.userAgreeTermOfService(authorizationHeader);
     }
+
+    /**
+     * 유저가 온라인 상태를 지속하면 로그인 시간 최신화
+     */
+    @GetMapping("/user/online")
+    @ResponseStatus(HttpStatus.OK)
+    public void isUserOnline(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        userService.updateUserLastLogin(authorizationHeader);
+    }
 }

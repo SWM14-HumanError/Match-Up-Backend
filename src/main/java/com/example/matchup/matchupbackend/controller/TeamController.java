@@ -144,4 +144,11 @@ public class TeamController {
         log.info("user id: {}가 {} 팀의 좋아요를 취소했습니다.", userId, teamId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/team/{team_id}/user/like")
+    @ResponseStatus(HttpStatus.OK)
+    public Boolean isUserLikeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                  @PathVariable("team_id") Long teamId) {
+        return teamService.checkUserLikeTeam(authorizationHeader, teamId);
+    }
 }

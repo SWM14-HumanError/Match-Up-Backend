@@ -51,7 +51,7 @@ public class UserService {
                 user -> {
                     Position position = new Position(user.getPosition(), user.getPositionLevel());
                     return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
-                            user.getName(), position, user.getFeedbackScore(),
+                            user.getNickname(), position, user.getFeedbackScore(),
                             user.getLikes(), user.returnStackList());
                 }
         ).collect(Collectors.toList());
@@ -99,5 +99,13 @@ public class UserService {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저의 이용약관 동의를 저장하면서 존재하지 않는 유저 id로 요청했습니다."));
 
         user.updateTermService();
+    }
+
+    @Transactional
+    public void updateUserLastLogin(String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "유저 온라인 상태를 확인하면서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 온라인 상태를 확인하면서 존재하지 않는 유저 id를 받았습니다."));
+
+        user.updateUserLastLogin();
     }
 }
