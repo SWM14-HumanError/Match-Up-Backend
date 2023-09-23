@@ -49,7 +49,7 @@ public class UserProfileController {
         return (newToken != null) ? ResponseEntity.ok(newToken) : ResponseEntity.ok().build();
     }
 
-    @GetMapping("/profile/{user_id}/feedbacks/{grade}")
+    @GetMapping(value = {"/profile/{user_id}/feedbacks/{grade}", "/profile/{user_id}/feedbacks"})
     @Operation(description = "유저 프로필 페이지 / 피드백 API")
     public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable(value = "grade", required = false) String grade) {
         UserProfileFeedbackResponse response = userProfileService.getUserProfileFeedbacks(userId, grade);
