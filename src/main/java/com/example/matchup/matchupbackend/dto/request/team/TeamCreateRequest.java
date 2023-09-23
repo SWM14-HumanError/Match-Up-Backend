@@ -31,7 +31,6 @@ public class TeamCreateRequest {
     @Valid
     @NotNull(message = "모임 장소는 필수 입력 값입니다.")
     private MeetingSpotResponse meetingSpot;
-    @NotBlank(message = "모임 날짜는 필수 입력 값입니다.")
     private String meetingDate;
     @Valid
     @NotNull(message = "모집 팀원은 필수 입력 값입니다.")
