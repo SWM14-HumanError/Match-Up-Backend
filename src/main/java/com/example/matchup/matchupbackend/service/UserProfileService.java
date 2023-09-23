@@ -61,14 +61,20 @@ public class UserProfileService {
                 .meetingTime(userProfile.getMeetingTime())
                 .meetingType(userProfile.getMeetingType())
                 .meetingNote(userProfile.getMeetingNote())
-                .projects(teamUsers.stream().filter(teamUser -> teamUser.getTeam().getType().equals(0L))
-                        .map(teamUser -> TeamSearchResponse.from(
-                                teamUser.getTeam(),
-                                teamService.getUserMap())).toList())
-                .studies(teamUsers.stream().filter(teamUser -> teamUser.getTeam().getType().equals(1L))
-                        .map(teamUser -> TeamSearchResponse.from(
-                                teamUser.getTeam(),
-                                teamService.getUserMap())).toList())
+                .projects(teamUsers.stream()
+                        .filter(TeamUser::getApprove)
+                        .filter(teamUser -> teamUser.getTeam().getIsDeleted().equals(0L))
+                        .filter(teamUser -> teamUser.getTeam().getType().equals(0L))
+                            .map(teamUser -> TeamSearchResponse.from(
+                                    teamUser.getTeam(),
+                                    teamService.getUserMap())).toList())
+                .studies(teamUsers.stream()
+                        .filter(TeamUser::getApprove)
+                        .filter(teamUser -> teamUser.getTeam().getIsDeleted().equals(0L))
+                        .filter(teamUser -> teamUser.getTeam().getType().equals(1L))
+                            .map(teamUser -> TeamSearchResponse.from(
+                                    teamUser.getTeam(),
+                                    teamService.getUserMap())).toList())
                 .build();
     }
 
@@ -107,9 +113,8 @@ public class UserProfileService {
 
     /**
      * 유저 프로필 / 피드백 목록을 List<string>으로 보여주는 매서드
-     * @param userId
-     * @param grade
-     * @return
+     * @param userId: Long
+     * @param grade: String
      */
     public UserProfileFeedbackResponse getUserProfileFeedbacks(Long userId, String grade) {
        List<Feedback> feedbacks = feedbackRepository.findUserFeedbackByGrade(userId, grade);
@@ -118,7 +123,7 @@ public class UserProfileService {
 
     /**
      * 피드백 목록을 숨김/공개 설정하는 매서드
-     * @param userId
+     * @param userId: Long
      */
     @Transactional
     public String hideFeedbacks(Long userId) {
