@@ -196,6 +196,11 @@ public class User extends BaseEntity implements UserDetails {
         return this;
     }
 
+    public User updateUserLastLogin() {
+        this.lastLogin = LocalDateTime.now();
+        return this;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 

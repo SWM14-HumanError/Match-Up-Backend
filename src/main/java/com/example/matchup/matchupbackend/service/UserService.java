@@ -100,4 +100,12 @@ public class UserService {
 
         user.updateTermService();
     }
+
+    @Transactional
+    public void updateUserLastLogin(String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "유저 온라인 상태를 확인하면서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 온라인 상태를 확인하면서 존재하지 않는 유저 id를 받았습니다."));
+
+        user.updateUserLastLogin();
+    }
 }
