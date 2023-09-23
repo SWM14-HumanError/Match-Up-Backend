@@ -63,6 +63,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isFirstLogin = true;
 
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean termOfService = false;
+
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isUnknown = true; // 소개를 적지 않은 유저
 
@@ -178,6 +181,12 @@ public class User extends BaseEntity implements UserDetails {
         this.pictureUrl = request.getPictureUrl();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
+        this.isFirstLogin = false;
+        return this;
+    }
+
+    public User updateTermService() {
+        this.termOfService = true;
         return this;
     }
 
