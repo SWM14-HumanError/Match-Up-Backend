@@ -1,6 +1,6 @@
 #!/bin/bash
 set -a
-build_part="server"
+build_part="spring"
 version="${build_part}-v1.0"
 docker_image_name="ghcr.io/jujemu/match-up"
 docker_version="${version}-$(date +"%y%m%d")"

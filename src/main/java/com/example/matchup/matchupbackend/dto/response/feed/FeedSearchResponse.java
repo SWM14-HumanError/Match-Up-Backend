@@ -16,7 +16,7 @@ public class FeedSearchResponse {
     private String content;
     private String thumbnailUrl;
     private LocalDate createdDate;
-    private String userName;
+    private String nickname;
     private String userPictureUrl;
     private Long positionLevel;
     private boolean isLiked;
@@ -28,7 +28,7 @@ public class FeedSearchResponse {
         this.content = feed.getContent();
         this.thumbnailUrl = feed.getThumbnailUrl();
         this.createdDate = feed.getCreateTime().toLocalDate();
-        this.userName = user.getName();
+        this.nickname = user.getNickname();
         this.userPictureUrl = user.getPictureUrl();
         this.positionLevel = user.getPositionLevel();
         this.userId = user.getId();

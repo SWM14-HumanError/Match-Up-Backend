@@ -65,7 +65,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String isFirstLogin = user.getIsFirstLogin()
                 ? "true"
-                : "";
+                : "false";
 
         return UriComponentsBuilder.fromUriString(
                         tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
