@@ -14,7 +14,7 @@ public class TeamTag {
     private Long id;
     @Column(name = "tag_name")
     private String tagName;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "position_id")
     private TeamPosition teamPosition;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

@@ -28,7 +28,7 @@ public class TeamPosition {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
-    @OneToMany(mappedBy = "teamPosition", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "teamPosition", cascade = CascadeType.ALL)
     private List<TeamTag> tags = new ArrayList<>();
 
     @Builder
