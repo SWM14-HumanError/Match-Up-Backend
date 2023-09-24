@@ -105,7 +105,6 @@ public class TeamService {
         teamCreateRequest.getMemberList().stream().forEach(member -> {
             TeamPosition teamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
             teamPositions.add(teamPosition);
-            teamPositionRepository.save(teamPosition);
         });
         makeTeamPositionTag(teamPositions, teamCreateRequest);
     }
@@ -116,7 +115,7 @@ public class TeamService {
     @Transactional
     public void makeTeamPositionTag(List<TeamPosition> teamPositions, TeamCreateRequest teamCreateRequest) {
         for (TeamPosition teamPosition : teamPositions) {
-            List<String> tagList = teamCreateRequest.returnTagListByRole(teamPosition.getRole());
+            List<String> tagList = teamCreateRequest.returnTagListByRole(teamPosition.getRole()); //BE, FE 태그 다 섞여 있음
             tagList.stream().forEach(tagName -> {
                 Tag isExistTag = tagRepository.findByName(tagName);
                 if (isExistTag != null) //이미 있는 태그
@@ -136,8 +135,12 @@ public class TeamService {
      */
     @Transactional
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
-        List<TeamPosition> teamPositions = teamPositionRepository.findPositionJoinTeamByTeamId(teamID);
-        Team team = teamPositions.get(0).getTeam();
+        Team team = teamRepository.findTeamById(teamID)
+                .orElseThrow(() -> {
+                    throw new TeamNotFoundException("존재하지 않는 게시물");
+                });
+        teamPositionRepository.deleteNoTeamUserByTeamId(teamID); // 팀 포지션 중 팀원이 없는 포지션 삭제
+        List<TeamPosition> teamPositions = teamPositionRepository.findByTeam(team);
 
         //팀 검증 로직
         isUpdatableTeam(leaderID, team, teamCreateRequest);
@@ -152,7 +155,7 @@ public class TeamService {
         //실제 수정 로직
         teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
         team.updateTeam(teamCreateRequest); // 팀의 기본 정보 업데이트
-        updateTeamPosition(teamPositions, teamCreateRequest); // 팀의 직무별 팀원 모집 정보 업데이트
+        updateTeamPosition(teamPositions, teamCreateRequest, team); // 팀의 직무별 팀원 모집 정보 업데이트
 
         //팀 업데이트 알림 보내는 로직
         List<User> sendAlertTarget = teamUserRepository.findTeamUserJoinUser(teamID)
@@ -166,24 +169,35 @@ public class TeamService {
     }
 
     @Transactional
-    public void updateTeamPosition(List<TeamPosition> teamPositionList, TeamCreateRequest teamCreateRequest) {
-        List<TeamPosition> newTeamPositionList = new ArrayList<>();
-        Map<String, TeamPosition> teamPositionMap = new HashMap<>();
+    public void updateTeamPosition(List<TeamPosition> teamPositionList, TeamCreateRequest teamCreateRequest, Team team) {
+        List<TeamPosition> newTeamPositions = new ArrayList<>();
+        Map<String, TeamPosition> teamPositionMappedRole = new HashMap<>();
         teamPositionList.stream().forEach(teamPosition ->
-                teamPositionMap.put(teamPosition.getRole(), teamPosition)); // ex) teamPositionMap.put("FrontEnd", teamPosition)
+                teamPositionMappedRole.put(teamPosition.getRole(), teamPosition)); // ex) teamPositionMap.put("FrontEnd", teamPosition)
 
         for (Member member : teamCreateRequest.getMemberList()) {
-            if (teamPositionMap.containsKey(member.getRole()) == true) { // 이미 있는 포지션인 경우
-                newTeamPositionList.add(teamPositionMap.get(member.getRole()).updateTeamPosition(member));
-            } else if (teamPositionMap.containsKey(member.getRole()) == false) { // 새로 추가한 포지션인 경우
-                TeamPosition newTeamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), teamPositionList.get(0).getTeam());
-                teamPositionRepository.save(newTeamPosition);
-                newTeamPositionList.add(newTeamPosition);
+            if (teamPositionMappedRole.containsKey(member.getRole()) == true) { // 이미 있는 포지션인 경우
+                teamPositionMappedRole.get(member.getRole()).updateTeamPosition(member);
+            } else if (teamPositionMappedRole.containsKey(member.getRole()) == false) { // 새로 추가한 포지션인 경우
+                TeamPosition newTeamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
+//                teamPositionRepository.save(newTeamPosition);
+                newTeamPositions.add(newTeamPosition);
             }
         }
-
-        makeTeamPositionTag(newTeamPositionList, teamCreateRequest); // 팀의 기술 스택 종합 업데이트
+        if(newTeamPositions.size() > 0) {
+            makeTeamPositionTag(newTeamPositions, teamCreateRequest); // 팀의 기술 스택 종합 업데이트
+        }
     }
+
+//    @Transactional
+//    public void updateTeamPositionTag(Map<String, TeamPosition> newTeamPositionList, TeamCreateRequest teamCreateRequest) {
+//        TeamPosition oldTeamPosition = newTeamPositionList.get("old");
+//        TeamPosition newTeamPosition = newTeamPositionList.get("new");
+//
+//
+//    }
+
+
 
     /**
      * 팀 수정 할때 현재 있는 팀원보다 더 적은 max 팀원을 설정 할 경우 예외
@@ -201,6 +215,10 @@ public class TeamService {
                 if (teamUser.getRole().equals(member.getRole())
                         && teamUser.getCount() > member.getMaxCount()) {
                     throw new InvalidMemberValueException(member.getMaxCount().toString());
+                }
+                if (!teamUser.getRole().contains(member.getRole())
+                        && teamUser.getCount() >= 1) { // FE(1/4) 상황에서 FE 역할을 삭제 한 경우
+                    throw new InvalidMemberValueException(teamUser.getRole() + " - 팀원이 있을땐 역할을 삭제 할수 없습니다.");
                 }
             }
         }

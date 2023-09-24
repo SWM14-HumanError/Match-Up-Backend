@@ -29,4 +29,8 @@ public interface TeamPositionRepository extends JpaRepository<TeamPosition, Long
     List<TeamPosition> findPositionJoinTeamByTeamId(@Param("teamId") Long teamId);
 
     List<TeamPosition> findByTeam(Team team);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM TeamPosition tp WHERE tp.team.id = :teamId AND tp.count = 0")
+    void deleteNoTeamUserByTeamId(@Param("teamId") Long teamId);
 }
