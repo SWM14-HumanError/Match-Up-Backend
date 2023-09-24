@@ -136,11 +136,8 @@ public class TeamService {
      */
     @Transactional
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
-        Team team = teamRepository.findTeamById(teamID)
-                .orElseThrow(() -> {
-                    throw new TeamNotFoundException("존재하지 않는 게시물");
-                });
-        List<TeamPosition> teamPositions = teamPositionRepository.findByTeam(team);
+        List<TeamPosition> teamPositions = teamPositionRepository.findPositionJoinTeamByTeamId(teamID);
+        Team team = teamPositions.get(0).getTeam();
 
         //팀 검증 로직
         isUpdatableTeam(leaderID, team, teamCreateRequest);
@@ -281,7 +278,9 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
-        if(teamById.getIsDeleted() == 1L) throw new TeamNotFoundException("삭제된 게시물");
+        if(teamById.getIsDeleted() == 1L) {
+            throw new TeamNotFoundException("삭제된 게시물");
+        }
         TeamTypeResponse teamType = TeamTypeResponse.fromTeamEntity(teamById);
         return teamType;
     }
