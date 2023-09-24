@@ -3,4 +3,4 @@ LABEL   "title"="spring" \
         "version"="1.0"
 
 COPY build/libs/*.jar app.jar
-ENTRYPOINT ["java","-jar","app.jar", "--spring.profiles.active=${SERVERMODE}"]
+ENTRYPOINT ["java","-jar","app.jar", "--spring.profiles.active=dev"]
