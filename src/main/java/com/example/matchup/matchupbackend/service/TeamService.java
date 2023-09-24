@@ -281,6 +281,7 @@ public class TeamService {
                 .orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");
                 });
+        if(teamById.getIsDeleted() == 1L) throw new TeamNotFoundException("삭제된 게시물");
         TeamTypeResponse teamType = TeamTypeResponse.fromTeamEntity(teamById);
         return teamType;
     }
