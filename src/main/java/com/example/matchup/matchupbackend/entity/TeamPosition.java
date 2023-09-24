@@ -25,7 +25,7 @@ public class TeamPosition {
     private Long count;
     @Column(name = "max_count")
     private Long maxCount;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "team_id")
     private Team team;
     @OneToMany(mappedBy = "teamPosition", cascade = CascadeType.ALL)
