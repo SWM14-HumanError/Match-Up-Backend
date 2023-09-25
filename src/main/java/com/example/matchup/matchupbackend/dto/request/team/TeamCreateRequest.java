@@ -61,7 +61,7 @@ public class TeamCreateRequest {
     }
 
     public MultipartFile getThumbnailIMG() {
-        byte[] decodeIMG = Base64.getDecoder().decode(this.base64Thumbnail.replace('-','+').replace('/','_'));
+        byte[] decodeIMG = Base64.getDecoder().decode(this.base64Thumbnail.replace('-','+').replace('_','/'));
         ByteArrayMultipartFileEditor byteArrayMultipartFileEditor = new ByteArrayMultipartFileEditor();
         byteArrayMultipartFileEditor.setValue(decodeIMG);
         return (MultipartFile) byteArrayMultipartFileEditor.getValue();
