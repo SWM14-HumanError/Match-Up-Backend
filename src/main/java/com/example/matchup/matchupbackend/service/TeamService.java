@@ -140,7 +140,10 @@ public class TeamService {
         Team team = teamRepository.findTeamById(teamID).orElseThrow(() -> {
                     throw new TeamNotFoundException("존재하지 않는 게시물");});
 
-        //팀 포지션 초기화
+        //팀 검증 로직
+        isUpdatableTeam(leaderID, team, teamCreateRequest);
+
+        //팀 포지션, 기술 스택 초기화
         List<TeamPosition> teamPositions = teamPositionRepository.findByTeam(team);
         for (int i = teamPositions.size() - 1; i >= 0; i--) {
             if (teamPositions.get(i).getCount() == 0) {
@@ -148,9 +151,7 @@ public class TeamService {
                 teamPositions.remove(i); //가져온 list에서 삭제
             }
         }
-
-        //팀 검증 로직
-        isUpdatableTeam(leaderID, team, teamCreateRequest);
+        teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
 
         //썸네일 사진 수정 로직
         if (teamCreateRequest.getBase64Thumbnail() != null) {
@@ -160,7 +161,6 @@ public class TeamService {
         }
 
         //실제 수정 로직
-        teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
         team.updateTeam(teamCreateRequest); // 팀의 기본 정보 업데이트
         teamRepository.save(team);
         updateTeamPosition(teamPositions, teamCreateRequest, team); // 팀의 직무별 팀원 모집 정보 업데이트
