@@ -14,8 +14,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
@@ -44,28 +46,26 @@ public class TeamUserController {
     }
 
     @PostMapping("/team/{teamID}/recruit")
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "유저가 팀에 지원하는 API")
-    public Long recruitToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody RecruitFormRequest recruitForm) {
+    public ResponseEntity<Long> recruitToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody RecruitFormRequest recruitForm) {
         Long userID = tokenProvider.getUserId(authorizationHeader, "recruitToTeam");
         if (userID == null) {
             throw new AuthorizeException("TeamUserRecruit");
         }
         log.info("userID: " + userID);
-        return teamUserService.recruitToTeam(userID, teamID, recruitForm);
+        return ResponseEntity.created(URI.create("/team/" + teamID)).body(teamUserService.recruitToTeam(userID, teamID, recruitForm));
     }
 
     @PostMapping("/team/{teamID}/acceptUser")
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 유저를 팀원으로 수락하는 API")
-    public String acceptUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
+    public ResponseEntity<String> acceptUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
         Long leaderID = tokenProvider.getUserId(authorizationHeader, "acceptUserToTeam");
         if (leaderID == null) {
             throw new AuthorizeException("TeamUserAccept");
         }
         log.info("leaderID: " + leaderID);
         teamUserService.acceptUserToTeam(leaderID, teamID, acceptForm);
-        return "유저가 팀원이 되었습니다";
+        return ResponseEntity.created(URI.create("/team/" + teamID)).body("유저가 팀원이 되었습니다");
     }
 
     @DeleteMapping("/team/{teamID}/refuseUser")

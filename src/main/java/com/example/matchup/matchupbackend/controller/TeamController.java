@@ -44,16 +44,15 @@ public class TeamController {
     }
 
     @PostMapping("/team")
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀 생성 및 저장")
-    public Long makeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
+    public ResponseEntity<Long> makeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @Valid @RequestBody TeamCreateRequest teamCreateRequest) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "TeamCreate");
         if (userId == null) {
             throw new AuthorizeException("TeamCreate");
         }
         Long teamId = teamService.makeNewTeam(userId, teamCreateRequest);
         log.info("제목: " + teamCreateRequest.getName() + "팀이 생성되었습니다");
-        return teamId;
+        return ResponseEntity.created(URI.create("/team/" + teamId)).body(teamId);
     }
 
     //팀 내용 업데이트
