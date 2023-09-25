@@ -87,6 +87,7 @@ public class TeamService {
             UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
             team.setUploadFile(uploadFile);
         }
+        teamRepository.save(team);
         makeTeamPosition(teamCreateRequest, team); //팀의 직무별 팀원 모집 정보 생성
         User user = userRepository.findById(leaderID).orElseThrow(() -> {
             throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
@@ -104,6 +105,7 @@ public class TeamService {
         List<TeamPosition> teamPositions = new ArrayList<>();
         teamCreateRequest.getMemberList().stream().forEach(member -> {
             TeamPosition teamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
+            teamPositionRepository.save(teamPosition);
             teamPositions.add(teamPosition);
         });
         makeTeamPositionTag(teamPositions, teamCreateRequest);
@@ -124,7 +126,7 @@ public class TeamService {
                 } else { //새로운 태그
                     Tag newTag = Tag.builder().name(tagName).build();
                     tagRepository.save(newTag);
-                    teamTagRepository.save(TeamTag.of(tagName, teamPosition, teamPosition.getTeam(), newTag));
+                    teamTagRepository.save(TeamTag.of(tagName, teamPosition, teamPosition.getTeam(), newTag)); //todo 팀이 이미 있는데 같은 id로 저장해서 에러 나는듯
                 }
             });
         }
@@ -135,12 +137,17 @@ public class TeamService {
      */
     @Transactional
     public Long updateTeam(Long leaderID, Long teamID, TeamCreateRequest teamCreateRequest) {
-        Team team = teamRepository.findTeamById(teamID)
-                .orElseThrow(() -> {
-                    throw new TeamNotFoundException("존재하지 않는 게시물");
-                });
-        teamPositionRepository.deleteNoTeamUserByTeamId(teamID); // 팀 포지션 중 팀원이 없는 포지션 삭제
+        Team team = teamRepository.findTeamById(teamID).orElseThrow(() -> {
+                    throw new TeamNotFoundException("존재하지 않는 게시물");});
+
+        //팀 포지션 초기화
         List<TeamPosition> teamPositions = teamPositionRepository.findByTeam(team);
+        for (int i = teamPositions.size() - 1; i >= 0; i--) {
+            if (teamPositions.get(i).getCount() == 0) {
+                teamPositionRepository.delete(teamPositions.get(i)); // db에서 삭제
+                teamPositions.remove(i); //가져온 list에서 삭제
+            }
+        }
 
         //팀 검증 로직
         isUpdatableTeam(leaderID, team, teamCreateRequest);
@@ -155,6 +162,7 @@ public class TeamService {
         //실제 수정 로직
         teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
         team.updateTeam(teamCreateRequest); // 팀의 기본 정보 업데이트
+        teamRepository.save(team);
         updateTeamPosition(teamPositions, teamCreateRequest, team); // 팀의 직무별 팀원 모집 정보 업데이트
 
         //팀 업데이트 알림 보내는 로직
@@ -168,35 +176,35 @@ public class TeamService {
         return teamID;
     }
 
+    /**
+     * 팀의 포지션을 업데이트 하는 매서드
+     * @param teamPositionList
+     * @param teamCreateRequest
+     * @param team
+     */
     @Transactional
     public void updateTeamPosition(List<TeamPosition> teamPositionList, TeamCreateRequest teamCreateRequest, Team team) {
         List<TeamPosition> newTeamPositions = new ArrayList<>();
         Map<String, TeamPosition> teamPositionMappedRole = new HashMap<>();
-        teamPositionList.stream().forEach(teamPosition ->
-                teamPositionMappedRole.put(teamPosition.getRole(), teamPosition)); // ex) teamPositionMap.put("FrontEnd", teamPosition)
+        teamPositionList.stream().forEach(teamPosition -> {
+            if (!teamPosition.getRole().equals("Leader")) {
+                teamPositionMappedRole.put(teamPosition.getRole(), teamPosition);
+            }
+        }); // ex) teamPositionMap.put("FrontEnd", teamPosition)
 
         for (Member member : teamCreateRequest.getMemberList()) {
             if (teamPositionMappedRole.containsKey(member.getRole()) == true) { // 이미 있는 포지션인 경우
                 teamPositionMappedRole.get(member.getRole()).updateTeamPosition(member);
             } else if (teamPositionMappedRole.containsKey(member.getRole()) == false) { // 새로 추가한 포지션인 경우
                 TeamPosition newTeamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
-//                teamPositionRepository.save(newTeamPosition);
+                teamPositionRepository.save(newTeamPosition);
                 newTeamPositions.add(newTeamPosition);
             }
         }
-        if(newTeamPositions.size() > 0) {
+        if (newTeamPositions.size() > 0) {
             makeTeamPositionTag(newTeamPositions, teamCreateRequest); // 팀의 기술 스택 종합 업데이트
         }
     }
-
-//    @Transactional
-//    public void updateTeamPositionTag(Map<String, TeamPosition> newTeamPositionList, TeamCreateRequest teamCreateRequest) {
-//        TeamPosition oldTeamPosition = newTeamPositionList.get("old");
-//        TeamPosition newTeamPosition = newTeamPositionList.get("new");
-//
-//
-//    }
-
 
 
     /**
@@ -216,7 +224,7 @@ public class TeamService {
                         && teamUser.getCount() > member.getMaxCount()) {
                     throw new InvalidMemberValueException(member.getMaxCount().toString());
                 }
-                if (!teamUser.getRole().contains(member.getRole())
+                if ((!teamUser.getRole().contains(member.getRole()) && !teamUser.getRole().equals("Leader"))
                         && teamUser.getCount() >= 1) { // FE(1/4) 상황에서 FE 역할을 삭제 한 경우
                     throw new InvalidMemberValueException(teamUser.getRole() + " - 팀원이 있을땐 역할을 삭제 할수 없습니다.");
                 }
