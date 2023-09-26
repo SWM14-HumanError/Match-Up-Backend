@@ -119,11 +119,11 @@ public class TeamUserService {
             throw new DuplicateTeamRecruitException(userID, teamID);
         }
         //성공 로직
-        teamRecruitRepository.save(TeamRecruit.of(recruitForm, user, team));
+        TeamRecruit save = teamRecruitRepository.save(TeamRecruit.of(recruitForm, user, team));
         //알림 저장 로직
         User teamLeader = userRepository.findById(team.getLeaderID()).orElseThrow(() ->
                 new UserNotFoundException("팀장 정보를 찾을수 없습니다"));
-        alertCreateService.saveTeamUserRecruitAlert(teamLeader, user, team);
+        alertCreateService.saveTeamUserRecruitAlert(teamLeader, user, team, save.getId());
         return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
     }
 
