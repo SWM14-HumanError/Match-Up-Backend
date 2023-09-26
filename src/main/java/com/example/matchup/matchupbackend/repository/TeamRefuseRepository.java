@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.repository;
 import com.example.matchup.matchupbackend.entity.TeamRefuse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -11,5 +12,5 @@ public interface TeamRefuseRepository extends JpaRepository<TeamRefuse, Long> {
             "join fetch teamrefuse.refusedUser " +
             "join fetch teamrefuse.team " +
             "WHERE teamrefuse.id=:refuseId")
-    Optional<TeamRefuse> findRefuseInfoJoinUserAndTeamById(Long refuseId);
+    Optional<TeamRefuse> findRefuseInfoJoinUserAndTeamById(@Param("refuseId") Long refuseId);
 }
