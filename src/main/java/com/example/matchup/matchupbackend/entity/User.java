@@ -108,6 +108,8 @@ public class User extends BaseEntity implements UserDetails {
     private UserProfile userProfile;
     @OneToMany(mappedBy = "refusedUser")
     private List<TeamRefuse> teamRefuses = new ArrayList<>();
+    
+
 
     /**
      * Deprecated
