@@ -29,17 +29,12 @@ public class UserPosition extends BaseEntity{
 
     /**
      * 최초 로그인 시에 유저의 기술 스택을 저장하기 위해 사용
-     * @param request: AdditionalUserInfoRequest
-     * @param stack: UserPositionType
-     * @param user: User
      */
     @Builder
-    public UserPosition(AdditionalUserInfoRequest request, UserPositionType stack, User user) {
-        if (request.getUserPositionLevels().containsKey(stack)) {
-            this.positionName = stack.toString();
-            this.positionLevel = request.getUserPositionLevels().get(stack);
-            this.user = user;
-        }
+    public UserPosition(String positionName, Integer positionLevel, User user) {
+        this.positionName = positionName;
+        this.positionLevel = positionLevel;
+        this.user = user;
     }
 
 

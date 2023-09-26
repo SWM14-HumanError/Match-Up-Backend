@@ -23,6 +23,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,13 +65,15 @@ public class UserService {
     public Long saveAdditionalUserInfo(String authorizationHeader, AdditionalUserInfoRequest request) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "saveAdditionalUserInfo");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));;
+        if (!user.getIsFirstLogin()) throw new ResourceNotPermitException(NOT_PERMITTED, "이미 초기 정보를 제공한 사용자입니다.");
 
-        if (!user.getIsFirstLogin()) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "이미 초기 정보를 제공한 사용자입니다.");
-        }
-        // todo: user.updateFirstLogin 이 UserPosition 에 의존적인 점을 수정해야한다.
-        List<UserPosition> userPositions = user.getUserPositions().stream().map(position -> position.updateUserProfile(request.getUserPositionLevels())).toList();
-        User updatedUser = user.updateFirstLogin(request);
+        userPositionRepository.deleteAllByUser(user); // 밀어버리기 위해서 사용. 만약 소개먼저 작성한 유저가 있을 수도 있음
+
+        // todo: 여기서 UnsupportedOperationException 에러 발생: 현재는 immutable list라는 것으로 이해하고 있지만 왜 인지는 모르겟음
+        //  List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).toList();
+
+        List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).collect(Collectors.toCollection(ArrayList::new));
+        User updatedUser = user.updateFirstLogin(request, userPositions);
 
         userRepository.save(updatedUser);
         userPositionRepository.saveAll(userPositions);
