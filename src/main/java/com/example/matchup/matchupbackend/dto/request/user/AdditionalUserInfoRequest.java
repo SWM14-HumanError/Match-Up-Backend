@@ -1,6 +1,8 @@
 package com.example.matchup.matchupbackend.dto.request.user;
 
+import com.example.matchup.matchupbackend.entity.MeetingType;
 import com.example.matchup.matchupbackend.entity.UserPositionType;
+import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -25,5 +27,5 @@ public class AdditionalUserInfoRequest {
 
     @Range(max = 100L, message = "개발자 연차는 100년을 넘거나 음수일 수 없습니다.")
     private Long expYear;
-    private Map<UserPositionType, @Range(max = 5L, message = "스택의 범위는 0~5입니다.") Integer> userPositionLevels;
+    private Map<@Enum(enumClass = UserPositionType.class, message = "BACK, FRONT, FULL, DESIGN, AI로만 입력할 수 있습니다.") String, @Range(max = 5L, message = "스택의 범위는 0~5입니다.") Integer> userPositionLevels;
 }

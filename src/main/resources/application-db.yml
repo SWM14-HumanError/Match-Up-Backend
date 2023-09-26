@@ -70,6 +70,9 @@ spring:
     password:
     driver-class-name: org.h2.Driver
 
+# todo: web-allow-others: true 나중에 지우자
   h2:
     console:
       enabled: true
+      settings:
+        web-allow-others: true

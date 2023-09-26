@@ -9,6 +9,7 @@ import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 
 @Service
 @RequiredArgsConstructor
@@ -63,10 +66,11 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));;
 
         if (!user.getIsFirstLogin()) {
-            return null;
+            throw new ResourceNotPermitException(NOT_PERMITTED, "이미 초기 정보를 제공한 사용자입니다.");
         }
-        User updatedUser = user.updateFirstLogin(request);
+        // todo: user.updateFirstLogin 이 UserPosition 에 의존적인 점을 수정해야한다.
         List<UserPosition> userPositions = user.getUserPositions().stream().map(position -> position.updateUserProfile(request.getUserPositionLevels())).toList();
+        User updatedUser = user.updateFirstLogin(request);
 
         userRepository.save(updatedUser);
         userPositionRepository.saveAll(userPositions);
