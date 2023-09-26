@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormReques
 import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.RefuseReasonResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
@@ -115,8 +116,19 @@ public class TeamUserController {
     public RecruitInfoResponse showRecruit(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @PathVariable Long recruitID) {
         Long userID = tokenProvider.getUserId(authorizationHeader, "showRecruit");
         if (userID == null) {
-            throw new AuthorizeException("TeamUserRecruit");
+            throw new AuthorizeException("showRecruit");
         }
         return teamUserService.getRecruitInfo(userID, teamID, recruitID);
+    }
+
+    @GetMapping("/team/refuse/{refuseID}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "팀원 거절 사유 열람 하는 API")
+    public RefuseReasonResponse showRefuseReason(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long refuseID) {
+        Long userID = tokenProvider.getUserId(authorizationHeader, "showRefuseReason");
+        if (userID == null) {
+            throw new AuthorizeException("showRefuseReason");
+        }
+        return teamUserService.getUserRefuseReason(userID, refuseID);
     }
 }
