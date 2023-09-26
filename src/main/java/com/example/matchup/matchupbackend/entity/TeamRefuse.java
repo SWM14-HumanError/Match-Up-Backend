@@ -49,18 +49,14 @@ public class TeamRefuse extends BaseEntity {
     }
 
     //==연관관계 메서드==//
-
-    /*
-
-
     public void setTeam(Team team) {
         this.team = team;
-        team.getTeamRefuses().add(this);
+        team.getTeamRefuseList().add(this);
     }
 
     public void setUser(User user) {
         this.refusedUser = user;
         user.getTeamRefuses().add(this);
     }
-    */
+
 }
