@@ -3,8 +3,10 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.RefuseReasonResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
@@ -13,6 +15,7 @@ import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateR
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
+import com.example.matchup.matchupbackend.repository.TeamRefuseRepository;
 import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
@@ -44,6 +47,7 @@ public class TeamUserService {
     private final FeedbackRepository feedbackRepository;
     private final AlertCreateService alertCreateService;
     private final UserPositionRepository userPositionRepository;
+    private final TeamRefuseRepository teamRefuseRepository;
 
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
@@ -169,22 +173,27 @@ public class TeamUserService {
      * 팀장이 유저를 팀원으로 거절함
      */
     @Transactional
-    public void refuseUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
+    public void refuseUserToTeam(Long leaderID, Long teamID, RefuseFormRequest refuseForm) {
         if (!isTeamLeader(leaderID, teamID)) { // 일반 사용자인 경우
             throw new LeaderOnlyPermitException("팀원으로 유저 거절 부분");
         }
-        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        log.info("userID: " + acceptForm.getRecruitUserID().toString() + " 거절 완료");
+        // 거절 로직
+        TeamUser teamUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, refuseForm.getRecruitUserID()).orElseThrow(() -> {
+            throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
+        });
+        TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(refuseForm, teamUser));
+        teamUserRepository.delete(teamUser);
+        log.info("userID: " + refuseForm.getRecruitUserID().toString() + " 거절 완료");
 
         //알림 저장 로직
         TeamUser leader = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, leaderID)
                 .orElseThrow(() -> {
                     throw new UserNotFoundException("팀장 정보가 없습니다");
                 });
-        User recruitUser = userRepository.findById(acceptForm.getRecruitUserID()).orElseThrow(() -> {
-            throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");
+        User recruitUser = userRepository.findById(refuseForm.getRecruitUserID()).orElseThrow(() -> {
+            throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
         });
-        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser);
+        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser, teamRefuse.getId());
     }
 
     @Transactional
@@ -285,5 +294,23 @@ public class TeamUserService {
                 });
         List<UserPosition> userPosition = userPositionRepository.findByUserId(teamRecruit.getUser().getId());
         return RecruitInfoResponse.from(teamRecruit, userPosition);
+    }
+
+    /**
+     * 팀원 거절 사유를 반환하는 매서드
+     * @param userID
+     * @param refuseID
+     * @return
+     */
+    public RefuseReasonResponse getUserRefuseReason(Long userID, Long refuseID) {
+        TeamRefuse teamRefuse = teamRefuseRepository.findRefuseInfoJoinUserAndTeamById(refuseID)
+                .orElseThrow(() -> {
+                    throw new RefuseInfoNotFoundException("팀원 거절 정보가 존재하지 않습니다.");
+                });
+        User leader = userRepository.findById(teamRefuse.getTeam().getLeaderID())
+                .orElseThrow(() -> {
+                    throw new UserNotFoundException("팀장 정보를 찾을수 없습니다.");
+                });
+        return RefuseReasonResponse.of(teamRefuse, leader);
     }
 }
