@@ -107,6 +107,8 @@ public class User extends BaseEntity implements UserDetails {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_profile_id", unique = true)
     private UserProfile userProfile;
+    @OneToMany(mappedBy = "user")
+    private List<TeamRefuse> teamRefuses = new ArrayList<>();
 
     /**
      * Deprecated
