@@ -39,12 +39,12 @@ public class TeamRefuse extends BaseEntity {
         this.team = team;
     }
 
-    public static TeamRefuse of(RefuseFormRequest refuseForm, User user, Team team) {
+    public static TeamRefuse of(RefuseFormRequest refuseForm, TeamUser teamUser) {
         return TeamRefuse.builder()
                 .refuseReason(refuseForm.getRefuseReason())
-                .position(refuseForm.getRole())
-                .refusedUser(user)
-                .team(team)
+                .position(teamUser.getRole())
+                .refusedUser(teamUser.getUser())
+                .team(teamUser.getTeam())
                 .build();
     }
 
