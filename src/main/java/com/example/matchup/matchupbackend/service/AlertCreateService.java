@@ -60,7 +60,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 삭제" : "스터디 삭제")
                 .content(team.getTitle() + " - 팀장에 의해서 삭제되었습니다.")
-                .redirectUrl("/") // 삭제된 팀이라고 알림
+                .redirectUrl("/")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, alert);
@@ -72,12 +72,12 @@ public class AlertCreateService {
      * @param volunteer
      * @param team
      */
-    public void saveTeamUserRecruitAlert(User leader, User volunteer, Team team) {
+    public void saveTeamUserRecruitAlert(User leader, User volunteer, Team team, Long recruitID) {
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
                 .content(volunteer.getName() + " 님이 " + team.getTitle() + " 에 함께 하고 싶어 합니다.")
-                .redirectUrl("/유저 지원서 모달창URL") //todo 지원서 모달창 url
+                .redirectUrl("/유저 지원서 모달창URL/" + recruitID) //todo 지원서 모달창 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toLeader.setUser(leader);
@@ -87,7 +87,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
                 .content(team.getTitle() + " - 지원하였습니다.")
-                .redirectUrl("/유저 지원서 모달창URL") //todo 지원서 모달창 url
+                .redirectUrl("/유저 지원서 모달창URL/" + recruitID) //todo 지원서 모달창 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
@@ -182,7 +182,7 @@ public class AlertCreateService {
         Alert toGiver = Alert.builder()
                 .title("피드백이 발송되었습니다")
                 .content(team.getTitle() + " - " + receiver.getName() + "님에게 피드백을 전달했습니다.") // 휴먼에러 - 준혁님에게 피드백을 전달했습니다
-                .redirectUrl("/피드백URL")
+                .redirectUrl("")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toGiver.setUser(giver);
@@ -192,7 +192,7 @@ public class AlertCreateService {
         Alert toReceiver = Alert.builder()
                 .title("피드백이 도착하였습니다")
                 .content(team.getTitle() + " - 피드백이 도착했습니다.")
-                .redirectUrl("/피드백URL")
+                .redirectUrl("/mypage/profile#상호 평가")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toReceiver.setUser(receiver);
