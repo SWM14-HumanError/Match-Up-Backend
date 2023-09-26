@@ -4,16 +4,14 @@ import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
+import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamPositionNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamUserNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
@@ -21,6 +19,7 @@ import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,7 @@ public class TeamUserService {
     private final UserRepository userRepository;
     private final FeedbackRepository feedbackRepository;
     private final AlertCreateService alertCreateService;
+    private final UserPositionRepository userPositionRepository;
 
     /**
      * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
@@ -265,5 +265,25 @@ public class TeamUserService {
         if (giverID == receiverID) {
             throw new InvalidFeedbackException("giverID: " + giverID.toString(), "자기 자신에게 피드백을 보낼 수 없습니다");
         }
+    }
+
+    /**
+     * 유저 지원서 모달창 정보를 반환하는 매서드
+     * @param userID
+     * @param teamID
+     * @param recruitID
+     * @return
+     */
+    public RecruitInfoResponse getRecruitInfo(Long userID, Long teamID, Long recruitID) {
+        // 팀장인지 검증
+        if (!isTeamLeader(userID, teamID)) {
+            throw new LeaderOnlyPermitException("지원서 열람은 팀장만 가능합니다.");
+        }
+        TeamRecruit teamRecruit = teamRecruitRepository.findRecruitJoinUserById(recruitID)
+                .orElseThrow(() -> {
+                    throw new RecruitNotFoundException("지원서 열람 중 지원서를 찾을수 없습니다.");
+                });
+        List<UserPosition> userPosition = userPositionRepository.findByUserId(teamRecruit.getUser().getId());
+        return RecruitInfoResponse.from(teamRecruit, userPosition);
     }
 }
