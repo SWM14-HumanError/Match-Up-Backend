@@ -116,6 +116,6 @@ public class TeamUserController {
         if (userID == null) {
             throw new AuthorizeException("TeamUserRecruit");
         }
-        return null;
+        return teamUserService.getRecruitInfo(userID, teamID, recruitID);
     }
 }
