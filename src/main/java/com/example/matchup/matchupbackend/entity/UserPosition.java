@@ -43,8 +43,8 @@ public class UserPosition extends BaseEntity{
     }
 
 
-    public UserPosition updateUserProfile(Map<UserPositionType, Integer> userPositionLevels) {
-        UserPositionType userPositionType = UserPositionType.valueOf(this.positionName);
+    public UserPosition updateUserProfile(Map<String, Integer> userPositionLevels) {
+        String userPositionType = this.positionName;
         if (userPositionLevels.containsKey(userPositionType)) {
             this.positionLevel = userPositionLevels.get(userPositionType);
         }

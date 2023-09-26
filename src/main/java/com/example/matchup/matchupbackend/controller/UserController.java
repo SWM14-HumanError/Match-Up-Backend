@@ -31,6 +31,9 @@ public class UserController {
         return userService.searchSliceUserCard(userSearchRequest, pageable);
     }
 
+    /**
+     * 회원가입 후, 최초 정보를 받는다.
+     */
     @PutMapping("/login/user/info")
     public ResponseEntity<Long> additionalUserInfo(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                                    @Valid @RequestBody AdditionalUserInfoRequest request) {

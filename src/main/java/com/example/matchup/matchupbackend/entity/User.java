@@ -188,6 +188,8 @@ public class User extends BaseEntity implements UserDetails {
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
         this.isFirstLogin = false;
+
+        this.userLevel = updateUserLevel().getUserLevel();
         return this;
     }
 
