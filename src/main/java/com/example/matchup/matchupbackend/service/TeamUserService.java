@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormReques
 import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.teamuser.RefuseReasonResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.entity.*;
@@ -294,5 +295,22 @@ public class TeamUserService {
                 });
         List<UserPosition> userPosition = userPositionRepository.findByUserId(teamRecruit.getUser().getId());
         return RecruitInfoResponse.from(teamRecruit, userPosition);
+    }
+
+    /**
+     * 팀원 거절 사유를 반환하는 매서드
+     * @param userID
+     * @param refuseID
+     * @return
+     */
+    public RefuseReasonResponse getUserRefuseReason(Long userID, Long refuseID) {
+        TeamRefuse teamRefuse = teamRefuseRepository.findRefuseInfoJoinUserAndTeamById(refuseID)
+                .orElseThrow(() -> {
+                    throw new RefuseNotFoundException("거절 사유를 찾을수 없습니다");});
+        User leader = userRepository.findById(teamRefuse.getTeam().getLeaderID())
+                .orElseThrow(() -> {
+                    throw new UserNotFoundException("팀장 정보를 찾을수 없습니다");
+                });
+        return RefuseReasonResponse.of(teamRefuse, leader);
     }
 }

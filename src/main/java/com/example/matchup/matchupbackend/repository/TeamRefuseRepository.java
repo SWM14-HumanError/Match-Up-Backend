@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface TeamRefuseRepository extends JpaRepository<TeamRefuse, Long> {
     @Query("select teamrefuse from TeamRefuse teamrefuse " +
             "join fetch teamrefuse.refusedUser " +
+            "join fetch teamrefuse.team " +
             "WHERE teamrefuse.id=:refuseId")
-    Optional<TeamRefuse> findRefuseInfoJoinUserById(Long refuseId);
+    Optional<TeamRefuse> findRefuseInfoJoinUserAndTeamById(Long refuseId);
 }
