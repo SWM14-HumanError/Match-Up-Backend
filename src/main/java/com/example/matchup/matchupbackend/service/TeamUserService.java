@@ -306,10 +306,11 @@ public class TeamUserService {
     public RefuseReasonResponse getUserRefuseReason(Long userID, Long refuseID) {
         TeamRefuse teamRefuse = teamRefuseRepository.findRefuseInfoJoinUserAndTeamById(refuseID)
                 .orElseThrow(() -> {
-                    throw new RefuseNotFoundException("거절 사유를 찾을수 없습니다");});
+                    throw new RefuseInfoNotFoundException("팀원 거절 정보가 존재하지 않습니다.");
+                });
         User leader = userRepository.findById(teamRefuse.getTeam().getLeaderID())
                 .orElseThrow(() -> {
-                    throw new UserNotFoundException("팀장 정보를 찾을수 없습니다");
+                    throw new UserNotFoundException("팀장 정보를 찾을수 없습니다.");
                 });
         return RefuseReasonResponse.of(teamRefuse, leader);
     }

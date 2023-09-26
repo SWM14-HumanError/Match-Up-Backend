@@ -37,7 +37,8 @@ public enum ErrorCode {
     TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다."),
     ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "A-S-001", "알림 정보가 존재하지 않습니다."),
     ALERT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "A-S-002", "이미 삭제된 알림입니다."),
-    RECRUIT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-005", "지원 정보가 존재하지 않습니다.");
+    RECRUIT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-005", "지원 정보가 존재하지 않습니다."),
+    REFUSE_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-006", "거절 정보가 존재하지 않습니다.");
 
     private HttpStatus status;
     private String code;
