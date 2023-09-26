@@ -104,8 +104,7 @@ public class User extends BaseEntity implements UserDetails {
     private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_profile_id", unique = true)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private UserProfile userProfile;
 
     /**
@@ -238,6 +237,7 @@ public class User extends BaseEntity implements UserDetails {
     public User updateUserProfile(UserProfileEditRequest request) {
         this.pictureUrl = request.getPictureUrl();
         this.nickname = request.getNickname();
+        this.isFirstLogin = false;
         this.isUnknown = false;
         return this;
     }
