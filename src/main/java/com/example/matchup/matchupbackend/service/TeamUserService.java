@@ -193,7 +193,7 @@ public class TeamUserService {
         User recruitUser = userRepository.findById(refuseForm.getRecruitUserID()).orElseThrow(() -> {
             throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
         });
-        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser, teamRefuse.getId());
+        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser);
     }
 
     @Transactional
