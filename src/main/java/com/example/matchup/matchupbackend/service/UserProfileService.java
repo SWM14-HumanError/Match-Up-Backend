@@ -78,18 +78,24 @@ public class UserProfileService {
                 .build();
     }
 
-    public void checkDuplicateNickname(String nickname) {
-        User user = userRepository.findUserByNickname(nickname).orElse(null);
+    private void checkDuplicateNickname(String nickname, Long userId) {
+        User user;
+        if (userId != null) {
+            user = userRepository.findUserByNicknameAndIdNot(nickname, userId).orElse(null);
+        } else {
+            user = userRepository.findUserByNickname(nickname).orElse(null);
+        }
+
         if (user != null) {
             throw new DuplicateUserNicknameException();
         }
     }
 
     @Transactional
-    public String putUserProfile(String token, Long userId, UserProfileEditRequest request) {
-        if (userId.equals(tokenProvider.getUserId(token, "프로필 수정을 위해 userId 검증 중"))) {
-            checkDuplicateNickname(request.getNickname());
-            Boolean isUnknown = tokenProvider.getUnknown(token, "유저 프로필을 수정하는 로직을 실행 중입니다.");
+    public String putUserProfile(String authorizationHeader, Long userId, UserProfileEditRequest request) {
+        if (userId.equals(tokenProvider.getUserId(authorizationHeader, "프로필 수정을 위해 userId 검증 중"))) {
+            checkDuplicateNickname(request.getNickname(), userId);
+            Boolean isUnknown = tokenProvider.getUnknown(authorizationHeader, "유저 프로필을 수정하는 로직을 실행 중입니다.");
 
             User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 프로필 수정 중, 유저를 찾을 수 없다."));
             User updatedUser = user.updateUserProfile(request);
@@ -130,5 +136,10 @@ public class UserProfileService {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("피드백 숨김 여부 설정에서 유저를 가져올수 없습니다."));
         user.changeFeedbackHide();
         return "피드백 공개 여부가 " + (user.getFeedbackHider() ? "숨김" : "공개") + " 처리 되었습니다.";
+    }
+
+    public void isPossibleNickname(String nickname, String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "닉네임 중복검사를 하고 있습니다.");
+        checkDuplicateNickname(nickname, userId);
     }
 }

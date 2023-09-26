@@ -146,11 +146,6 @@ public class User extends BaseEntity implements UserDetails {
         this.refreshToken = newRefreshToken;
     }
 
-    public User updateUserLevel() {
-        this.userLevel = this.userPositions.stream().mapToLong(UserPosition::getPositionLevel).max().orElse(0L);
-        return this;
-    }
-
     public List<String> returnTagList() {
         return userTagList.stream().map(
                 userTag -> userTag.getTag().getName()
@@ -182,14 +177,15 @@ public class User extends BaseEntity implements UserDetails {
         this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
-    public User updateFirstLogin(AdditionalUserInfoRequest request) {
+    public User updateFirstLogin(AdditionalUserInfoRequest request, List<UserPosition> userPositions) {
         this.nickname = request.getNickname();
         this.pictureUrl = request.getPictureUrl();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
         this.isFirstLogin = false;
+        this.userPositions = userPositions;
+        this.userLevel = userPositions.stream().mapToLong(UserPosition::getPositionLevel).max().orElse(0L);
 
-        this.userLevel = updateUserLevel().getUserLevel();
         return this;
     }
 

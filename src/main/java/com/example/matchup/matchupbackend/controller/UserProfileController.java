@@ -31,11 +31,12 @@ public class UserProfileController {
     }
 
     @GetMapping("/profile/unique")
-    public ResponseEntity<Void> checkDuplicateNickname(@RequestParam("nickname") String nickname) {
+    public ResponseEntity<Void> checkDuplicateNickname(@RequestParam("nickname") String nickname,
+                                                       @RequestHeader(value = TokenProvider.HEADER_AUTHORIZATION, required = false) String authorizationHeader) {
         if (nickname.length() > 20) {
             throw new DuplicateUserNicknameException();
         }
-        userProfileService.checkDuplicateNickname(nickname);
+        userProfileService.isPossibleNickname(nickname, authorizationHeader);
         return ResponseEntity.ok().build();
     }
 
