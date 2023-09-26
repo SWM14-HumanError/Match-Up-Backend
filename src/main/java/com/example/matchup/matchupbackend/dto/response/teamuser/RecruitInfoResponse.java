@@ -6,6 +6,9 @@ import com.example.matchup.matchupbackend.entity.UserPosition;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Data
 @Builder
 public class RecruitInfoResponse {
@@ -13,18 +16,22 @@ public class RecruitInfoResponse {
     private Long userId;
     private String thumbnailUrl;
     private String userName;
-    private UserPositionDetailResponse userPosition;
+    private List<UserPositionDetailResponse> userPosition;
 
     // 지원서
     private String applyRole;
     private String content;
 
-    public static RecruitInfoResponse from(TeamRecruit recruit, UserPosition userPosition) {
+    public static RecruitInfoResponse from(TeamRecruit recruit, List<UserPosition> userPosition) {
+        List<UserPositionDetailResponse> userPositions = userPosition.stream()
+                .map(UserPositionDetailResponse::fromEntity)
+                .collect(Collectors.toList());
+
         return RecruitInfoResponse.builder()
                 .userId(recruit.getUser().getId())
                 .thumbnailUrl(recruit.getUser().getPictureUrl())
                 .userName(recruit.getUser().getName())
-                .userPosition(UserPositionDetailResponse.fromEntity(userPosition))
+                .userPosition(userPositions)
                 .applyRole(recruit.getRole())
                 .content(recruit.getContent())
                 .build();
