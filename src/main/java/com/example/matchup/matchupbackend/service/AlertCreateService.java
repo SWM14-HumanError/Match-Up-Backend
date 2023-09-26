@@ -129,14 +129,14 @@ public class AlertCreateService {
      * @param leader
      * @param volunteer
      */
-    public void saveUserRefusedToTeamAlert(TeamUser leader, User volunteer) {
+    public void saveUserRefusedToTeamAlert(TeamUser leader, User volunteer, Long refuseID) {
         Team team = leader.getTeam();
 
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title("팀원 거절")
                 .content(volunteer.getName() + " 님에게 팀원 거절 메세지를 보냈습니다.")
-                .redirectUrl("/거절사유URL") //todo 거절 사유 url
+                .redirectUrl("/거절사유URL/" + refuseID) //todo 거절 사유 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toLeader.setUser(leader.getUser());
@@ -146,7 +146,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 거절")
                 .content(team.getTitle() + " - 지원이 거절 되었습니다. (클릭하여 거절 사유 보기)")
-                .redirectUrl("/거절사유URL") //todo 거절 사유 url
+                .redirectUrl("/거절사유URL/" + refuseID) //todo 거절 사유 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
@@ -164,7 +164,7 @@ public class AlertCreateService {
         Alert toKickedUser = Alert.builder()
                 .title("강퇴 알림")
                 .content(team.getTitle() + " - 팀장에 의해서 강퇴되었습니다.")
-                .redirectUrl("/방출사유URL")
+                .redirectUrl("/방출사유URL") //todo 방출 사유 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toKickedUser.setUser(kickedUser.getUser());
