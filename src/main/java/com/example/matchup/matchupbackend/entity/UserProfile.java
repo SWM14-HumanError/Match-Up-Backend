@@ -29,7 +29,8 @@ public class UserProfile extends BaseEntity{
     private String meetingTime;
     private String meetingNote;
 
-    @OneToOne(mappedBy = "userProfile")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @OneToMany(mappedBy = "userProfile")
