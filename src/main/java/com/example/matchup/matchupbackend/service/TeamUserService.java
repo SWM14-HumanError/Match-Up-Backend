@@ -178,12 +178,11 @@ public class TeamUserService {
             throw new LeaderOnlyPermitException("팀원으로 유저 거절 부분");
         }
         // 거절 로직
-        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, refuseForm.getRecruitUserID());
-        Team team = teamRepository.findTeamById(teamID).get();
-        User user = userRepository.findUserById(refuseForm.getRecruitUserID()).orElseThrow(() -> {
+        TeamUser teamUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, refuseForm.getRecruitUserID()).orElseThrow(() -> {
             throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
         });
-        teamRefuseRepository.save(TeamRefuse.of(refuseForm, user, team));
+        TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(refuseForm, teamUser));
+        teamUserRepository.delete(teamUser);
         log.info("userID: " + refuseForm.getRecruitUserID().toString() + " 거절 완료");
 
         //알림 저장 로직
@@ -194,7 +193,7 @@ public class TeamUserService {
         User recruitUser = userRepository.findById(refuseForm.getRecruitUserID()).orElseThrow(() -> {
             throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
         });
-        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser);
+        alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser, teamRefuse.getId());
     }
 
     @Transactional
