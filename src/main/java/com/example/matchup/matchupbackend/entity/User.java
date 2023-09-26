@@ -105,7 +105,10 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-    private UserProfile userProfile;
+    @OneToMany(mappedBy = "refusedUser")
+    private List<TeamRefuse> teamRefuses = new ArrayList<>();
+    
+
 
     /**
      * Deprecated
