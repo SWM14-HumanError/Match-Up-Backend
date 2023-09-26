@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
+import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamUserCardResponse;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
@@ -105,5 +106,16 @@ public class TeamUserController {
         teamUserService.feedbackToTeamUser(giverId, teamID, feedback);
         log.info("userId: " + giverId + " -> " + "userId: " + feedback.getReceiverID() + " 의 피드백이 추가 되었습니다");
         return "유저에게 평점을 주었습니다";
+    }
+
+    @GetMapping("/team/{teamID}/recruit/{recruitID}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "지원서 열람 하는 API")
+    public RecruitInfoResponse showRecruit(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @PathVariable Long recruitID) {
+        Long userID = tokenProvider.getUserId(authorizationHeader, "showRecruit");
+        if (userID == null) {
+            throw new AuthorizeException("TeamUserRecruit");
+        }
+        return teamUserService.getRecruitInfo(userID, teamID, recruitID);
     }
 }
