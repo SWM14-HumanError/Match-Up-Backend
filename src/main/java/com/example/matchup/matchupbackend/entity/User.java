@@ -104,11 +104,12 @@ public class User extends BaseEntity implements UserDetails {
     private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
+    @OneToMany(mappedBy = "refusedUser")
+    private List<TeamRefuse> teamRefuses = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_profile_id", unique = true)
     private UserProfile userProfile;
-    @OneToMany(mappedBy = "user")
-    private List<TeamRefuse> teamRefuses = new ArrayList<>();
+
 
     /**
      * Deprecated
