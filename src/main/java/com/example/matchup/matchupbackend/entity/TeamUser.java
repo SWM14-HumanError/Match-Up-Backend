@@ -32,7 +32,7 @@ public class TeamUser {
     private User user;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "recruit_id")
+    @JoinColumn(name = "recruit_id", nullable = true)
     private TeamRecruit teamRecruit;
 
     @Builder
