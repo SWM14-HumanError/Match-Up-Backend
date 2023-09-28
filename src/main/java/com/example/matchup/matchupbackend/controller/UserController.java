@@ -1,10 +1,12 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class UserController {
 
     private final UserService userService;
+    private final AlertCreateService alertCreateService;
 
     @GetMapping("/list/user")
     @ResponseStatus(HttpStatus.OK)
@@ -82,5 +85,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         return userService.getInviteMyTeam(authorizationHeader);
+    }
+
+    @PostMapping("/user/invite")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void suggestInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                    @Valid @RequestBody SuggestInviteMyTeamRequest request) {
+        alertCreateService.postInviteMyTeam(authorizationHeader, request);
     }
 }

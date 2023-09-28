@@ -125,14 +125,14 @@ VALUES
 
 INSERT
 INTO
-    team_user (role, team_id, user_id)
+    team_user (role, team_id, user_id, approve)
 Values
-    ('Back', 1, 5),
-    ('Front', 1, 4),
-    ('Back', 2, 5),
-    ('Front', 2, 4),
-    ('Back', 3, 5),
-    ('Front', 3, 4);
+    ('Back', 1, 5, true),
+    ('Front', 1, 4, true),
+    ('Back', 2, 5, true),
+    ('Front', 2, 4, true),
+    ('Back', 3, 5, true),
+    ('Front', 3, 4, true);
 
 INSERT
 INTO

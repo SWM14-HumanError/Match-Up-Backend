@@ -3,19 +3,20 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.entity.Team;
-import com.example.matchup.matchupbackend.entity.TeamUser;
-import com.example.matchup.matchupbackend.entity.User;
-import com.example.matchup.matchupbackend.entity.UserPosition;
+import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
+import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
+import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import jakarta.servlet.http.Cookie;
@@ -40,9 +41,11 @@ import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
     private final TokenProvider tokenProvider;
     private final TokenService tokenService;
     private final UserPositionRepository userPositionRepository;
+    private final AlertRepository alertRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -121,6 +124,10 @@ public class UserService {
     }
 
      // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
+
+    /**
+     * 내 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
+     */
     public InviteMyTeamResponse getInviteMyTeam(String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 조회하고 있습니다.");
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
