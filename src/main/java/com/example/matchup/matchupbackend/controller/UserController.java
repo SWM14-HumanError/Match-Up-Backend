@@ -2,6 +2,8 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,5 +73,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void isUserOnline(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         userService.updateUserLastLogin(authorizationHeader);
+    }
+
+    /**
+     * 내 프로젝트에 초대하기에서 내 프로젝트 목록을 조회합니다.
+     */
+    @GetMapping("/user/invite")
+    @ResponseStatus(HttpStatus.OK)
+    public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return userService.getInviteMyTeam(authorizationHeader);
     }
 }

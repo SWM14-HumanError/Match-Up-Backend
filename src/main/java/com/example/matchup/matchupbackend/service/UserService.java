@@ -4,7 +4,11 @@ import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
+import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.entity.Team;
+import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
@@ -114,5 +118,19 @@ public class UserService {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 온라인 상태를 확인하면서 존재하지 않는 유저 id를 받았습니다."));
 
         user.updateUserLastLogin();
+    }
+
+     // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
+    public InviteMyTeamResponse getInviteMyTeam(String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 조회하고 있습니다.");
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+        List<TeamUser> teamUsers = user.getTeamUserList().stream().filter(teamUser -> (teamUser != null && teamUser.getApprove() != null &&teamUser.getApprove())).toList();
+
+        List<InviteMyTeamInfoResponse> response = teamUsers.stream()
+                .map(TeamUser::getTeam)
+                .filter(team -> team.getIsDeleted().equals(0L))
+                .map(team -> InviteMyTeamInfoResponse.builder().team(team).build())
+                .toList();
+        return new InviteMyTeamResponse(response);
     }
 }
