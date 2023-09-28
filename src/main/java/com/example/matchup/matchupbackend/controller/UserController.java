@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
@@ -82,5 +83,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         return userService.getInviteMyTeam(authorizationHeader);
+    }
+
+    @PostMapping("/user/invite")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void suggestInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                    @Valid @RequestBody SuggestInviteMyTeamRequest request) {
+        userService.postInviteMyTeam(authorizationHeader, request);
     }
 }
