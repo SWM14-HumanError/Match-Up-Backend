@@ -128,7 +128,7 @@ public class TeamUserService {
         User teamLeader = userRepository.findById(team.getLeaderID()).orElseThrow(() ->
                 new UserNotFoundException("팀장 정보를 찾을수 없습니다"));
         alertCreateService.saveTeamUserRecruitAlert(teamLeader, user, team, save.getId());
-        return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
+        return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user, save)).getId();
     }
 
     /**
