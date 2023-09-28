@@ -61,7 +61,7 @@ public class TeamUserService {
             ).collect(Collectors.toList());
         }
         //팀 리더의 경우
-        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUser(teamID);
+        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUserAndRecruit(teamID);
         if (teamUsers.isEmpty()) {
             throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
         }
