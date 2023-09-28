@@ -16,14 +16,20 @@ import java.util.List;
 public class TeamUserCardResponse extends UserCardResponse {
     private String role;
     private Boolean approve; // 팀 가입 승인여부
+    private Long recruitID;
     @QueryProjection
-    public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve) {
+    public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve, Long recruitID) {
         super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks);
         this.role = role;
         this.approve = approve;
+        this.recruitID = recruitID;
     }
 
     public static TeamUserCardResponse fromEntity(TeamUser teamUser) {
+        Long recruitID = null;
+        if (!teamUser.getTeamRecruit().getId().equals(null)) {
+            recruitID = teamUser.getTeamRecruit().getId();
+        }
         return new TeamUserCardResponse(
                 teamUser.getUser().getId(),
                 teamUser.getUser().getPictureUrl(),
@@ -35,6 +41,7 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamUser.getUser().getLikes(),
                 teamUser.getUser().returnStackList(),
                 teamUser.getRole(),
-                teamUser.getApprove());
+                teamUser.getApprove(),
+                recruitID);
     }
 }
