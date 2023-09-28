@@ -31,6 +31,10 @@ public class TeamUser {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "recruit_id")
+    private TeamRecruit teamRecruit;
+
     @Builder
     public TeamUser(String role, Long count, Boolean approve, Team team, User user) {
         this.role = role;
