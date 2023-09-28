@@ -46,5 +46,10 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
             "WHERE teamuser.team.id=:teamId and teamuser.approve=true")
     List<TeamUser> findAcceptedTeamUserJoinUser(@Param("teamId") Long teamId);
 
-    Optional<TeamUser> findByTeamIdAndUserId(Long teamId, Long userId);
+    @Query("select teamuser from TeamUser teamuser " +
+            "left join fetch teamuser.user " +
+            "left join fetch teamuser.teamRecruit " +
+            "WHERE teamuser.team.id=:teamId")
+    List<TeamUser> findTeamUserJoinUserAndRecruit(@Param("teamId") Long teamId);
+
 }

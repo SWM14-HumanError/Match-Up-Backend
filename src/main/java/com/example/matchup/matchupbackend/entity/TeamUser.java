@@ -31,13 +31,18 @@ public class TeamUser {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "recruit_id", nullable = true)
+    private TeamRecruit teamRecruit;
+
     @Builder
-    public TeamUser(String role, Long count, Boolean approve, Team team, User user) {
+    public TeamUser(String role, Long count, Boolean approve, Team team, User user, TeamRecruit teamRecruit) {
         this.role = role;
         this.count = count;
         this.approve = approve;
         this.team = team;
         this.user = user;
+        this.teamRecruit = teamRecruit;
     }
 
     //== 비즈니스 로직 ==//
@@ -45,7 +50,7 @@ public class TeamUser {
         this.approve = true;
     }
 
-    public static TeamUser of(RecruitFormRequest recruitForm, TeamPosition teamPosition, Team team, User user)
+    public static TeamUser of(RecruitFormRequest recruitForm, TeamPosition teamPosition, Team team, User user, TeamRecruit teamRecruit)
     {
         TeamUser build = TeamUser.builder()
                 .role(recruitForm.getRole())
@@ -53,6 +58,7 @@ public class TeamUser {
                 .count(teamPosition.getCount())
                 .team(team)
                 .user(user)
+                .teamRecruit(teamRecruit)
                 .build();
         return build;
     }

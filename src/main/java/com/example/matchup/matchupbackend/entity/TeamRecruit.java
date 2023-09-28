@@ -26,6 +26,8 @@ public class TeamRecruit {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
+    @OneToOne(mappedBy = "teamRecruit", fetch = FetchType.LAZY)
+    private TeamUser teamUser;
 
     @Builder
     public TeamRecruit(String role, String content, Team team, User user) {

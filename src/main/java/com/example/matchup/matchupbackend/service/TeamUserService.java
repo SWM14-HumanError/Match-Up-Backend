@@ -61,7 +61,7 @@ public class TeamUserService {
             ).collect(Collectors.toList());
         }
         //팀 리더의 경우
-        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUser(teamID);
+        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUserAndRecruit(teamID);
         if (teamUsers.isEmpty()) {
             throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
         }
@@ -128,7 +128,7 @@ public class TeamUserService {
         User teamLeader = userRepository.findById(team.getLeaderID()).orElseThrow(() ->
                 new UserNotFoundException("팀장 정보를 찾을수 없습니다"));
         alertCreateService.saveTeamUserRecruitAlert(teamLeader, user, team, save.getId());
-        return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user)).getId();
+        return teamUserRepository.save(TeamUser.of(recruitForm, teamPosition, team, user, save)).getId();
     }
 
     /**
