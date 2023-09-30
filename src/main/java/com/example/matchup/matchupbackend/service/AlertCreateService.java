@@ -28,7 +28,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 생성" : "스터디 생성")
                 .content(teamCreateRequest.getName() + " - 생성되었습니다.")
-                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/" + teamID : "/study/" + teamID)
+                .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         alert.setUser(sendTo);
@@ -45,7 +45,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
                 .content(teamCreateRequest.getName() + " - 정보가 업데이트 되었습니다.")
-                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/"+ teamID : "/study/" + teamID)
+                .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, alert);
@@ -108,7 +108,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 수락")
                 .content("축하드립니다! " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 하게 되었습니다.")
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(user);
@@ -118,7 +118,7 @@ public class AlertCreateService {
         Alert toTeamUser = Alert.builder()
                 .title("팀원 수락")
                 .content(volunteer.getUser().getName() + " 님이 " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 합니다.")
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, toTeamUser);
@@ -243,7 +243,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(liker.getName() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
                 .content("누적 좋아요 갯수 - " + likes)
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToTeamUsers(team.getTeamUserList(), alert);
