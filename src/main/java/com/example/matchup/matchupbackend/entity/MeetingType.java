@@ -4,5 +4,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MeetingType {
-    ONLINE, OFFLINE, FREE
+    온라인, 오프라인, 상관없음
 }
