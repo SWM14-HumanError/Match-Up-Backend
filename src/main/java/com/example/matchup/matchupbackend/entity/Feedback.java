@@ -50,6 +50,9 @@ public class Feedback extends BaseTimeEntity{
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "team_id")
     private Team team;
+    @OneToOne(fetch = FetchType.LAZY)
+    private TeamUser teamUser;
+
 
     //== 연관관계 메서드==//
     @Builder
@@ -86,10 +89,15 @@ public class Feedback extends BaseTimeEntity{
         team.getTeamUserFeedbackList().add(this);
     }
 
-    public void setRelation(User giver, User receiver, Team team) {
+    private void setTeamUser(TeamUser teamUser) {
+        this.teamUser = teamUser;
+    }
+
+    public void setRelation(User giver, User receiver, Team team, TeamUser teamUser) {
         setGiver(giver);
         setReceiver(receiver);
         setTeam(team);
+        setTeamUser(teamUser);
     }
 
     //== 비즈니스 로직 ==//

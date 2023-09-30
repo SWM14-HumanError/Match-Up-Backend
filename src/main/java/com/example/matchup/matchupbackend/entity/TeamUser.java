@@ -31,6 +31,11 @@ public class TeamUser {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "feedback_id")
+    private Feedback feedback;
+
+
     @Builder
     public TeamUser(String role, Long count, Boolean approve, Team team, User user) {
         this.role = role;
