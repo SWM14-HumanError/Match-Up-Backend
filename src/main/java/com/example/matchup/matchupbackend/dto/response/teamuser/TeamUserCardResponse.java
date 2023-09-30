@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,6 +17,8 @@ import java.util.List;
 public class TeamUserCardResponse extends UserCardResponse {
     private String role;
     private Boolean approve; // 팀 가입 승인여부
+    private LocalDateTime lastFeedbackAt; // 마지막 피드백 시간
+    private LocalDateTime toFeedbackAt; // 피드백 해야 하는 시간
     @QueryProjection
     public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve) {
         super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks);
