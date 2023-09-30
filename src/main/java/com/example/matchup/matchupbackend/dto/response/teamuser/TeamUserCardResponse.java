@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +21,12 @@ public class TeamUserCardResponse extends UserCardResponse {
     private String role;
     private Boolean approve; // 팀 가입 승인여부
     private Long recruitID;
+    private LocalDateTime lastFeedbackAt; // 마지막 피드백 시간
+    private LocalDateTime toFeedbackAt; // 피드백 해야 하는 시간
 
     @QueryProjection
-    public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve, Long recruitID) {
-        super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks);
+    public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve, Long recruitID, LocalDateTime lastFeedbackAt, LocalDateTime toFeedbackAt) {
+        super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks, lastFeedbackAt, toFeedbackAt);
         this.role = role;
         this.approve = approve;
         this.recruitID = recruitID;
@@ -43,6 +46,8 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamUser.getUser().returnStackList(),
                 teamUser.getRole(),
                 teamUser.getApprove(),
-                teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId());
+                teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
+                null,
+                null);
     }
 }
