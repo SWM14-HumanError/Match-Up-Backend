@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,6 +36,9 @@ public class TeamUser {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "recruit_id", nullable = true)
     private TeamRecruit teamRecruit;
+
+    @OneToMany(mappedBy = "teamUser", cascade = CascadeType.ALL)
+    private List<Feedback> feedback;
 
     @Builder
     public TeamUser(String role, Long count, Boolean approve, Team team, User user, TeamRecruit teamRecruit) {
