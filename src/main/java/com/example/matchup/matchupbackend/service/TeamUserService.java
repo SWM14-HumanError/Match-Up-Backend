@@ -52,34 +52,83 @@ public class TeamUserService {
     private final TeamRefuseRepository teamRefuseRepository;
 
     /**
-     * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀장 분기 처리)
+     * 팀 상세 페이지에서 팀원들의 정보를 카드형식으로 반환 (일반 유저, 팀원, 팀장 분기 처리)
      */
     public List<TeamUserCardResponse> getTeamUserCard(Long userID, Long teamID) {
-        if (!isTeamLeader(userID, teamID)) // 일반 사용자의 경우
-        {
-            List<Feedback> feedbacks = feedbackRepository.findFeedbackJoinReceiverBy(userID, teamID); // 내가 남긴 피드백들..
-            List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID); // 팀원들
-            //todo 해당 자료구조의 map으로 만든다, 피드백 없으면 빈 피드백 넣어 준다 teamUser, 내가 남긴 피드백 리스트,,
-            Map<TeamUser, Feedback> map = mappingLatestFeedback(acceptedTeamUsers, feedbacks);
-            return acceptedTeamUsers.stream().map(
-                    acceptedTeamUser -> TeamUserCardResponse.fromEntity(acceptedTeamUser)
-            ).collect(Collectors.toList());
-        }
         //팀 리더의 경우
-        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUserAndRecruit(teamID);
+        if (isTeamLeader(userID, teamID)) {
+            return getTeamUserCardForLeader(userID, teamID);
+        }
+
+        // 팀원인 경우
+        if (teamUserRepository.existsByTeamIdAndUserIdAndApproveTrue(teamID, userID)) {
+            return getTeamUserCardForTeamUser(userID, teamID);
+        }
+
+        // 일반 사용자인 경우
+        return getTeamUserCardForGeneral(teamID);
+    }
+
+    /**
+     * 일반 사용자로 분기
+     */
+    private List<TeamUserCardResponse> getTeamUserCardForGeneral(Long teamID) {
+        List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID);
+        return acceptedTeamUsers.stream().map(
+                acceptedTeamUser -> TeamUserCardResponse.fromEntity(acceptedTeamUser)
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * 팀원으로 분기
+     */
+    private List<TeamUserCardResponse> getTeamUserCardForTeamUser(Long userID, Long teamID) {
+        List<Feedback> feedbacks = feedbackRepository.findFeedbacksJoinReceiverBy(userID, teamID); // 내가 팀원에게 남긴 피드백들 (없을수 있음)
+        List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID); // 팀원들
+        Map<TeamUser, Feedback> latestFeedbackMap = mappingLatestFeedback(acceptedTeamUsers, feedbacks); // <팀원들 + 지원자들 : 가장 최근 피드백 or null>
+        if (acceptedTeamUsers.isEmpty()) {
+            throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
+        }
+        List<TeamUserCardResponse> responses = new ArrayList<>();
+        latestFeedbackMap.forEach((teamUser, feedback) -> {
+            if (feedback.equals(null)) {
+                responses.add(TeamUserCardResponse.fromEntity(teamUser));
+            } else {
+                responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
+            }
+        });
+        return responses;
+    }
+
+    /**
+     * 팀장으로 분기
+     * 1. 승인 o 피드백 x
+     * 2. 승인 o 피드백 o
+     * 3. 승인 x 피드백 x
+     */
+    private List<TeamUserCardResponse> getTeamUserCardForLeader(Long userID, Long teamID) {
+        List<Feedback> feedbacks = feedbackRepository.findFeedbacksJoinReceiverBy(userID, teamID); // 내가 팀원에게 남긴 피드백들 (없을수 있음)
+        List<TeamUser> teamUsers = teamUserRepository.findTeamUserJoinUserAndRecruit(teamID); // 팀원들 + 지원자들
+        Map<TeamUser, Feedback> latestFeedbackMap = mappingLatestFeedback(teamUsers, feedbacks); // <팀원들 + 지원자들 : 가장 최근 피드백 or null>
         if (teamUsers.isEmpty()) {
             throw new TeamUserNotFoundException("팀은 최소 1명 이상입니다 (팀장)");
         }
-        return teamUsers.stream().map(
-                teamUser -> TeamUserCardResponse.fromEntity(teamUser)
-        ).collect(Collectors.toList());
+        List<TeamUserCardResponse> responses = new ArrayList<>();
+        latestFeedbackMap.forEach((teamUser, feedback) -> {
+            if (feedback.equals(null)) {
+                responses.add(TeamUserCardResponse.fromEntity(teamUser));
+            } else {
+                responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
+            }
+        });
+        return responses;
     }
 
     private Map<TeamUser, Feedback> mappingLatestFeedback(List<TeamUser> teamUsers, List<Feedback> feedbacks) {
         Map<TeamUser, Feedback> map = new HashMap();
-        for (Feedback feedback : feedbacks) {
-            for (TeamUser teamUser : teamUsers) {
-                map.put(teamUser, null);
+        for (TeamUser teamUser : teamUsers) {
+            map.put(teamUser, null);
+            for (Feedback feedback : feedbacks) {
                 if (teamUser.getId().equals(feedback.getTeamUser().getId()) && map.get(teamUser).equals(null)) {
                     map.put(teamUser, feedback);
                 } else if (teamUser.getId().equals(feedback.getTeamUser().getId()) && !map.get(teamUser).equals(null)) {
@@ -91,6 +140,7 @@ public class TeamUserService {
         }
         return map;
     }
+
     /**
      * 팀의 현재 팀원 모집 현황을 알려줌 (ex. 백엔드 1/3)
      */
@@ -251,6 +301,7 @@ public class TeamUserService {
 
     /**
      * 팀 구성원끼리 주는 피드백을 생성하는 매서드
+     *
      * @param giverID
      * @param teamID
      * @param feedbackRequest
@@ -299,6 +350,7 @@ public class TeamUserService {
 
     /**
      * 유저 지원서 모달창 정보를 반환하는 매서드
+     *
      * @param userID
      * @param teamID
      * @param recruitID
@@ -319,6 +371,7 @@ public class TeamUserService {
 
     /**
      * 팀원 거절 사유를 반환하는 매서드
+     *
      * @param userID
      * @param refuseID
      * @return
