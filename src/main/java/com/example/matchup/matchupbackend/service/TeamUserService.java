@@ -92,7 +92,7 @@ public class TeamUserService {
         }
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
-            if (feedback.equals(null)) {
+            if (feedback == null) {
                 responses.add(TeamUserCardResponse.fromEntity(teamUser));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
@@ -116,7 +116,7 @@ public class TeamUserService {
         }
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
-            if (feedback.equals(null)) {
+            if (feedback == null) {
                 responses.add(TeamUserCardResponse.fromEntity(teamUser));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
@@ -130,9 +130,9 @@ public class TeamUserService {
         for (TeamUser teamUser : teamUsers) {
             map.put(teamUser, null);
             for (Feedback feedback : feedbacks) {
-                if (teamUser.getId().equals(feedback.getTeamUser().getId()) && map.get(teamUser).equals(null)) {
+                if (teamUser.getUser().getId().equals(feedback.getReceiver().getId()) && map.get(teamUser) == null) {
                     map.put(teamUser, feedback);
-                } else if (teamUser.getId().equals(feedback.getTeamUser().getId()) && !map.get(teamUser).equals(null)) {
+                } else if (teamUser.getUser().getId().equals(feedback.getReceiver().getId()) && map.get(teamUser) != null) {
                     if (feedback.getCreateTime().isAfter((map.get(teamUser)).getCreateTime())) {
                         map.put(teamUser, feedback);
                     }
@@ -319,9 +319,9 @@ public class TeamUserService {
             throw new InvalidFeedbackException("teamID: " + teamID, "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
         }
         List<TeamUser> twoUserByTeamIdAndUserId = teamUserRepository.findTwoUserByTeamIdAndUserIds(giverID, feedbackRequest.getReceiverID(), teamID);// 같은 팀에 속한 유저인지 검증
-        if (twoUserByTeamIdAndUserId.size() != 2) { // 같은 팀에 속한 유저끼리 한 피드백인지 검증
-            throw new InvalidFeedbackException("giverID: " + giverID + "  receiverID: " + feedbackRequest.getReceiverID(), "같은 팀끼리만 피드백을 보낼수 있습니다.");
-        }
+//        if (twoUserByTeamIdAndUserId.size() != 2) { // 같은 팀에 속한 유저끼리 한 피드백인지 검증
+//            throw new InvalidFeedbackException("giverID: " + giverID + "  receiverID: " + feedbackRequest.getReceiverID(), "같은 팀끼리만 피드백을 보낼수 있습니다.");
+//        }
         isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
         Feedback feedback = Feedback.fromDTO(feedbackRequest);
         feedback.setRelation(giver, receiver, team);
