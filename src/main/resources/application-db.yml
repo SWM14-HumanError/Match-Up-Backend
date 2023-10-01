@@ -39,9 +39,9 @@ spring:
       ddl-auto: update
 
   datasource:
-    url: jdbc:mysql://mysql:3306/matchup?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: root
-    password: root
+    url: jdbc:mysql://matchup.cnaaj7y3vcgh.ap-northeast-2.rds.amazonaws.com:3306/matchup?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+    username: matchup_admin
+    password: matchup!
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 --- # h2-in-memory
@@ -70,9 +70,6 @@ spring:
     password:
     driver-class-name: org.h2.Driver
 
-# todo: web-allow-others: true 나중에 지우자
   h2:
     console:
       enabled: true
-      settings:
-        web-allow-others: true

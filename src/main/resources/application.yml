@@ -13,8 +13,8 @@ spring:
         - db
         - oauth
         - oauth-dev
-        - h2-in-memory
-#        - mysql
+#        - h2-in-memory
+        - mysql
   # 파일업로드 최대 용량 설정
   servlet:
     multipart:

@@ -23,8 +23,8 @@ public class TeamUser {
     private String role;
     @Column(name = "count")
     private Long count;
-    @Column(name = "approve")
-    private Boolean approve;
+    @Column(name = "approve", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean approve = false;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "team_id")
     private Team team;
