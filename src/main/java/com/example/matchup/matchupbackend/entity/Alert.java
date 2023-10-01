@@ -38,11 +38,12 @@ public class Alert extends BaseTimeEntity {
     }
 
     @Builder
-    public Alert(String title, String content, String redirectUrl, AlertType alertType) {
+    public Alert(String title, String content, String redirectUrl, AlertType alertType, User user) {
         this.title = title;
         this.content = content;
         this.redirectUrl = redirectUrl;
         this.alertType = alertType;
+        this.user = user;
     }
 
     public static Alert from(Alert alert) {
