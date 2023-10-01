@@ -5,7 +5,6 @@ import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.entity.TeamRecruit;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.querydsl.core.annotations.QueryProjection;
-import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -26,10 +25,12 @@ public class TeamUserCardResponse extends UserCardResponse {
 
     @QueryProjection
     public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve, Long recruitID, LocalDateTime lastFeedbackAt, LocalDateTime toFeedbackAt) {
-        super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks, lastFeedbackAt, toFeedbackAt);
+        super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks);
         this.role = role;
         this.approve = approve;
         this.recruitID = recruitID;
+        this.lastFeedbackAt = lastFeedbackAt;
+        this.toFeedbackAt = toFeedbackAt;
     }
 
     public static TeamUserCardResponse fromEntity(TeamUser teamUser) {
