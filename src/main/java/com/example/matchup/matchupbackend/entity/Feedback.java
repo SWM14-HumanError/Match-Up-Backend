@@ -4,11 +4,14 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.FeedbackGrade;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackGradeException;
+import com.example.matchup.matchupbackend.global.Values;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -41,19 +44,22 @@ public class Feedback extends BaseTimeEntity{
     private String commentToAdmin;
     @Column(name = "total_score")
     private Double totalScore;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "giver_id")
     private User giver;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "receiver_id")
     private User receiver;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "team_id")
     private Team team;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_user_id")
+    private TeamUser teamUser;
 
     //== 연관관계 메서드==//
     @Builder
-    public Feedback(Long id, FeedbackGrade grade, Boolean contactable, Boolean onTime, Boolean responsible, Boolean kind, Boolean collaboration, Boolean fast, Boolean actively, String commentToUser, String commentToAdmin, Double totalScore, User giver, User receiver, Team team) {
+    public Feedback(Long id, FeedbackGrade grade, Boolean contactable, Boolean onTime, Boolean responsible, Boolean kind, Boolean collaboration, Boolean fast, Boolean actively, String commentToUser, String commentToAdmin, Double totalScore, User giver, User receiver, Team team, TeamUser teamUser) {
         this.id = id;
         this.grade = grade;
         this.contactable = contactable;
@@ -69,6 +75,7 @@ public class Feedback extends BaseTimeEntity{
         this.giver = giver;
         this.receiver = receiver;
         this.team = team;
+        this.teamUser = teamUser;
     }
 
     private void setGiver(User giver) {
@@ -86,6 +93,11 @@ public class Feedback extends BaseTimeEntity{
         team.getTeamUserFeedbackList().add(this);
     }
 
+    private void setTeamUser(TeamUser teamUser) {
+        this.teamUser = teamUser;
+        teamUser.getFeedback().add(this);
+    }
+
     public void setRelation(User giver, User receiver, Team team) {
         setGiver(giver);
         setReceiver(receiver);
@@ -93,6 +105,9 @@ public class Feedback extends BaseTimeEntity{
     }
 
     //== 비즈니스 로직 ==//
+    public LocalDateTime timeToFeedback() {
+        return this.getUpdateTime().plusDays(Values.FEEDBACK_PERIOD.getValue());
+    }
 
     /**
      * Feedback에 따른 점수를 더해줌
