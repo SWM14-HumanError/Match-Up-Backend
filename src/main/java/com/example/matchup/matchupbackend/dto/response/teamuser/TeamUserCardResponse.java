@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.dto.response.teamuser;
 
 import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
+import com.example.matchup.matchupbackend.entity.Feedback;
 import com.example.matchup.matchupbackend.entity.TeamRecruit;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.querydsl.core.annotations.QueryProjection;
@@ -50,5 +51,24 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
                 null,
                 null);
+    }
+
+    public static TeamUserCardResponse fromMap(TeamUser teamUser, Feedback feedback) {
+        Optional<TeamRecruit> teamRecruit = Optional.ofNullable(teamUser.getTeamRecruit());
+        return new TeamUserCardResponse(
+                teamUser.getUser().getId(),
+                teamUser.getUser().getPictureUrl(),
+                teamUser.getUser().getUserLevel(),
+                teamUser.getUser().getNickname(),
+                teamUser.getUser().getPosition(),
+                teamUser.getUser().getPositionLevel(),
+                teamUser.getUser().getFeedbackScore(),
+                teamUser.getUser().getLikes(),
+                teamUser.getUser().returnStackList(),
+                teamUser.getRole(),
+                teamUser.getApprove(),
+                teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
+                feedback.getUpdateTime(),
+                feedback.timeToFeedback());
     }
 }
