@@ -14,5 +14,5 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, Feedb
     @Query("select feedback from Feedback feedback " +
             "join fetch feedback.receiver " +
             "where feedback.team.id=:teamId and feedback.giver.id=:giverId")
-    List<Feedback> findFeedbacksJoinReceiverBy(@Param("giverID") Long giverId, @Param("teamId") Long teamId);
+    List<Feedback> findFeedbacksJoinReceiverBy(@Param(value = "giverId") Long giverId, @Param(value = "teamId") Long teamId);
 }
