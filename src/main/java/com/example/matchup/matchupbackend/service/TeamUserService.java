@@ -31,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +57,10 @@ public class TeamUserService {
     public List<TeamUserCardResponse> getTeamUserCard(Long userID, Long teamID) {
         if (!isTeamLeader(userID, teamID)) // 일반 사용자의 경우
         {
-            List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID);
+            List<Feedback> feedbacks = feedbackRepository.findFeedbackJoinReceiverBy(userID, teamID); // 내가 남긴 피드백들..
+            List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID); // 팀원들
+            //todo 해당 자료구조의 map으로 만든다, 피드백 없으면 빈 피드백 넣어 준다 teamUser, 내가 남긴 피드백 리스트,,
+            Map<TeamUser, Feedback> map = mappingLatestFeedback(acceptedTeamUsers, feedbacks);
             return acceptedTeamUsers.stream().map(
                     acceptedTeamUser -> TeamUserCardResponse.fromEntity(acceptedTeamUser)
             ).collect(Collectors.toList());
@@ -70,6 +75,22 @@ public class TeamUserService {
         ).collect(Collectors.toList());
     }
 
+    private Map<TeamUser, Feedback> mappingLatestFeedback(List<TeamUser> teamUsers, List<Feedback> feedbacks) {
+        Map<TeamUser, Feedback> map = new HashMap();
+        for (Feedback feedback : feedbacks) {
+            for (TeamUser teamUser : teamUsers) {
+                map.put(teamUser, null);
+                if (teamUser.getId().equals(feedback.getTeamUser().getId()) && map.get(teamUser).equals(null)) {
+                    map.put(teamUser, feedback);
+                } else if (teamUser.getId().equals(feedback.getTeamUser().getId()) && !map.get(teamUser).equals(null)) {
+                    if (feedback.getCreateTime().isAfter((map.get(teamUser)).getCreateTime())) {
+                        map.put(teamUser, feedback);
+                    }
+                }
+            }
+        }
+        return map;
+    }
     /**
      * 팀의 현재 팀원 모집 현황을 알려줌 (ex. 백엔드 1/3)
      */
