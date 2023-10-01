@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
-import com.example.matchup.matchupbackend.dto.request.user.SuggestInviteMyTeamRequest;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;

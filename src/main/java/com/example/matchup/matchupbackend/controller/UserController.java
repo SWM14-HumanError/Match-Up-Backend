@@ -1,11 +1,10 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
-import com.example.matchup.matchupbackend.dto.request.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
