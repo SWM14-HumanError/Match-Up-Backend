@@ -15,6 +15,7 @@ import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateR
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
+import com.example.matchup.matchupbackend.global.Values;
 import com.example.matchup.matchupbackend.repository.TeamRefuseRepository;
 import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
@@ -339,7 +340,7 @@ public class TeamUserService {
         if (!feedbacksByUserAndTeam.isEmpty()) { //피드백이 있으면 리뷰 보낼 시간이 됐는지 확인
             Feedback feedback = feedbacksByUserAndTeam.get(0);
             Duration duration = Duration.between(feedback.getCreateTime(), LocalDateTime.now());
-            if (duration.toDays() < 7) {
+            if (duration.toDays() < Values.FEEDBACK_PERIOD.getValue()) {
                 throw new InvalidFeedbackException(feedback.getCreateTime().toString(), "피드백은 7일에 한번만 보낼 수 있습니다");
             }
         }

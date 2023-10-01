@@ -4,11 +4,14 @@ import com.example.matchup.matchupbackend.dto.request.teamuser.FeedbackGrade;
 import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackGradeException;
+import com.example.matchup.matchupbackend.global.Values;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -102,6 +105,9 @@ public class Feedback extends BaseTimeEntity{
     }
 
     //== 비즈니스 로직 ==//
+    public LocalDateTime timeToFeedback() {
+        return this.getUpdateTime().plusDays(Values.FEEDBACK_PERIOD.getValue());
+    }
 
     /**
      * Feedback에 따른 점수를 더해줌
