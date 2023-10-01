@@ -311,9 +311,16 @@ public class TeamService {
         return teamType;
     }
 
-    public int getTeamLikes(Long teamId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("팀의 좋아요 개수를 조회하는 과정에서 존재하지 않는 팀 id를 요청했습니다."));
-        return team.getLikes().size();
+    public TeamLikeResponse getTeamLikes(String authorizationHeader, Long teamId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 유효하지 않은 토큰을 받았습니다.");
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+        Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 팀 id를 요청했습니다."));
+        Likes likes = likeRepository.findLikesByTeamAndUser(team, user).orElse(null);
+
+        return TeamLikeResponse.builder()
+                .check(likes != null)
+                .totalLike(team.getLikes().size())
+                .build();
     }
 
     @Transactional
@@ -343,15 +350,6 @@ public class TeamService {
         } else {
             throw new ResourceNotPermitException(COMMENT_NOT_FOUND, "팀의 좋아요를 삭제하는 과정에서 존재하지 않는 댓글에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
         }
-    }
-
-    public Boolean checkUserLikeTeam(String authorizationHeader, Long teamId) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 유효하지 않은 토큰을 받았습니다.");
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
-        Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 팀 id를 요청했습니다."));
-        Likes likes = likeRepository.findLikesByTeamAndUser(team, user).orElse(null);
-
-        return likes != null;
     }
 }
 

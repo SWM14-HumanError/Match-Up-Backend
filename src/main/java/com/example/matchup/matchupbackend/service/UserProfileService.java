@@ -42,7 +42,9 @@ public class UserProfileService {
     public UserProfileDetailResponse showUserProfile(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("showUserProfile"));
         UserProfile userProfile = user.getUserProfile();
-        List<TeamUser> teamUsers = user.getTeamUserList();
+        List<TeamUser> teamUsers = user.getTeamUserList().stream()
+                .filter(teamUser -> teamUser.getApprove() && teamUser.getTeam().getIsDeleted().equals(0L))
+                .toList();
         List<UserPosition> userPositions = user.getUserPositions();
 
         return UserProfileDetailResponse.builder()
@@ -63,19 +65,17 @@ public class UserProfileService {
                 .meetingType(userProfile.getMeetingType())
                 .meetingNote(userProfile.getMeetingNote())
                 .projects(teamUsers.stream()
-                        .filter(TeamUser::getApprove)
-                        .filter(teamUser -> teamUser.getTeam().getIsDeleted().equals(0L))
                         .filter(teamUser -> teamUser.getTeam().getType().equals(0L))
                             .map(teamUser -> TeamSearchResponse.from(
                                     teamUser.getTeam(),
-                                    teamService.getUserMap())).toList())
+                                    teamService.getUserMap()))
+                        .toList())
                 .studies(teamUsers.stream()
-                        .filter(TeamUser::getApprove)
-                        .filter(teamUser -> teamUser.getTeam().getIsDeleted().equals(0L))
                         .filter(teamUser -> teamUser.getTeam().getType().equals(1L))
                             .map(teamUser -> TeamSearchResponse.from(
                                     teamUser.getTeam(),
-                                    teamService.getUserMap())).toList())
+                                    teamService.getUserMap())).
+                        toList())
                 .build();
     }
 
@@ -110,13 +110,24 @@ public class UserProfileService {
 
             // UserSnsLink update
             // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
+            /*
+             * 계정을 새로 만들거나 소개를 작성하지 않으면 userProfile 없을 수도 있기 때문에
+             * user 연결된 userProfile 생성한다.
+             */
             if (userProfile == null || userProfile.getId() == null) {
                 userProfile = UserProfile.builder().user(user).build();
                 userProfileRepository.save(userProfile);
             }
             userSnsLinkRepository.deleteByUserProfile(userProfile);
+            log.info("request: get link: {}", request.getLink());
+            log.info("request: get link: {}", request.getLink() != null);
             if (request.getLink() != null) {
-                List<UserSnsLink> userSnsLinks = request.getLink().entrySet().stream().map(type -> UserSnsLink.builder().linkType(type.getKey()).linkUrl(type.getValue()).userProfile(user.getUserProfile()).build()).toList();
+                List<UserSnsLink> userSnsLinks = request.getLink().entrySet().stream()
+                        .map(type -> UserSnsLink.builder()
+                            .linkType(type.getKey())
+                            .linkUrl(type.getValue())
+                            .userProfile(user.getUserProfile())
+                            .build()).toList();
                 userSnsLinkRepository.saveAll(userSnsLinks);
             }
 

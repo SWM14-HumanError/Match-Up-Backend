@@ -1,11 +1,10 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
-import com.example.matchup.matchupbackend.dto.request.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +36,8 @@ public class UserController {
     }
 
     /**
-     * 회원가입 후, 최초 정보를 받는다.
+     * 회원가입 후에 최소 정보를 받는다.
+     * 서비스에 사용할 닉네임과 프로필 사진, 생년월일, 개발 연차
      */
     @PutMapping("/login/user/info")
     public ResponseEntity<Long> additionalUserInfo(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
