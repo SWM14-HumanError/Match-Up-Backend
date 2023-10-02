@@ -2,11 +2,11 @@ INSERT
 INTO
     users (nickname, is_first_login, is_auth, create_time, likes, update_time, user_birthday, meeting_type, role, user_email, user_name)
 VALUES
-    ('OMG', true, true, '2023-08-17 10:00:00', 50, '2023-08-17 15:30:00', '1990-01-15', '온라인', 'MENTOR', 'user1@example.com', 'John Doe'),
-    ('OMGd', true, false, '2023-08-17 12:30:00', 20, '2023-08-17 16:45:00', '1985-07-25', '오프라인', 'MENTOR', 'user2@example.com', 'Jane Smith'),
-    ('OMGs', true, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10', '상관없음', 'MENTOR', 'user3@example.com', 'Michael Johnson'),
-    ('OMG_google', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  '상관없음', 'MENTOR', 'jujemu30@gmail.com', 'jujemu'),
-    ('OMG_naver', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  '상관없음', 'MENTOR', 'jujemu@naver.com', 'jujemu');
+    ('OMG', true, true, '2023-08-17 10:00:00', 50, '2023-08-17 15:30:00', '1990-01-15', 'ONLINE', 'MENTOR', 'user1@example.com', 'John Doe'),
+    ('OMGd', true, false, '2023-08-17 12:30:00', 20, '2023-08-17 16:45:00', '1985-07-25', 'OFFLINE', 'MENTOR', 'user2@example.com', 'Jane Smith'),
+    ('OMGs', true, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10', 'FREE', 'MENTOR', 'user3@example.com', 'Michael Johnson'),
+    ('OMG_google', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu30@gmail.com', 'jujemu'),
+    ('OMG_naver', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu@naver.com', 'jujemu');
 
 INSERT
 INTO
