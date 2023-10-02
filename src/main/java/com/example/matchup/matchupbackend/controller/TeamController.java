@@ -121,7 +121,7 @@ public class TeamController {
 
     @GetMapping("/team/{team_id}/like")
     @ResponseStatus(HttpStatus.OK)
-    public TeamLikeResponse checkTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+    public TeamLikeResponse checkTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                           @PathVariable("team_id") Long teamId) {
         return teamService.getTeamLikes(authorizationHeader, teamId);
     }

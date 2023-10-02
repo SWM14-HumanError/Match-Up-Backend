@@ -312,15 +312,22 @@ public class TeamService {
     }
 
     public TeamLikeResponse getTeamLikes(String authorizationHeader, Long teamId) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 유효하지 않은 토큰을 받았습니다.");
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
         Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 팀 id를 요청했습니다."));
-        Likes likes = likeRepository.findLikesByTeamAndUser(team, user).orElse(null);
+        if (authorizationHeader != null) {
+            Long userId = tokenProvider.getUserId(authorizationHeader, "유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 유효하지 않은 토큰을 받았습니다.");
+            User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저가 팀에 좋아요를 눌렀는 지 확인하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+            Likes likes = likeRepository.findLikesByTeamAndUser(team, user).orElse(null);
+            return TeamLikeResponse.builder()
+                    .check(likes != null)
+                    .totalLike(team.getLikes().size())
+                    .build();
+        } else {
+            return TeamLikeResponse.builder()
+                    .check(false)
+                    .totalLike(team.getLikes().size())
+                    .build();
+        }
 
-        return TeamLikeResponse.builder()
-                .check(likes != null)
-                .totalLike(team.getLikes().size())
-                .build();
     }
 
     @Transactional
