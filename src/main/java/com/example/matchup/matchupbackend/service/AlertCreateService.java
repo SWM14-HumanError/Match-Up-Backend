@@ -136,7 +136,7 @@ public class AlertCreateService {
         Alert toLeader = Alert.builder()
                 .title("팀원 거절")
                 .content(volunteer.getName() + " 님에게 팀원 거절 메세지를 보냈습니다.")
-                .redirectUrl("/거절사유URL/" + refuseID) //todo 거절 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toLeader.setUser(leader.getUser());
@@ -146,7 +146,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 거절")
                 .content(team.getTitle() + " - 지원이 거절 되었습니다. (클릭하여 거절 사유 보기)")
-                .redirectUrl("/거절사유URL/" + refuseID) //todo 거절 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
