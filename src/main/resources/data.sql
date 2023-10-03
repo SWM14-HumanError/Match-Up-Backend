@@ -1,8 +1,18 @@
 INSERT
 INTO
-    user_profile (introduce, meeting_address, meeting_time, meeting_note)
+    users (nickname, is_first_login, is_auth, create_time, likes, update_time, user_birthday, meeting_type, role, user_email, user_name)
 VALUES
-    ('나를 소개하는 글입니다.', '서울 어디든', '오후', '반갑습니다.');
+    ('OMG', true, true, '2023-08-17 10:00:00', 50, '2023-08-17 15:30:00', '1990-01-15', 'ONLINE', 'MENTOR', 'user1@example.com', 'John Doe'),
+    ('OMGd', true, false, '2023-08-17 12:30:00', 20, '2023-08-17 16:45:00', '1985-07-25', 'OFFLINE', 'MENTOR', 'user2@example.com', 'Jane Smith'),
+    ('OMGs', true, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10', 'FREE', 'MENTOR', 'user3@example.com', 'Michael Johnson'),
+    ('OMG_google', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu30@gmail.com', 'jujemu'),
+    ('OMG_naver', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu@naver.com', 'jujemu');
+
+INSERT
+INTO
+    user_profile (user_id, introduce, meeting_address, meeting_time, meeting_note)
+VALUES
+    (5, '나를 소개하는 글입니다.', '서울 어디든', '오후', '반갑습니다.');
 
 INSERT
 INTO
@@ -11,16 +21,6 @@ VALUES
     ('GITHUB', 'https://github.com/user1', 1),
     ('discord', '디스코드', 1),
     ('kakao', '오픈채팅', 1);
-
-INSERT
-INTO
-    users (user_profile_id, nickname, is_first_login, is_auth, create_time, likes, update_time, user_birthday, meeting_type, role, user_email, user_name)
-VALUES
-    (null, 'OMG', true, true, '2023-08-17 10:00:00', 50, '2023-08-17 15:30:00', '1990-01-15', 'ONLINE', 'MENTOR', 'user1@example.com', 'John Doe'),
-    (null, 'OMGd', true, false, '2023-08-17 12:30:00', 20, '2023-08-17 16:45:00', '1985-07-25', 'OFFLINE', 'MENTOR', 'user2@example.com', 'Jane Smith'),
-    (null, 'OMGs', true, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10', 'FREE', 'MENTOR', 'user3@example.com', 'Michael Johnson'),
-    (null, 'OMG_google', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu30@gmail.com', 'jujemu'),
-    (1, 'OMG_naver', false, true, '2023-08-17 09:15:00', 100, '2023-08-17 14:15:00', '1982-03-10',  'FREE', 'MENTOR', 'jujemu@naver.com', 'jujemu');
 
 UPDATE
     users
@@ -125,14 +125,14 @@ VALUES
 
 INSERT
 INTO
-    team_user (role, team_id, user_id)
+    team_user (role, team_id, user_id, approve)
 Values
-    ('Back', 1, 5),
-    ('Front', 1, 4),
-    ('Back', 2, 5),
-    ('Front', 2, 4),
-    ('Back', 3, 5),
-    ('Front', 3, 4);
+    ('Back', 1, 5, true),
+    ('Front', 1, 4, true),
+    ('Back', 2, 5, true),
+    ('Front', 2, 4, true),
+    ('Back', 3, 5, true),
+    ('Front', 3, 4, true);
 
 INSERT
 INTO

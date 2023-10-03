@@ -4,12 +4,13 @@ import lombok.Getter;
 
 @Getter
 public enum Values {
-    FEEDBACK_PERIOD("피드백 기간", 7);
-    private String text; // enum 설명
-    private Integer value;
+    FEEDBACK_PERIOD(7, "피드백 기간");;
 
-    Values(String text, Integer value) {
-        this.text = text;
+    private Integer value;
+    private String text;
+
+    Values(Integer value, String text) {
         this.value = value;
+        this.text = text;
     }
 }

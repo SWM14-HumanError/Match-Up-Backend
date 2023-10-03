@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+import static com.example.matchup.matchupbackend.global.config.jwt.TokenStatus.EXPIRED;
+import static com.example.matchup.matchupbackend.global.config.jwt.TokenStatus.INVALID_OTHER;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -20,16 +23,15 @@ public class TokenService {
     private final UserRepository userRepository;
 
     public String createNewAccessToken(String refreshToken) {
-        log.info("token: {}", refreshToken);
-        if (refreshToken == null || tokenProvider.validToken(refreshToken) == TokenStatus.EXPIRED) {
+        if (refreshToken == null || tokenProvider.validToken(refreshToken) == EXPIRED) {
             throw new ExpiredTokenException("만료된 refresh 토큰으로 접근하였거나 토큰이 없습니다.");
-        } else if (tokenProvider.validToken(refreshToken) == TokenStatus.EXPIRED) {
+        } else if (tokenProvider.validToken(refreshToken) == INVALID_OTHER) {
             throw new AuthorizeException("손상된 refresh 토큰으로 접근하였습니다.");
         }
 
         User user = userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(TokenRefreshNotPermitException::new);
         String response = tokenProvider.generateToken(user, Duration.ofHours(2));
-        return (user.getIsFirstLogin()) ? response + "signup=true" : response;
+        return (user.getIsFirstLogin()) ? response + "signup=true" : response + "signup=false";
     }
 }

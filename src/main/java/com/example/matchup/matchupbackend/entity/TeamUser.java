@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,8 +23,8 @@ public class TeamUser {
     private String role;
     @Column(name = "count")
     private Long count;
-    @Column(name = "approve")
-    private Boolean approve;
+    @Column(name = "approve", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean approve = false;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -31,18 +33,21 @@ public class TeamUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feedback_id")
-    private Feedback feedback;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "recruit_id", nullable = true)
+    private TeamRecruit teamRecruit;
 
+    @OneToMany(mappedBy = "teamUser", cascade = CascadeType.ALL)
+    private List<Feedback> feedback;
 
     @Builder
-    public TeamUser(String role, Long count, Boolean approve, Team team, User user) {
+    public TeamUser(String role, Long count, Boolean approve, Team team, User user, TeamRecruit teamRecruit) {
         this.role = role;
         this.count = count;
         this.approve = approve;
         this.team = team;
         this.user = user;
+        this.teamRecruit = teamRecruit;
     }
 
     //== 비즈니스 로직 ==//
@@ -50,7 +55,7 @@ public class TeamUser {
         this.approve = true;
     }
 
-    public static TeamUser of(RecruitFormRequest recruitForm, TeamPosition teamPosition, Team team, User user)
+    public static TeamUser of(RecruitFormRequest recruitForm, TeamPosition teamPosition, Team team, User user, TeamRecruit teamRecruit)
     {
         TeamUser build = TeamUser.builder()
                 .role(recruitForm.getRole())
@@ -58,6 +63,7 @@ public class TeamUser {
                 .count(teamPosition.getCount())
                 .team(team)
                 .user(user)
+                .teamRecruit(teamRecruit)
                 .build();
         return build;
     }

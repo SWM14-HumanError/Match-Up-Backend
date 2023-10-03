@@ -2,8 +2,15 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
+import com.example.matchup.matchupbackend.repository.team.TeamRepository;
+import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,12 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AlertCreateService {
     private final AlertRepository alertRepository;
+    private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
 
     /**
      * 팀 생성 알림 저장
@@ -272,6 +284,41 @@ public class AlertCreateService {
             Alert newAlert = Alert.from(alert);
             newAlert.setUser(teamUser.getUser());
             alertRepository.save(newAlert);
+        }
+    }
+
+    /**
+     * 내 프로젝트에 초대하기에 지원할 때 필요한 검증과 대상자 알림에 등록합니다.
+     */
+    @Transactional
+    public void postInviteMyTeam(String authorizationHeader, SuggestInviteMyTeamRequest request) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 지원하고 있습니다.");
+        User suggester = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 제안 유저 id를 요청했습니다."));
+        User receiver = userRepository.findUserById(request.getReceiverId()).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 제안 유저 id를 요청했습니다."));
+        Team team = teamRepository.findTeamById(request.getTeamId()).orElseThrow(() -> new TeamNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 팀 id로 요청했습니다."));
+
+        isProperSuggestMyTeam(team, suggester, receiver);
+
+        alertRepository.save(Alert.builder()
+                .title(team.getType().equals(0L) ? "프로젝트에 초대받았습니다." : "스터디에 초대받았습니다.")
+                .redirectUrl("/team/" + request.getTeamId())
+                .content(request.getContent())
+                .alertType(team.getType().equals(0L) ? AlertType.PROJECT : AlertType.STUDY)
+                .user(receiver)
+                .build());
+    }
+
+    private void isProperSuggestMyTeam(Team team, User suggester, User receiver) {
+        if (!team.getIsDeleted().equals(0L)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 삭제된 팀으로 요청했습니다.");
+        }
+
+        if (team.getTeamUserList().stream().noneMatch(teamUser -> teamUser.getUser().equals(suggester) && teamUser.getApprove())) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 초대할 수 없는 팀원이 요청했습니다.");
+        }
+
+        if (team.getTeamUserList().stream().anyMatch(teamUser -> teamUser.getUser().equals(receiver))) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 이미 합류된 팀원이나 자기 자신에게 초대를 보냈습니다.");
         }
     }
 }

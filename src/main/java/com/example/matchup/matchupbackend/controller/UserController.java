@@ -2,7 +2,10 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
+import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +26,7 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class UserController {
 
     private final UserService userService;
+    private final AlertCreateService alertCreateService;
 
     @GetMapping("/list/user")
     @ResponseStatus(HttpStatus.OK)
@@ -32,7 +36,8 @@ public class UserController {
     }
 
     /**
-     * 회원가입 후, 최초 정보를 받는다.
+     * 회원가입 후에 최소 정보를 받는다.
+     * 서비스에 사용할 닉네임과 프로필 사진, 생년월일, 개발 연차
      */
     @PutMapping("/login/user/info")
     public ResponseEntity<Long> additionalUserInfo(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
@@ -71,5 +76,21 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void isUserOnline(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         userService.updateUserLastLogin(authorizationHeader);
+    }
+
+    /**
+     * 내 프로젝트에 초대하기에서 내 프로젝트 목록을 조회합니다.
+     */
+    @GetMapping("/user/invite")
+    @ResponseStatus(HttpStatus.OK)
+    public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return userService.getInviteMyTeam(authorizationHeader);
+    }
+
+    @PostMapping("/user/invite")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void suggestInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                    @Valid @RequestBody SuggestInviteMyTeamRequest request) {
+        alertCreateService.postInviteMyTeam(authorizationHeader, request);
     }
 }

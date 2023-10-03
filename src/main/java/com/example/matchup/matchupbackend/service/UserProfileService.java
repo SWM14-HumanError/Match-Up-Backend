@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,9 @@ public class UserProfileService {
     public UserProfileDetailResponse showUserProfile(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("showUserProfile"));
         UserProfile userProfile = user.getUserProfile();
-        List<TeamUser> teamUsers = user.getTeamUserList();
+        List<TeamUser> teamUsers = user.getTeamUserList().stream()
+                .filter(teamUser -> teamUser.getApprove() && teamUser.getTeam().getIsDeleted().equals(0L))
+                .toList();
         List<UserPosition> userPositions = user.getUserPositions();
 
         return UserProfileDetailResponse.builder()
@@ -62,19 +65,17 @@ public class UserProfileService {
                 .meetingType(userProfile.getMeetingType())
                 .meetingNote(userProfile.getMeetingNote())
                 .projects(teamUsers.stream()
-                        .filter(TeamUser::getApprove)
-                        .filter(teamUser -> teamUser.getTeam().getIsDeleted().equals(0L))
                         .filter(teamUser -> teamUser.getTeam().getType().equals(0L))
                             .map(teamUser -> TeamSearchResponse.from(
                                     teamUser.getTeam(),
-                                    teamService.getUserMap())).toList())
+                                    teamService.getUserMap()))
+                        .toList())
                 .studies(teamUsers.stream()
-                        .filter(TeamUser::getApprove)
-                        .filter(teamUser -> teamUser.getTeam().getIsDeleted().equals(0L))
                         .filter(teamUser -> teamUser.getTeam().getType().equals(1L))
                             .map(teamUser -> TeamSearchResponse.from(
                                     teamUser.getTeam(),
-                                    teamService.getUserMap())).toList())
+                                    teamService.getUserMap())).
+                        toList())
                 .build();
     }
 
@@ -98,19 +99,45 @@ public class UserProfileService {
             Boolean isUnknown = tokenProvider.getUnknown(authorizationHeader, "유저 프로필을 수정하는 로직을 실행 중입니다.");
 
             User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 프로필 수정 중, 유저를 찾을 수 없다."));
-            User updatedUser = user.updateUserProfile(request);
-            List<UserPosition> userPositions = user.getUserPositions().stream().map(position -> position.updateUserProfile(request.getUserPositionLevels())).toList();
-            UserProfile userProfile = user.getUserProfile().updateUserProfile(request);
+            UserProfile userProfile = user.getUserProfile();
+
+            // UserPosition update
+            userPositionRepository.deleteAllByUser(user);
+            if (request.getUserPositionLevels() != null) {
+                List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).collect(Collectors.toCollection(ArrayList::new));
+                userPositionRepository.saveAll(userPositions);
+            }
+
+            // UserSnsLink update
+            // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
+            /*
+             * 계정을 새로 만들거나 소개를 작성하지 않으면 userProfile 없을 수도 있기 때문에
+             * user 연결된 userProfile 생성한다.
+             */
+            if (userProfile == null || userProfile.getId() == null) {
+                userProfile = UserProfile.builder().user(user).build();
+                userProfileRepository.save(userProfile);
+            }
             userSnsLinkRepository.deleteByUserProfile(userProfile);
-            request.getLink().entrySet().stream().map(type -> UserSnsLink.builder().linkType(type.getKey()).linkUrl(type.getValue()).userProfile(userProfile).build()).toList();
+            log.info("request: get link: {}", request.getLink());
+            log.info("request: get link: {}", request.getLink() != null);
+            if (request.getLink() != null) {
+                List<UserSnsLink> userSnsLinks = request.getLink().entrySet().stream()
+                        .map(type -> UserSnsLink.builder()
+                            .linkType(type.getKey())
+                            .linkUrl(type.getValue())
+                            .userProfile(user.getUserProfile())
+                            .build()).toList();
+                userSnsLinkRepository.saveAll(userSnsLinks);
+            }
 
-            String newToken = isUnknown ? tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION) : null;
+            // UserProfile update
+            user.getUserProfile().updateUserProfile(request);
 
-            userRepository.save(updatedUser);
-            userProfileRepository.save(userProfile);
-            userPositionRepository.saveAll(userPositions);
+            // User update
+            user.updateUserProfile(request);
 
-            return newToken;
+            return isUnknown ? tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION) : null;
         }
         else {
             throw new AuthorizeException("토큰에 저장된 회원 정보와 요청한 프로필 회원 정보가 달라서 수정할 수 없습니다.");

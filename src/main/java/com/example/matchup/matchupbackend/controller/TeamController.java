@@ -4,10 +4,7 @@ import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
-import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
-import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
-import com.example.matchup.matchupbackend.dto.response.team.TeamDetailResponse;
-import com.example.matchup.matchupbackend.dto.response.team.TeamTypeResponse;
+import com.example.matchup.matchupbackend.dto.response.team.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.FileService;
@@ -124,8 +121,9 @@ public class TeamController {
 
     @GetMapping("/team/{team_id}/like")
     @ResponseStatus(HttpStatus.OK)
-    public int checkFeedLike(@PathVariable("team_id") Long teamId) {
-        return teamService.getTeamLikes(teamId);
+    public TeamLikeResponse checkTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
+                                          @PathVariable("team_id") Long teamId) {
+        return teamService.getTeamLikes(authorizationHeader, teamId);
     }
 
     @PostMapping("/team/{team_id}/like")
@@ -142,12 +140,5 @@ public class TeamController {
         Long userId = teamService.undoLikeTeam(authorizationHeader, teamId);
         log.info("user id: {}가 {} 팀의 좋아요를 취소했습니다.", userId, teamId);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/team/{team_id}/user/like")
-    @ResponseStatus(HttpStatus.OK)
-    public Boolean isUserLikeTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                  @PathVariable("team_id") Long teamId) {
-        return teamService.checkUserLikeTeam(authorizationHeader, teamId);
     }
 }
