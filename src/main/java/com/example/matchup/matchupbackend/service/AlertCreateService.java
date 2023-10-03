@@ -40,7 +40,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 생성" : "스터디 생성")
                 .content(teamCreateRequest.getName() + " - 생성되었습니다.")
-                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/" + teamID : "/study/" + teamID)
+                .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         alert.setUser(sendTo);
@@ -57,7 +57,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
                 .content(teamCreateRequest.getName() + " - 정보가 업데이트 되었습니다.")
-                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/"+ teamID : "/study/" + teamID)
+                .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, alert);
@@ -120,7 +120,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 수락")
                 .content("축하드립니다! " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 하게 되었습니다.")
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(user);
@@ -130,7 +130,7 @@ public class AlertCreateService {
         Alert toTeamUser = Alert.builder()
                 .title("팀원 수락")
                 .content(volunteer.getUser().getName() + " 님이 " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 합니다.")
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, toTeamUser);
@@ -141,14 +141,14 @@ public class AlertCreateService {
      * @param leader
      * @param volunteer
      */
-    public void saveUserRefusedToTeamAlert(TeamUser leader, User volunteer) {
+    public void saveUserRefusedToTeamAlert(TeamUser leader, User volunteer, Long refuseID) {
         Team team = leader.getTeam();
 
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title("팀원 거절")
                 .content(volunteer.getName() + " 님에게 팀원 거절 메세지를 보냈습니다.")
-                .redirectUrl("/거절사유URL") //todo 거절 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toLeader.setUser(leader.getUser());
@@ -158,7 +158,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 거절")
                 .content(team.getTitle() + " - 지원이 거절 되었습니다. (클릭하여 거절 사유 보기)")
-                .redirectUrl("/거절사유URL") //todo 거절 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
@@ -176,7 +176,7 @@ public class AlertCreateService {
         Alert toKickedUser = Alert.builder()
                 .title("강퇴 알림")
                 .content(team.getTitle() + " - 팀장에 의해서 강퇴되었습니다.")
-                .redirectUrl("/방출사유URL")
+                .redirectUrl("/방출사유URL") //todo 방출 사유 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toKickedUser.setUser(kickedUser.getUser());
@@ -255,7 +255,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(liker.getName() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
                 .content("누적 좋아요 갯수 - " + likes)
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToTeamUsers(team.getTeamUserList(), alert);
