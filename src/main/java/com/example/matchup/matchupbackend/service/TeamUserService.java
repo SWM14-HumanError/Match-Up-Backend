@@ -311,11 +311,9 @@ public class TeamUserService {
     public void feedbackToTeamUser(Long giverID, Long teamID, TeamUserFeedbackRequest feedbackRequest) {
         User giver = userRepository.findById(giverID)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 주는 유저"));
-        User receiver = userRepository.findById(feedbackRequest.getReceiverID())
+        TeamUser receiver = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, feedbackRequest.getReceiverID())
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 피드백 받는 유저"));
-        Team team = teamRepository.findById(teamID)
-                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀"));
-        if (team.getIsDeleted() == 1L) {
+        if (receiver.getTeam().getIsDeleted() == 1L) {
             throw new InvalidFeedbackException("teamID: " + teamID, "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
         }
         List<TeamUser> twoUserByTeamIdAndUserId = teamUserRepository.findTwoUserByTeamIdAndUserIds(giverID, feedbackRequest.getReceiverID(), teamID);// 같은 팀에 속한 유저인지 검증
@@ -324,10 +322,10 @@ public class TeamUserService {
 //        }
         isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
         Feedback feedback = Feedback.fromDTO(feedbackRequest);
-        feedback.setRelation(giver, receiver, team);
-        receiver.addFeedback(feedback);
+        feedback.setRelation(giver, receiver.getUser(), receiver.getTeam(), receiver);
+        receiver.getUser().addFeedback(feedback);
         feedbackRepository.save(feedback);
-        alertCreateService.saveFeedbackAlert(giver, receiver, team);
+        alertCreateService.saveFeedbackAlert(giver, receiver.getUser(), receiver.getTeam());
     }
 
     /**
