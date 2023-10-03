@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.global.config.oauth.service;
 
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.oauth.CustomOAuth2User;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuthAttributes;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -37,17 +38,19 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                 Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
                 attributes.attributes(),
                 attributes.nameAttributeKey(),
+                user.getId(),
                 user.getRole(),
                 user.getEmail());
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {
 
-        if (attributes.email() == null) throw new IllegalArgumentException("Token has no email");
+        if (attributes.email() == null) throw new UserNotFoundException("이메일값이 비어있습니다.");
 
         User user = userRepository.findByEmail(attributes.email())
                 .map(entity -> entity.updateUserName(attributes.name()))
                 .orElse(attributes.toEntity());
+
         return userRepository.save(user);
     }
 }

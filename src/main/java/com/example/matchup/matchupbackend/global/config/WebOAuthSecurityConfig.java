@@ -4,7 +4,7 @@ import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler;
 import com.example.matchup.matchupbackend.global.config.oauth.service.OAuth2UserCustomService;
-import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import com.example.matchup.matchupbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +34,7 @@ public class WebOAuthSecurityConfig {
 
     private final OAuth2UserCustomService oAuth2UserCustomService;
     private final TokenProvider tokenProvider;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final Environment environment;
 
     @Bean
@@ -92,7 +92,7 @@ public class WebOAuthSecurityConfig {
         return new OAuth2SuccessHandler(
                 tokenProvider,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
-                userRepository);
+                userService);
     }
 
     @Bean

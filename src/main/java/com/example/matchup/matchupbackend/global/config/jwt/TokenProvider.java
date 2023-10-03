@@ -97,8 +97,6 @@ public class TokenProvider {
 
     /**
      * Bearer 토큰을 받아 userId를 반환
-     * @param authorizationHeader: String
-     * @param callBack: String
      */
     public Long getUserId(String authorizationHeader, String callBack) {
         String token = getAccessToken(authorizationHeader);
@@ -109,6 +107,15 @@ public class TokenProvider {
         } else if (validToken(token) == TokenStatus.EXPIRED) {
             throw new ExpiredTokenException(callBack);
         }
+
+        Claims claims = getClaims(token);
+        return claims.get("id", Long.class);
+    }
+
+    public Long getUserIdByExpired(String authorizationHeader) {
+        String token = getAccessToken(authorizationHeader);
+
+        if (token == null) return null;
 
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);
