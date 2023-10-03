@@ -98,10 +98,11 @@ public class Feedback extends BaseTimeEntity{
         teamUser.getFeedback().add(this);
     }
 
-    public void setRelation(User giver, User receiver, Team team) {
+    public void setRelation(User giver, User receiver, Team team, TeamUser teamUser) {
         setGiver(giver);
         setReceiver(receiver);
         setTeam(team);
+        setTeamUser(teamUser);
     }
 
     //== 비즈니스 로직 ==//
