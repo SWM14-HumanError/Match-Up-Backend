@@ -60,10 +60,7 @@ public class TeamRepositoryCustomImpl implements TeamRepositoryCustom {
 
     // tag 중 하나라도 있으면 가져옴
     private BooleanExpression categoryEq(String category) {
-        if (category != null) { //태그 안에 카테고리가 있는지 찾아야함
-            return team.detailSpot.eq(category);
-        } //error 확인!
-        else return null;
+        return (category != null) ? team.detailType.eq(category) : null;
     }
 
     private BooleanExpression typeEq(Long type) {
