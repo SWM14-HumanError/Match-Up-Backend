@@ -58,10 +58,23 @@ public class TeamCreateRequest {
     }
 
     public MultipartFile getThumbnailIMG() {
-        byte[] decodeIMG = Base64.getDecoder().decode(this.base64Thumbnail);
+        byte[] decodeIMG = Base64.getUrlDecoder().decode(this.base64Thumbnail.getBytes());
         ByteArrayMultipartFileEditor byteArrayMultipartFileEditor = new ByteArrayMultipartFileEditor();
         byteArrayMultipartFileEditor.setValue(decodeIMG);
         return (MultipartFile) byteArrayMultipartFileEditor.getValue();
+//        String base64 = base64Thumbnail.replace('-', '+').replace('_', '/');
+//
+//        // Base64 문자열을 디코딩하여 바이트 배열로 변환
+//        byte[] decodedBytes = Base64.getDecoder().decode(base64);
+//
+//        // 바이트 배열을 InputStream으로 변환
+//        InputStream inputStream = new ByteArrayInputStream(decodedBytes);
+//
+//        // InputStream을 사용하여 MultipartFile 생성
+//        MultipartFile multipartFile  = new MockMultipartFile("file",
+//                "thumbnail.png", "image/png", inputStream);
+//        return multipartFile;
+//        return null;
     }
 
 }
