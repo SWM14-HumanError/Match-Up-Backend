@@ -20,6 +20,10 @@ spring:
     multipart:
       maxFileSize: 1MB
       maxRequestSize: 1MB
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 logging:
   file:
