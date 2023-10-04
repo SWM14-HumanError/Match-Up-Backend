@@ -49,6 +49,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
     private String refreshToken;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
@@ -60,11 +61,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isAuth = false;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT true")
-    private Boolean isFirstLogin = true;
-
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean termOfService = false;
+    private Boolean agreeTermOfService = false;
+
+    private Long agreeTermOfServiceId;
 
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isUnknown = true; // 소개를 적지 않은 유저
@@ -108,8 +108,8 @@ public class User extends BaseEntity implements UserDetails {
     private UserProfile userProfile;
     @OneToMany(mappedBy = "refusedUser")
     private List<TeamRefuse> teamRefuses = new ArrayList<>();
-    
-
+    @OneToMany(mappedBy = "user")
+    private List<ServiceCenter> serviceCenters = new ArrayList<>();
 
     /**
      * Deprecated
@@ -145,8 +145,9 @@ public class User extends BaseEntity implements UserDetails {
 //    }
 
     //== 비즈니스 로직 ==//
-    public void updateNewRefreshToken(String newRefreshToken) {
+    public void updateNewRefreshToken(String newRefreshToken, Long id) {
         this.refreshToken = newRefreshToken;
+        this.agreeTermOfServiceId = id;
     }
 
     public List<String> returnTagList() {
@@ -185,7 +186,6 @@ public class User extends BaseEntity implements UserDetails {
         this.pictureUrl = request.getPictureUrl();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
-        this.isFirstLogin = false;
         this.userPositions = userPositions;
         this.userLevel = userPositions.stream().mapToLong(UserPosition::getPositionLevel).max().orElse(0L);
 
@@ -193,12 +193,19 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     public User updateTermService() {
-        this.termOfService = true;
+        this.agreeTermOfService = true;
         return this;
     }
 
     public User updateUserLastLogin() {
         this.lastLogin = LocalDateTime.now();
+        return this;
+    }
+
+    public User updateUserProfile(UserProfileEditRequest request) {
+        this.pictureUrl = request.getPictureUrl();
+        this.nickname = request.getNickname();
+        this.isUnknown = false;
         return this;
     }
 
@@ -236,14 +243,6 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public User updateUserProfile(UserProfileEditRequest request) {
-        this.pictureUrl = request.getPictureUrl();
-        this.nickname = request.getNickname();
-        this.isFirstLogin = false;
-        this.isUnknown = false;
-        return this;
     }
 }
 

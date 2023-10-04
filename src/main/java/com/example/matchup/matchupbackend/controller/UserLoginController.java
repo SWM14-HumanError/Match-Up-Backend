@@ -17,7 +17,6 @@ public class UserLoginController {
     /**
      * 로그인 성공 시, SuccessHandler에 따라서 redirect 된다.
      * redirect에 포함된 query parameter에 access 토큰 값이 포함되며,
-     * 서비스에 필요한 최소 정보와 이용약관에 동의하지 않은 유저는 signup=true를 반환
      */
     @GetMapping("/login")
     public String login() {

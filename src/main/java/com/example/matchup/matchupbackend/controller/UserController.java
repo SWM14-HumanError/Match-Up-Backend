@@ -65,8 +65,8 @@ public class UserController {
      */
     @GetMapping("/login/user/term")
     @ResponseStatus(HttpStatus.OK)
-    public void userAgreeTermOfService(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
-        userService.userAgreeTermOfService(authorizationHeader);
+    public String userAgreeTermOfService(@RequestParam("email") String email, @RequestParam("id") Long id) {
+        return userService.userAgreeTermOfService(email, id);
     }
 
     /**

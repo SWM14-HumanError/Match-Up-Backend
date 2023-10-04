@@ -7,21 +7,22 @@ import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserPosition;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
+import com.example.matchup.matchupbackend.global.util.CookieUtil;
 import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +30,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
+import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.REFRESH_TOKEN_COOKIE_NAME;
+import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.REFRESH_TOKEN_DURATION;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +76,6 @@ public class UserService {
     public Long saveAdditionalUserInfo(String authorizationHeader, AdditionalUserInfoRequest request) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "saveAdditionalUserInfo");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));;
-        if (!user.getIsFirstLogin()) throw new ResourceNotPermitException(NOT_PERMITTED, "이미 초기 정보를 제공한 사용자입니다.");
 
         userPositionRepository.deleteAllByUser(user); // 밀어버리기 위해서 사용. 만약 소개먼저 작성한 유저가 있을 수도 있음
 
@@ -102,18 +104,28 @@ public class UserService {
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
-            return tokenService.createNewAccessToken(refreshToken);
+
+            String accessToken = Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals("token"))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+
+            return tokenService.createNewAccessToken(refreshToken, accessToken);
         } else {
             throw new ExpiredTokenException("만료된 refresh 토큰으로 접근하였거나 토큰이 없습니다.");
         }
     }
 
     @Transactional
-    public void userAgreeTermOfService(String authorizationHeader) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "유저의 이용약관 동의를 저장하고 있습니다.");
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저의 이용약관 동의를 저장하면서 존재하지 않는 유저 id로 요청했습니다."));
+    public String userAgreeTermOfService(String email, Long id) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("유저의 이용약관 동의를 저장하면서 존재하지 않는 유저 이메일로 요청했습니다."));
+        if (!user.getAgreeTermOfServiceId().equals(id)) {
+            throw new AuthorizeException("이용약관을 동의하면서 유효하지 않은 id값으로 요청했습니다.");
+        }
 
         user.updateTermService();
+        return tokenProvider.generateToken(user, Duration.ofHours(2));
     }
 
     @Transactional
@@ -142,17 +154,26 @@ public class UserService {
         return new InviteMyTeamResponse(response);
     }
 
-    private void isProperSuggestMyTeam(Team team, User suggester, User receiver) {
-        if (!team.getIsDeleted().equals(0L)) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 삭제된 팀으로 요청했습니다.");
-        }
+    /**
+     * OAuth2SuccessHandler 로그인에 성공하면
+     * Refresh 토큰을 User 엔터티에 저장
+     * 그리고 RefreshToken 쿠키에 저장
+     */
+    @Transactional
+    public User saveRefreshToken(HttpServletRequest request, HttpServletResponse response, String email, Long id) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("로그인에 성공하면서 Authorization 서버로부터 받은 이메일과 다른 이메일로 요청했습니다."));
+        String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
 
-        if (team.getTeamUserList().stream().noneMatch(teamUser -> teamUser.getUser().equals(suggester) && teamUser.getApprove())) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 초대할 수 없는 팀원이 요청했습니다.");
-        }
+        user.updateNewRefreshToken(refreshToken, id);
+        addRefreshTokenToCookie(request, response, refreshToken);
 
-        if (team.getTeamUserList().stream().anyMatch(teamUser -> teamUser.getUser().equals(receiver))) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 이미 합류된 팀원이나 자기 자신에게 초대를 보냈습니다.");
-        }
+        return user;
+    }
+
+    private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
+        int cookieMaxAge = (int) REFRESH_TOKEN_DURATION.toSeconds();
+
+        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+        CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieMaxAge);
     }
 }
