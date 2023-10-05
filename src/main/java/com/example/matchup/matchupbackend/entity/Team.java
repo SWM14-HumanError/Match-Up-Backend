@@ -1,8 +1,8 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
-import com.example.matchup.matchupbackend.dto.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class Team extends BaseEntity {
     private Long id;
     @Column(name = "team_title")
     private String title;
-    @Column(name = "description")
+    @Column(name = "description", length = 5000)
     private String description;
     @Column(name = "type")
     private Long type; //스터디인지 프로젝트 모임인지
