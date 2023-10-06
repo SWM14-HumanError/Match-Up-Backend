@@ -60,9 +60,9 @@ public class LikeService {
 
     private void validLikeToUser(Long likeGiverId, Long likeReceiverId) {
         if (likeGiverId.equals(likeReceiverId))
-            throw new InvalidLikeException("나 자신에게 좋아요를 줄 수 없습니다.", "좋아요 receiver ID: " + likeReceiverId);
+            throw new InvalidLikeException("나 자신에게 좋아요를 줄 수 없습니다.");
         if (likeRepository.existsByUserIdAndAndLikeReceiverId(likeGiverId, likeReceiverId))
-            throw new InvalidLikeException("이미 좋아요를 준 대상입니다.", "좋아요 giver ID: " + likeGiverId + "좋아요 receiver ID: " + likeReceiverId);
+            throw new InvalidLikeException("이미 좋아요를 준 대상입니다.");
     }
 
     @Transactional

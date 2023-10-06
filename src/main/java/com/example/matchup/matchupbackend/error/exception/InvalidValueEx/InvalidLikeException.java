@@ -11,9 +11,4 @@ public class InvalidLikeException extends InvalidValueException{
     public InvalidLikeException(String requestValue) {
         super(INVALID_LIKE, requestValue);
     }
-
-    public InvalidLikeException(String requestValue, String detailMessage) {
-        super(INVALID_LIKE, requestValue);
-        this.detailMessage = detailMessage;
-    }
 }
