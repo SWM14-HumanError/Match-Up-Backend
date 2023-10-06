@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
-import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
@@ -10,16 +10,16 @@ import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardRespons
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserPosition;
+import com.example.matchup.matchupbackend.entity.UserProfile;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
-import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
-import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
+import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,26 +30,23 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.REFRESH_TOKEN_COOKIE_NAME;
-import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.REFRESH_TOKEN_DURATION;
+import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
-    private final TeamRepository teamRepository;
     private final TokenProvider tokenProvider;
     private final TokenService tokenService;
     private final UserPositionRepository userPositionRepository;
-    private final AlertRepository alertRepository;
+    private final UserProfileRepository userProfileRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -73,22 +70,22 @@ public class UserService {
     }
 
     @Transactional
-    public Long saveAdditionalUserInfo(String authorizationHeader, AdditionalUserInfoRequest request) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "saveAdditionalUserInfo");
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저의 아이디를 찾을 수 없습니다."));;
+    public String saveAdditionalUserInfo(ProfileRequest request) {
+        // 토큰을 발행하는 과정에서 보안을 위한 email과 id 값을 받고 DB와 비교합니다.
+        isAuthorized(request);
 
-        userPositionRepository.deleteAllByUser(user); // 밀어버리기 위해서 사용. 만약 소개먼저 작성한 유저가 있을 수도 있음
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException("회원가입을 진행하면서 존재하지 않는 이메일"));
 
         // todo: 여기서 UnsupportedOperationException 에러 발생: 현재는 immutable list라는 것으로 이해하고 있지만 왜 인지는 모르겟음
         //  List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).toList();
-
-        List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).collect(Collectors.toCollection(ArrayList::new));
-        User updatedUser = user.updateFirstLogin(request, userPositions);
-
-        userRepository.save(updatedUser);
+        List<UserPosition> userPositions = request.getProfileTagPositions().stream()
+                        .map(userPosition -> UserPosition.create(userPosition, user))
+                        .toList();
+        user.updateFirstLogin(request, userPositions);
         userPositionRepository.saveAll(userPositions);
+        userProfileRepository.save(UserProfile.createSignUp(user));
 
-        return userId;
+        return tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
     }
 
     public User findRefreshToken(String refreshToken) {
@@ -118,17 +115,6 @@ public class UserService {
     }
 
     @Transactional
-    public String userAgreeTermOfService(String email, Long id) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("유저의 이용약관 동의를 저장하면서 존재하지 않는 유저 이메일로 요청했습니다."));
-        if (!user.getAgreeTermOfServiceId().equals(id)) {
-            throw new AuthorizeException("이용약관을 동의하면서 유효하지 않은 id값으로 요청했습니다.");
-        }
-
-        user.updateTermService();
-        return tokenProvider.generateToken(user, Duration.ofHours(2));
-    }
-
-    @Transactional
     public void updateUserLastLogin(String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "유저 온라인 상태를 확인하면서 유효하지 않은 토큰을 받았습니다.");
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 온라인 상태를 확인하면서 존재하지 않는 유저 id를 받았습니다."));
@@ -136,8 +122,9 @@ public class UserService {
         user.updateUserLastLogin();
     }
 
-     // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
 
+
+    // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
     /**
      * 내 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
      */
@@ -153,7 +140,6 @@ public class UserService {
                 .toList();
         return new InviteMyTeamResponse(response);
     }
-
     /**
      * OAuth2SuccessHandler 로그인에 성공하면
      * Refresh 토큰을 User 엔터티에 저장
@@ -175,5 +161,17 @@ public class UserService {
 
         CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
         CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieMaxAge);
+    }
+
+    private void isAuthorized(ProfileRequest request) {
+        String email = request.getEmail();
+        Long id = request.getId();
+        if (email == null && id == null) {
+            throw new AuthorizeException("인가받지 못한 사용자가 회원가입을 시도하고 있습니다.");
+        }
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("회원가입을 하면서 존재하지 않는 유저 이메일로 요청했습니다."));
+        if (!user.getAgreeTermOfServiceId().equals(id)) {
+            throw new AuthorizeException("회원가입을 하면서 유효하지 않은 id 값으로 요청했습니다.");
+        }
     }
 }

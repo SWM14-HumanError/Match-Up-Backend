@@ -12,4 +12,6 @@ public interface UserPositionRepository extends JpaRepository<UserPosition, Long
     List<UserPosition> findByUserId(Long userId);
 
     void deleteAllByUser(User user);
+
+    List<UserPosition> findAllByUser(User user);
 }

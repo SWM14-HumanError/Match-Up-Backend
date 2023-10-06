@@ -1,7 +1,10 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -12,8 +15,12 @@ public class UserTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_tag_id")
     private Long id;
+
     @Column(name = "tag_name")
     private String tagName;
+
+    @Enumerated(EnumType.STRING)
+    private RoleType type;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")

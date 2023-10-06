@@ -33,6 +33,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+
+        // 이메일만으로 토큰을 받을 수 없도록 방지하기 위해서 랜덤으로 생성한 아이디 값이 일치 했을 때만 토큰 발행
         Long id = (long) ((Math.random() * 899999999999L) + 100000000000L);
         User user = userService.saveRefreshToken(request, response, oAuth2User.getEmail(), id);
 
@@ -51,17 +53,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private String getTargetUrl(String token, User user, Long id) {
 
-        if (user.getAgreeTermOfService()) {
-            return UriComponentsBuilder.fromUriString(
-                            tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
-                    .queryParam("token", token)
-                    .build()
-                    .toUriString();
-        } else {
+        if (user.getIsUnknown()) {
             return UriComponentsBuilder.fromUriString(
                             tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                     .queryParam("email", user.getEmail())
                     .queryParam("id", id)
+                    .build()
+                    .toUriString();
+
+        } else {
+            return UriComponentsBuilder.fromUriString(
+                            tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
+                    .queryParam("token", token)
                     .build()
                     .toUriString();
         }
