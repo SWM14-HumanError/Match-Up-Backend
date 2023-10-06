@@ -21,6 +21,10 @@ public class Likes extends BaseEntity{
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "like_receiver_id")
+    private User likeReceiver;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
@@ -33,8 +37,9 @@ public class Likes extends BaseEntity{
      * 혹은 프로젝트, 스터디 좋아요
      */
     @Builder
-    public Likes(User user, Feed feed, Team team) {
+    private Likes(User user, User likeReceiver, Feed feed, Team team) {
         this.user = user;
+        this.likeReceiver = likeReceiver;
         this.feed = feed;
         this.team = team;
     }
