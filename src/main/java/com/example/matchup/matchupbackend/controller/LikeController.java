@@ -15,7 +15,7 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class LikeController {
     private final TokenProvider tokenProvider;
     private final LikeService likeService;
-    @PostMapping("/user/{user_id}/like")
+    @PostMapping("/user/{user_id}")
     public String saveLikeToUser(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long user_id) {
         Long likeGiverID = tokenProvider.getUserId(authorizationHeader, "giveLikeToUser");
         likeService.saveLikeToUser(likeGiverID, user_id);
@@ -23,11 +23,13 @@ public class LikeController {
         return "userID: " + user_id + " 에게 좋아요를 눌렀습니다.";
     }
 
-    @DeleteMapping("/user/{user_id}/like")
+    @DeleteMapping("/user/{user_id}")
     public String deleteLikeToUser(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long user_id) {
         Long likeGiverID = tokenProvider.getUserId(authorizationHeader, "giveLikeToUser");
         likeService.deleteLikeToUser(likeGiverID, user_id);
         log.info("userID: " + user_id + " 에게 준 좋아요를 삭제하였습니다.");
         return "userID: " + user_id + " 에게 준 좋아요를 삭제하였습니다.";
     }
+
+
 }
