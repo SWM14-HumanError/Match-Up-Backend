@@ -264,7 +264,7 @@ public class AlertCreateService {
     /**
      * 유저에 좋아요를 눌렀을때 알림 생성
      */
-    public void saveUserLikeAlert(User liker, User receiver, Integer likes) {
+    public void saveUserLikeAlert(User liker, User receiver, Long likes) {
         Alert alert = Alert.builder()
                 .title(liker.getNickname() + " 님이 " + receiver.getNickname() + " 님에게 좋아요를 눌렀습니다.")
                 .content("누적 좋아요 갯수 : " + likes)
