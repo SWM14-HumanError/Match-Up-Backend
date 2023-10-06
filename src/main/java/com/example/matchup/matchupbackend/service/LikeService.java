@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
@@ -35,8 +36,6 @@ public class LikeService {
     private final AlertCreateService alertCreateService;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
-
-    private final UserRepository userRepository;
 
     /**
      * 유저에게 좋아요를 주는 로직
@@ -99,18 +98,8 @@ public class LikeService {
         return teamIds;
     }
 
-    /**
-     * 유저가 좋아요 누른 유저를 반환하는 메서드
-     */
-    public SliceUserCardResponse getLikedSliceUserCardResponse(Long userId, Pageable pageable){
-        List<Likes> entireLikes = likeRepository.findLikesJoinUserByUserId(userId);
-        List<Long> userIds = entireLikes.stream().filter(likes -> likes.getUser() != null)
-                .map(likes -> likes.getUser().getId()).collect(Collectors.toList());
-    }
 
-
-
-    public List<TeamSearchResponse> teamSearchResponseList(List<Team> teamList) {
+    private List<TeamSearchResponse> teamSearchResponseList(List<Team> teamList) {
         List<TeamSearchResponse> teamSearchResponseList = new ArrayList<>();
         Map<Long, User> userMap = getUserMap();
         teamList.stream()
@@ -120,9 +109,26 @@ public class LikeService {
         return teamSearchResponseList;
     }
 
-    public Map<Long, User> getUserMap() {
+    private Map<Long, User> getUserMap() {
         Map<Long, User> userMap = new HashMap<>();
         userRepository.findAllUser().stream().forEach(user -> userMap.put(user.getId(), user));
         return userMap;
+    }
+
+    /**
+     * 유저가 좋아요 누른 유저를 반환하는 메서드
+     */
+    public SliceUserCardResponse getLikedSliceUserCardResponse(Long userId, Pageable pageable) {
+        List<Likes> entireLikes = likeRepository.findLikesJoinUserByUserId(userId);
+        List<Long> userIds = entireLikes.stream().filter(likes -> likes.getUser() != null)
+                .map(likes -> likes.getUser().getId()).collect(Collectors.toList());
+        Slice<User> userSlice = userRepository.findAllByIdIn(userIds, pageable);
+        return SliceUserCardResponse.builder()
+                .userCardResponses(userCardResponseList(userSlice.getContent()))
+                .size(userSlice.getSize()).hasNextSlice(userSlice.hasNext()).build();
+    }
+
+    private List<UserCardResponse> userCardResponseList(List<User> userList) {
+        return userList.stream().map(user -> UserCardResponse.fromEntity(user)).collect(Collectors.toList());
     }
 }
