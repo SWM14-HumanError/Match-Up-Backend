@@ -45,7 +45,6 @@ public class TokenProvider {
                 .setExpiration(expiry)
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
-                .claim("unknown",  user.getIsUnknown())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
@@ -110,6 +109,13 @@ public class TokenProvider {
 
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);
+    }
+
+    private String getUserEmail(String token) {
+        if (token == null) return null;
+
+        Claims claims = getClaims(token);
+        return claims.get("sub", String.class);
     }
 
     public Long getUserIdByExpired(String authorizationHeader) {

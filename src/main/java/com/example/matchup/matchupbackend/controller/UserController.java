@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
@@ -40,13 +39,10 @@ public class UserController {
      * 서비스에 사용할 닉네임과 프로필 사진, 생년월일, 개발 연차
      */
     @PutMapping("/login/user/info")
-    public ResponseEntity<Long> additionalUserInfo(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                                   @Valid @RequestBody AdditionalUserInfoRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public String additionalUserInfo(@Valid @RequestBody ProfileRequest request) {
 
-        Long userId = userService.saveAdditionalUserInfo(authorizationHeader, request);
-        return (userId != null)
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.badRequest().build();
+        return userService.saveAdditionalUserInfo(request);
     }
 
     /**
@@ -63,11 +59,11 @@ public class UserController {
     /**
      * 유저가 이용약관에 동의
      */
-    @GetMapping("/login/user/term")
-    @ResponseStatus(HttpStatus.OK)
-    public String userAgreeTermOfService(@RequestParam("email") String email, @RequestParam("id") Long id) {
-        return userService.userAgreeTermOfService(email, id);
-    }
+//    @GetMapping("/login/user/term")
+//    @ResponseStatus(HttpStatus.OK)
+//    public String userAgreeTermOfService(@RequestParam("email") String email, @RequestParam("id") Long id) {
+//        return userService.userAgreeTermOfService(email, id);
+//    }
 
     /**
      * 유저가 온라인 상태를 지속하면 로그인 시간 최신화

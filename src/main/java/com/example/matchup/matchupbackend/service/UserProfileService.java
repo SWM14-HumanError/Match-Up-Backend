@@ -1,14 +1,16 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedbackResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.userposition.UserPositionDetailResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -19,15 +21,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.ACCESS_TOKEN_DURATION;
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class UserProfileService {
 
@@ -40,7 +42,7 @@ public class UserProfileService {
     private final FeedbackRepository feedbackRepository;
 
     public UserProfileDetailResponse showUserProfile(Long userId) {
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("showUserProfile"));
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("사용자 프로필을 조회하는 과정에서 존재하지 않는 user id로 요청했습니다."));
         UserProfile userProfile = user.getUserProfile();
         List<TeamUser> teamUsers = user.getTeamUserList().stream()
                 .filter(teamUser -> teamUser.getApprove() && teamUser.getTeam().getIsDeleted().equals(0L))
@@ -52,15 +54,18 @@ public class UserProfileService {
                 .nickname(user.getNickname())
                 .bestPositionLevel(user.getUserLevel())
                 .feedbackScore(user.getFeedbackScore())
-                .snsLinks(userProfile.getUserSnsLinks().stream().collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
+                .snsLinks(userProfile.getUserSnsLinks().stream()
+                        .collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
                 .isMentor(user.getIsMentor())
                 .isAuth(user.getIsAuth())
                 .lastLogin(user.getLastLogin())
                 .introduce(userProfile.getIntroduce())
-                .userPositions(userPositions.stream().map(position -> UserPositionDetailResponse.builder()
-                        .positionLevel(position.getPositionLevel())
-                        .positionName(position.getPositionName())
-                        .build()).toList())
+                .userPositions(userPositions.stream().map(
+                        position -> UserPositionDetailResponse.builder()
+                            .type(position.getType())
+                            .typeLevel(position.getTypeLevel())
+                            .build())
+                        .toList())
                 .meetingAddress(userProfile.getMeetingAddress())
                 .meetingTime(userProfile.getMeetingTime())
                 .meetingType(userProfile.getMeetingType())
@@ -80,69 +85,50 @@ public class UserProfileService {
                 .build();
     }
 
-    private void checkDuplicateNickname(String nickname, Long userId) {
-        User user;
-        if (userId != null) {
-            user = userRepository.findUserByNicknameAndIdNot(nickname, userId).orElse(null);
-        } else {
-            user = userRepository.findUserByNickname(nickname).orElse(null);
-        }
-
-        if (user != null) {
-            throw new DuplicateUserNicknameException();
-        }
-    }
-
     @Transactional
-    public String putUserProfile(String authorizationHeader, Long userId, UserProfileEditRequest request) {
-        if (userId.equals(tokenProvider.getUserId(authorizationHeader, "프로필 수정을 위해 userId 검증 중"))) {
-            checkDuplicateNickname(request.getNickname(), userId);
-            Boolean isUnknown = tokenProvider.getUnknown(authorizationHeader, "유저 프로필을 수정하는 로직을 실행 중입니다.");
-
-            User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 프로필 수정 중, 유저를 찾을 수 없다."));
-            UserProfile userProfile = user.getUserProfile();
-
-            // UserPosition update
-            userPositionRepository.deleteAllByUser(user);
-            if (request.getUserPositionLevels() != null) {
-                List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).collect(Collectors.toCollection(ArrayList::new));
-                userPositionRepository.saveAll(userPositions);
-            }
-
-            // UserSnsLink update
-            // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
-            /*
-             * 계정을 새로 만들거나 소개를 작성하지 않으면 userProfile 없을 수도 있기 때문에
-             * user 연결된 userProfile 생성한다.
-             */
-            if (userProfile == null || userProfile.getId() == null) {
-                userProfile = UserProfile.builder().user(user).build();
-                userProfileRepository.save(userProfile);
-            }
-            userSnsLinkRepository.deleteByUserProfile(userProfile);
-            log.info("request: get link: {}", request.getLink());
-            log.info("request: get link: {}", request.getLink() != null);
-            if (request.getLink() != null) {
-                List<UserSnsLink> userSnsLinks = request.getLink().entrySet().stream()
-                        .map(type -> UserSnsLink.builder()
-                            .linkType(type.getKey())
-                            .linkUrl(type.getValue())
-                            .userProfile(user.getUserProfile())
-                            .build()).toList();
-                userSnsLinkRepository.saveAll(userSnsLinks);
-            }
-
-            // UserProfile update
-            user.getUserProfile().updateUserProfile(request);
-
-            // User update
-            user.updateUserProfile(request);
-
-            return isUnknown ? tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION) : null;
-        }
-        else {
+    public void putUserProfile(String authorizationHeader, Long userId, ProfileRequest request) {
+        if (!userId.equals(tokenProvider.getUserId(authorizationHeader, "프로필 수정을 위해 userId 검증 중 일치하지 않는 유저 아이디 값으로 요청했습니다."))) {
             throw new AuthorizeException("토큰에 저장된 회원 정보와 요청한 프로필 회원 정보가 달라서 수정할 수 없습니다.");
         }
+
+        checkDuplicateNickname(request.getNickname(), userId);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("유저 프로필 수정 중, 유저를 찾을 수 없다."));
+        UserProfile userProfile = user.getUserProfile();
+
+        updateUserPositions(request, user);
+
+        // UserSnsLink update
+        // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
+        /*
+         * 계정을 새로 만들거나 소개를 작성하지 않으면 userProfile 없을 수도 있기 때문에
+         * user 연결된 userProfile 생성한다.
+         */
+//
+//        // 요구사항 변경으로 userProfile은 반드시 생성된다.
+//        if (userProfile == null || userProfile.getId() == null) {
+//            userProfile = UserProfile.builder().user(user).build();
+//            userProfileRepository.save(userProfile);
+//        }
+
+        userSnsLinkRepository.deleteByUserProfile(userProfile);
+        if (request.getLink() != null) {
+            List<UserSnsLink> userSnsLinks = request.getLink().entrySet().stream()
+                    .map(type -> UserSnsLink.builder()
+                        .linkType(type.getKey())
+                        .linkUrl(type.getValue())
+                        .userProfile(user.getUserProfile())
+                        .build()).toList();
+            userSnsLinkRepository.saveAll(userSnsLinks);
+        }
+
+        // UserProfile update
+        if (userProfile == null) {
+            throw new NotFoundException("회원가입이 완료되지 않은 회원의 접근입니다.");
+        }
+        userProfile.updateUserProfile(request);
+
+        // User update
+        user.updateUserProfile(request);
     }
 
     /**
@@ -169,5 +155,51 @@ public class UserProfileService {
     public void isPossibleNickname(String nickname, String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "닉네임 중복검사를 하고 있습니다.");
         checkDuplicateNickname(nickname, userId);
+    }
+
+    private void checkDuplicateNickname(String nickname, Long userId) {
+        User user;
+        if (userId != null) {
+            user = userRepository.findUserByNicknameAndIdNot(nickname, userId).orElse(null);
+        } else {
+            user = userRepository.findUserByNickname(nickname).orElse(null);
+        }
+
+        if (user != null) {
+            throw new DuplicateUserNicknameException();
+        }
+    }
+
+    private void updateUserPositions(ProfileRequest request, User user) {
+        // UserPosition update
+        // 이미 있는 기술 스택 레벨 변경하기
+        List<UserPosition> userPositions = userPositionRepository.findAllByUser(user);
+        Map<RoleType, Integer> userPositionMap = request.getProfileTagPositions().stream()
+                .collect(Collectors.toMap(ProfileTagPositionRequest::getType, ProfileTagPositionRequest::getTypeLevel));
+        userPositions.stream() // todo 업데이트 되는 지 테스트
+                .filter(userPosition -> request.getTypeList().contains(userPosition.getType()))
+                .forEach(userPosition -> userPosition.updateUserPosition(userPositionMap.get(userPosition.getType())));
+
+        // 없는 기술 스택 레벨 변경하기
+        List<RoleType> roleTypes = userPositions.stream()
+                .map(UserPosition::getType)
+                .toList();
+        List<UserPosition> newUserPositions = request.getProfileTagPositions().stream()
+                .filter(profileTagPosition -> !roleTypes.contains(profileTagPosition.getType()))
+                .map(profileTagPosition -> UserPosition.createWhenProfileUpdate(profileTagPosition, user))
+                .toList();
+        userPositionRepository.saveAll(newUserPositions);
+
+        //        userPositionRepository.deleteAllByUser(user);
+//        if (request.getProfileTagPositionRequests() != null) {
+//            List<UserPosition> userPositions = request.getProfileTagPositionRequests().stream()
+//                    .map(profileTagPositionRequest -> UserPosition.builder()
+//                            .type(profileTagPositionRequest.getType())
+//                            .typeLevel(profileTagPositionRequest.getTypeLevel())
+//                            .user(user)
+//                            .build())
+//                    .collect(Collectors.toCollection(ArrayList::new));
+//            userPositionRepository.saveAll(userPositions);
+//        }
     }
 }
