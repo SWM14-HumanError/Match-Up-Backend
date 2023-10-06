@@ -30,7 +30,7 @@ public class RecruitInfoResponse {
         return RecruitInfoResponse.builder()
                 .userId(recruit.getUser().getId())
                 .thumbnailUrl(recruit.getUser().getPictureUrl())
-                .userName(recruit.getUser().getName())
+                .userName(recruit.getUser().getNickname())
                 .userPosition(userPositions)
                 .applyRole(recruit.getRole())
                 .content(recruit.getContent())
