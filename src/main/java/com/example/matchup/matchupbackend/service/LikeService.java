@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
+import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.User;
@@ -34,6 +35,8 @@ public class LikeService {
     private final AlertCreateService alertCreateService;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+
+    private final UserRepository userRepository;
 
     /**
      * 유저에게 좋아요를 주는 로직
@@ -70,16 +73,42 @@ public class LikeService {
     }
 
     /**
-     * 유저가 좋아요 누른 Team을 반환하는 매서드
+     * 유저가 좋아요 누른 프로젝트를 반환하는 매서드
      */
-    public SliceTeamResponse getLikedSliceTeamResponse(Long userId, Pageable pageable){
-        List<Likes> entireLikes = likeRepository.findLikesJoinTeamByUserId(userId);
-        List<Long> teamIds = entireLikes.stream()
-                .filter(likes -> likes.getTeam()!=null)
-                .map(likes -> likes.getTeam().getId()).collect(Collectors.toList());
-        Slice<Team> allByIdIn = teamRepository.findAllByIdIn(teamIds, pageable);
+    public SliceTeamResponse getLikedSliceProjectTeamResponse(Long userId, Pageable pageable) {
+        List<Likes> entireLikes = likeRepository.findLikesJoinProjectByUserId(userId);
+        List<Long> projectIds = getTeamIdsByLike(entireLikes);
+        Slice<Team> allByIdIn = teamRepository.findAllByIdIn(projectIds, pageable);
         return new SliceTeamResponse(teamSearchResponseList(allByIdIn.getContent()), allByIdIn.getSize(), allByIdIn.hasNext());
     }
+
+    /**
+     * 유저가 좋아요 누른 스터디를 반환하는 매서드
+     */
+    public SliceTeamResponse getLikedSliceStudyTeamResponse(Long userId, Pageable pageable) {
+        List<Likes> entireLikes = likeRepository.findLikesJoinStudyByUserId(userId);
+        List<Long> studyIds = getTeamIdsByLike(entireLikes);
+        Slice<Team> allByIdIn = teamRepository.findAllByIdIn(studyIds, pageable);
+        return new SliceTeamResponse(teamSearchResponseList(allByIdIn.getContent()), allByIdIn.getSize(), allByIdIn.hasNext());
+    }
+
+    private List<Long> getTeamIdsByLike(List<Likes> entireLikes) {
+        List<Long> teamIds = entireLikes.stream()
+                .filter(likes -> likes.getTeam() != null)
+                .map(likes -> likes.getTeam().getId()).collect(Collectors.toList());
+        return teamIds;
+    }
+
+    /**
+     * 유저가 좋아요 누른 유저를 반환하는 메서드
+     */
+    public SliceUserCardResponse getLikedSliceUserCardResponse(Long userId, Pageable pageable){
+        List<Likes> entireLikes = likeRepository.findLikesJoinUserByUserId(userId);
+        List<Long> userIds = entireLikes.stream().filter(likes -> likes.getUser() != null)
+                .map(likes -> likes.getUser().getId()).collect(Collectors.toList());
+    }
+
+
 
     public List<TeamSearchResponse> teamSearchResponseList(List<Team> teamList) {
         List<TeamSearchResponse> teamSearchResponseList = new ArrayList<>();

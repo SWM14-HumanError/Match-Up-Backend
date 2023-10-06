@@ -2,6 +2,8 @@ package com.example.matchup.matchupbackend.repository.team;
 
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamTag;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +25,6 @@ public interface TeamRepository extends JpaRepository<Team, Long>, TeamRepositor
 
     @Query("select team from Team team join fetch team.teamUserList where team.id=:id")
     Optional<Team> findTeamJoinTeamUserById(@Param("id") Long Id);
+
+    Slice<Team> findAllByIdIn(List<Long> teamId, Pageable pageable);
 }
