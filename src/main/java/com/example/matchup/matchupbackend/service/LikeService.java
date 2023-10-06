@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.LikeNotFoundException;
@@ -8,6 +9,7 @@ import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
     private final LikeRepository likeRepository;
+    private final AlertCreateService alertCreateService;
     private final UserRepository userRepository;
 
     /**
@@ -36,6 +39,7 @@ public class LikeService {
                 .likeReceiver(likeReceiver)
                 .build();
         likeRepository.save(likesToUser);
+        alertCreateService.saveUserLikeAlert(likeGiver, likeReceiver, likeReceiver.getLikes());
     }
 
     @Transactional
@@ -45,5 +49,9 @@ public class LikeService {
                     throw new LikeNotFoundException("좋아요 받은 사람: " + likeReceiverId, likeGiverId);
                 });
         likeRepository.delete(likes);
+    }
+
+    public SliceTeamResponse getLikedSliceTeamResponse(Long userId, Pageable pageable){
+        return null;
     }
 }

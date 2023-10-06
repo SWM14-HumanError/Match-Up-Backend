@@ -86,7 +86,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String email;
 
     @Column(name = "likes")
-    private Long likes;
+    private Integer likes;
     @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
     private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
     @Column(name = "feedback_score", columnDefinition = "double default 36.5")
