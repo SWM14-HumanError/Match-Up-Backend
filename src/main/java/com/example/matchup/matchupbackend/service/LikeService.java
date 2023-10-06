@@ -42,7 +42,7 @@ public class LikeService {
      */
     @Transactional
     public void saveLikeToUser(Long likeGiverId, Long likeReceiverId) {
-        if(likeGiverId.equals(likeReceiverId)) throw new InvalidLikeException();
+        validLikeToUser(likeGiverId, likeReceiverId);
         User likeGiver = userRepository.findById(likeGiverId).orElseThrow(() -> {
             throw new UserNotFoundException("좋아요를 준 유저를 찾을 수 없습니다.");
         });
@@ -56,6 +56,13 @@ public class LikeService {
                 .build();
         likeRepository.save(likesToUser);
         alertCreateService.saveUserLikeAlert(likeGiver, likeReceiver, likeReceiver.getLikes());
+    }
+
+    private void validLikeToUser(Long likeGiverId, Long likeReceiverId) {
+        if (likeGiverId.equals(likeReceiverId))
+            throw new InvalidLikeException("나 자신에게 좋아요를 줄 수 없습니다.", "좋아요 receiver ID: " + likeReceiverId);
+        if (likeRepository.existsByUserIdAndAndLikeReceiverId(likeGiverId, likeReceiverId))
+            throw new InvalidLikeException("이미 좋아요를 준 대상입니다.", "좋아요 giver ID: " + likeGiverId + "좋아요 receiver ID: " + likeReceiverId);
     }
 
     @Transactional

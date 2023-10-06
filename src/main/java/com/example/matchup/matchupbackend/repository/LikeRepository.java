@@ -33,4 +33,6 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
 
     @Query("select l from Likes l join fetch l.likeReceiver where l.user.id=:userId")
     List<Likes> findLikesJoinUserByUserId(@Param(value = "userId") Long userId);
+
+    boolean existsByUserIdAndAndLikeReceiverId(Long userId, Long likeReceiverId);
 }

@@ -28,7 +28,7 @@ public class LikeController {
         likeService.saveLikeToUser(likeGiverID, userId);
         log.info("userID: " + userId + " 에게 좋아요를 눌렀습니다.");
         return "userID: " + userId + " 에게 좋아요를 눌렀습니다.";
-    } //todo 나에게는 좋아요를 줄수 없다
+    }
 
     @DeleteMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
