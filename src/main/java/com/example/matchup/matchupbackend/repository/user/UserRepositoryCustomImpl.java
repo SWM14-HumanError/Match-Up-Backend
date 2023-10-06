@@ -30,7 +30,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 .where(
                         searchEq(userSearchRequest.getSearch()),
                         placeEq(userSearchRequest.getPlace()),
-                        stackEq(userSearchRequest.getTechStack()),
                         positionEq(userSearchRequest.getPosition())
                 )
                 .orderBy(orderByTo(userSearchRequest.getOrderBy()))
@@ -59,15 +58,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     private BooleanExpression placeEq(String place) {
-        return (place != null) ? user.address.eq(place) : null;
+        return (place != null) ? user.address.contains(place) : null;
     }
 
-    private BooleanExpression stackEq(String stack) {
-        if (stack != null) { //태그 안에 카테고리가 있는지 찾아야함
-            return user.userTagList.any().tagName.eq(stack); // any하면 리스트를 통째로 들고 온다
-        } //error 확인!
-        else return null;
-    }
 
     private BooleanExpression positionEq(String position) {
         return (position != null) ? user.position.eq(position) : null;
