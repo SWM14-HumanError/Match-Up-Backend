@@ -19,6 +19,9 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 유저에게 좋아요를 주는 로직
+     */
     @Transactional
     public void saveLikeToUser(Long likeGiverId, Long likeReceiverId) {
         User likeGiver = userRepository.findById(likeGiverId).orElseThrow(() -> {
@@ -34,4 +37,9 @@ public class LikeService {
         likeRepository.save(likesToUser);
     }
 
+    @Transactional
+    public void deleteLikeToUser(Long likeGiverId, Long likeReceiverId){
+        likeRepository.findByUserIdAndLikeReceiverId(likeGiverId, likeReceiverId).orElseThrow()
+        likeRepository.delete();
+    }
 }

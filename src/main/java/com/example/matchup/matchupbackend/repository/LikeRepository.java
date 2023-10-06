@@ -17,4 +17,5 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
 
     Optional<Likes> findLikesByFeedAndUser(Feed feed, User user);
     Optional<Likes> findLikesByTeamAndUser(Team team, User user);
+    Optional<Likes> findByUserIdAndLikeReceiverId(Long userId,Long likeReceiverId);
 }
