@@ -22,4 +22,12 @@ public class LikeController {
         log.info("userID: " + user_id + " 에게 좋아요를 눌렀습니다.");
         return "userID: " + user_id + " 에게 좋아요를 눌렀습니다.";
     }
+
+    @DeleteMapping("/user/{user_id}/like")
+    public String deleteLikeToUser(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long user_id) {
+        Long likeGiverID = tokenProvider.getUserId(authorizationHeader, "giveLikeToUser");
+        likeService.deleteLikeToUser(likeGiverID, user_id);
+        log.info("userID: " + user_id + " 에게 준 좋아요를 삭제하였습니다.");
+        return "userID: " + user_id + " 에게 준 좋아요를 삭제하였습니다.";
+    }
 }
