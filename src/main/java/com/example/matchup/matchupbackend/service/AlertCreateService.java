@@ -236,7 +236,7 @@ public class AlertCreateService {
      */
     public void saveFeedLikeAlert(User liker, Feed feed, Integer likes) { //todo 유저 많아지면 알림을 한번에 몰아서 보내는 방법도 생각해야 함
         Alert alert = Alert.builder()
-                .title(liker.getName() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .title(liker.getNickname() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
                 .content("누적 좋아요 갯수 - " + likes)
                 .redirectUrl("/feed/" + feed.getId())
                 .alertType(AlertType.FEED)
@@ -253,7 +253,7 @@ public class AlertCreateService {
      */
     public void saveTeamLikeAlert(User liker, Team team, Integer likes) { //todo 유저 많아지면 알림을 한번에 몰아서 보내는 방법도 생각해야 함
         Alert alert = Alert.builder()
-                .title(liker.getName() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .title(liker.getNickname() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
                 .content("누적 좋아요 갯수 - " + likes)
                 .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
