@@ -51,6 +51,7 @@ public class UserProfileService {
                 .pictureUrl(user.getPictureUrl())
                 .nickname(user.getNickname())
                 .bestPositionLevel(user.getUserLevel())
+                .feedbackScore(user.getFeedbackScore())
                 .snsLinks(userProfile.getUserSnsLinks().stream().collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
                 .isMentor(user.getIsMentor())
                 .isAuth(user.getIsAuth())
