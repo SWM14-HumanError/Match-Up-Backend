@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.LikeNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -38,8 +39,11 @@ public class LikeService {
     }
 
     @Transactional
-    public void deleteLikeToUser(Long likeGiverId, Long likeReceiverId){
-        likeRepository.findByUserIdAndLikeReceiverId(likeGiverId, likeReceiverId).orElseThrow()
-        likeRepository.delete();
+    public void deleteLikeToUser(Long likeGiverId, Long likeReceiverId) {
+        Likes likes = likeRepository.findByUserIdAndLikeReceiverId(likeGiverId, likeReceiverId)
+                .orElseThrow(() -> {
+                    throw new LikeNotFoundException("좋아요 받은 사람: " + likeReceiverId, likeGiverId);
+                });
+        likeRepository.delete(likes);
     }
 }
