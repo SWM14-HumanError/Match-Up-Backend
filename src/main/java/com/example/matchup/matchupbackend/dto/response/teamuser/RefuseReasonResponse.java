@@ -24,11 +24,11 @@ public class RefuseReasonResponse {
         return RefuseReasonResponse.builder()
                 .leaderId(teamRefuse.getTeam().getLeaderID())
                 .leaderImage(teamLeader.getPictureUrl())
-                .leaderName(teamLeader.getName())
+                .leaderName(teamLeader.getNickname())
                 .teamId(teamRefuse.getTeam().getId())
                 .teamName(teamRefuse.getTeam().getTitle())
                 .position(teamRefuse.getPosition())
-                .refusedUser(teamRefuse.getRefusedUser().getName())
+                .refusedUser(teamRefuse.getRefusedUser().getNickname())
                 .refuseReason(teamRefuse.getRefuseReason())
                 .refuseDate(teamRefuse.getCreateTime())
                 .build();

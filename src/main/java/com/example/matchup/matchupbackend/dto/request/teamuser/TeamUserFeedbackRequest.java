@@ -23,6 +23,6 @@ public class TeamUserFeedbackRequest {
     @NotBlank(message = "피드백 내용은 필수입니다.")
     @Size(max = 20, message = "최대 20자까지 입력 가능합니다.")
     private String commentToUser;
-    @Size(max = 500, message = "최대 500자까지 입력 가능합니다.")
+    @Size(max = 250, message = "최대 250자까지 입력 가능합니다.")
     private String commentToAdmin;
 }

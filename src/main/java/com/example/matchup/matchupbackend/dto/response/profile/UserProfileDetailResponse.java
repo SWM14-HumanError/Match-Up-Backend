@@ -17,6 +17,7 @@ public class UserProfileDetailResponse {
     private String pictureUrl;
     private String nickname;
     private Long bestPositionLevel;
+    private Double feedbackScore;
     private Map<String, String> snsLinks;
     private Boolean isMentor;
     private Boolean isAuth;

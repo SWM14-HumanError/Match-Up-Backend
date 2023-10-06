@@ -24,18 +24,18 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "user_name")
+    @Column(name = "user_name") // 실제 이름 (가지고만 있어야 함)
     private String name;
 
     @Column(unique = true)
-    private String nickname;
+    private String nickname; // 닉네임
     @Column(name = "user_level")
     private Long userLevel;
     @Column(name = "user_birthday")
