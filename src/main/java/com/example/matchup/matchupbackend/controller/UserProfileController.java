@@ -53,6 +53,7 @@ public class UserProfileController {
     }
 
     @GetMapping(value = {"/profile/{user_id}/feedbacks/{grade}", "/profile/{user_id}/feedbacks"})
+    @ResponseStatus(HttpStatus.OK)
     @Operation(description = "유저 프로필 페이지 / 피드백 API")
     public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable(value = "grade", required = false) String grade) {
         UserProfileFeedbackResponse response = userProfileService.getUserProfileFeedbacks(userId, grade);
@@ -62,6 +63,7 @@ public class UserProfileController {
     }
 
     @PutMapping("/profile/feedbacks/hide")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "피드백 숨김/공개를 변경 하는 API")
     public String hideFeedbacks(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "hideFeedbacks");
@@ -69,6 +71,7 @@ public class UserProfileController {
     }
 
     @PutMapping("/profile/user/hide")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "유저 프로필을 숨김/공개를 변경 하는 API")
     public String hideProfile(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "hideProfile");
@@ -76,6 +79,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/profile/state")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(description = "현재 사용자의 설정 상태를 반환하는 API")
     public UserSettingStateResponse getUserSetting(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "getUserSetting");
