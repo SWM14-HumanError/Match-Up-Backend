@@ -77,7 +77,7 @@ public class TokenProvider {
         }
     }
 
-    public boolean validTokenInFilter(String authorizationHeader) {
+    public boolean validTokenInFilter(String authorizationHeader) throws ExpiredJwtException{
         String token = getAccessToken(authorizationHeader);
 
         try {
