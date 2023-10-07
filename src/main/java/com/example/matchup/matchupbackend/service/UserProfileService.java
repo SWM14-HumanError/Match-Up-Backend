@@ -138,7 +138,8 @@ public class UserProfileService {
      */
     public UserProfileFeedbackResponse getUserProfileFeedbacks(Long userId, String grade) {
        List<Feedback> feedbacks = feedbackRepository.findUserFeedbackByGrade(userId, grade);
-       return UserProfileFeedbackResponse.from(feedbacks);
+        User user = userRepository.findById(userId).get();
+        return UserProfileFeedbackResponse.from(feedbacks, user.getFeedbackHider());
     }
 
     /**
