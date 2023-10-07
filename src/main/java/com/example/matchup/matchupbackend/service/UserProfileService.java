@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
@@ -17,12 +18,12 @@ import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserSnsLinkRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
-import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
 import com.example.matchup.matchupbackend.repository.usertag.UserTagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
 
 import java.time.ZoneId;
@@ -42,7 +43,7 @@ public class UserProfileService {
     private final UserRepository userRepository;
     private final TeamService teamService;
     private final TokenProvider tokenProvider;
-    private final UserProfileRepository userProfileRepository;
+    private final FileService fileService;
     private final UserTagRepository userTagRepository;
     private final TagRepository tagRepository;
     private final UserPositionRepository userPositionRepository;
@@ -52,6 +53,8 @@ public class UserProfileService {
     public UserProfileDetailResponse showUserProfile(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("사용자 프로필을 조회하는 과정에서 존재하지 않는 user id로 요청했습니다."));
         UserProfile userProfile = user.getUserProfile();
+        if (userProfile == null) throw new UserNotFoundException("회원가입이 완료되지 않은 사용자입니다.");
+
         List<TeamUser> teamUsers = user.getTeamUserList().stream()
                 .filter(teamUser -> teamUser.getApprove() && teamUser.getTeam().getIsDeleted().equals(0L))
                 .toList();
@@ -75,7 +78,7 @@ public class UserProfileService {
                 .bestPositionLevel(user.getUserLevel())
                 .feedbackScore(user.getFeedbackScore())
                 .snsLinks(userProfile.getUserSnsLinks().stream()
-                        .collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
+                            .collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
                 .isMentor(user.getIsMentor())
                 .isAuth(user.getIsAuth())
                 .lastLogin(ZonedDateTime.of(user.getLastLogin(), ZoneId.of("Asia/Seoul")))
@@ -119,6 +122,13 @@ public class UserProfileService {
         updateUserPositions(request, user);
         updateUserTags(request, user);
 
+        // todo 개선되엇음
+        if (request.getPictureUrl() != null) { //썸네일 사진이 있는 경우
+            MultipartFile multipartFile = fileService.convertBase64ToFile(request.getPictureUrl());
+            UploadFile uploadFile = fileService.storeFile(multipartFile);
+            user.setUploadFile(uploadFile);
+        }
+
         // UserSnsLink update
         // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
         /*
@@ -135,10 +145,10 @@ public class UserProfileService {
         userSnsLinkRepository.deleteByUserProfile(userProfile);
         if (request.getLink() != null) {
             List<UserSnsLink> userSnsLinks = request.getLink().entrySet().stream()
-                    .map(type -> UserSnsLink.builder()
-                        .linkType(type.getKey())
-                        .linkUrl(type.getValue())
-                        .userProfile(user.getUserProfile())
+                    .map(link -> UserSnsLink.builder()
+                        .linkType(link.getKey())
+                        .linkUrl(link.getValue())
+                        .userProfile(userProfile)
                         .build()).toList();
             userSnsLinkRepository.saveAll(userSnsLinks);
         }

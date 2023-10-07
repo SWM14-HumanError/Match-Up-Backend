@@ -12,6 +12,7 @@ import org.hibernate.validator.constraints.Range;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ public class ProfileRequest {
     @NotBlank(message = "닉네임은 필수 입력 값입니다.")
     @Size(max = 20, message = "닉네임은 20글자를 넘을 수 없습니다.")
     private String nickname;
+
+    private String pictureName;
 
     private String pictureUrl;
 
@@ -55,7 +58,7 @@ public class ProfileRequest {
 
     private List<@Valid ProfileTagPositionRequest> profileTagPositions;
 
-    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String, @URL(message = "적절하지 않은 Link입니다.") String> Link;
+    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String, @URL(message = "적절하지 않은 Link입니다.") String> link;
 
     public MeetingType getMeetingType() {
         return (this.meetingType != null) ? MeetingType.valueOf(this.meetingType) : null;
@@ -65,5 +68,9 @@ public class ProfileRequest {
         return this.getProfileTagPositions().stream()
                 .map(ProfileTagPositionRequest::getType)
                 .toList();
+    }
+
+    public List<ProfileTagPositionRequest> getProfileTagPositions() {
+        return this.profileTagPositions != null ? this.profileTagPositions : new ArrayList<>();
     }
 }

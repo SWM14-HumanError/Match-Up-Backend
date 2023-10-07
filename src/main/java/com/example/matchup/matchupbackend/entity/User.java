@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.TechStack;
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -56,6 +57,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Role role;
 
     private String refreshToken;
+
+    private String thumbnailUploadUrl;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
     private LocalDateTime lastLogin = LocalDateTime.now();
@@ -225,6 +228,11 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void deleteLike(){
         this.likes--;
+    }
+
+    public void setUploadFile(UploadFile uploadFile) {
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+        this.pictureUrl = String.valueOf(uploadFile.getS3Url());
     }
 
     @Override
