@@ -63,7 +63,7 @@ public class UserProfileController {
     }
 
     @PutMapping("/profile/feedbacks/hide")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @Operation(description = "피드백 숨김/공개를 변경 하는 API")
     public String hideFeedbacks(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "hideFeedbacks");
@@ -71,7 +71,7 @@ public class UserProfileController {
     }
 
     @PutMapping("/profile/user/hide")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @Operation(description = "유저 프로필을 숨김/공개를 변경 하는 API")
     public String hideProfile(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "hideProfile");
