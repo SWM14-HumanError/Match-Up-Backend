@@ -133,6 +133,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void changeFeedbackHide(){
         this.feedbackHider = !this.feedbackHider;
     }
+
+    public void changeProfileHide(){
+        this.profileHider = !this.profileHider;
+    }
 //    public void addTeamUser(TeamUser teamUser) {
 //        teamUserList.add(teamUser);
 //        teamUser.setTag(this);
