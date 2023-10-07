@@ -17,6 +17,7 @@ public enum ErrorCode {
     MISSING_REQUEST_HEADER(HttpStatus.UNAUTHORIZED, "G-005", "header 값이 없습니다."),
     EXPIRED_RESOURCE_ACCESS(HttpStatus.UNAUTHORIZED, "G-006", "만료된 토큰입니다."),
     TOKEN_REFRESH_NOT_PERMIT(HttpStatus.NOT_FOUND, "G-007", "갱신되었거나 등록되지 않은 refresh 토큰입니다."),
+    NOT_PERMITTED(HttpStatus.BAD_REQUEST, "G-008", "적절하지 않은 접급입니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-001", "게시글이 존재하지 않습니다."),
     LEADER_ONLY_MODIFY(HttpStatus.UNAUTHORIZED, "T-S-002", "팀장만 접근이 가능 합니다."),
     MAX_MEMBER_ERROR(HttpStatus.BAD_REQUEST, "T-S-003", "현재 팀원보다 최대 팀원 수를 높게 정하세요."),
@@ -36,7 +37,12 @@ public enum ErrorCode {
     INVALID_FEEDBACK_GRADE(HttpStatus.BAD_REQUEST, "FB-E-001", "피드백 점수는 GREAT, NORMAL, BAD만 가능합니다."),
     TEAM_FEEDBACK_AVAILABLE(HttpStatus.BAD_REQUEST, "FB-S-001", "잘못된 피드백 입니다."),
     ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "A-S-001", "알림 정보가 존재하지 않습니다."),
-    ALERT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "A-S-002", "이미 삭제된 알림입니다.");
+    ALERT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "A-S-002", "이미 삭제된 알림입니다."),
+    RECRUIT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-005", "지원 정보가 존재하지 않습니다."),
+    REFUSE_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-006", "거절 정보가 존재하지 않습니다."),
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "L-S-001", "좋아요를 누른 기록이 없습니다."),
+    INVALID_LIKE(HttpStatus.BAD_REQUEST, "L-S-002", "잘못된 좋아요입니다.");
+
 
     private HttpStatus status;
     private String code;

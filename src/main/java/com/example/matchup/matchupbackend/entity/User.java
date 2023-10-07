@@ -1,8 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.TechStack;
-import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
-import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,27 +16,27 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "user_name")
+    @Column(name = "user_name") // 실제 이름 (가지고만 있어야 함)
     private String name;
 
     @Column(unique = true)
-    private String nickname;
+    private String nickname; // 닉네임
     @Column(name = "user_level")
     private Long userLevel;
+
     @Column(name = "user_birthday")
     private LocalDate birthDay;
 
@@ -49,6 +48,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
     private String refreshToken;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
@@ -60,16 +60,15 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isAuth = false;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT true")
-    private Boolean isFirstLogin = true;
+//    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+//    private Boolean agreeTermOfService = false;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean termOfService = false;
+    private Long agreeTermOfServiceId;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT true")
-    private Boolean isUnknown = true; // 소개를 적지 않은 유저
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isUnknown = true;
 
-    @Column(name ="feedbackHider", columnDefinition = "Boolean DEFAULT false")
+    @Column(name ="feedbackHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean feedbackHider = false;
 
     //링크는 조인해서 가져온다
@@ -85,8 +84,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "user_email", unique = true)
     private String email;
 
-    @Column(name = "likes")
-    private Long likes;
+    @Column(name = "likes", columnDefinition = "Long default 0")
+    private Long likes = 0L;
     @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
     private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
     @Column(name = "feedback_score", columnDefinition = "double default 36.5")
@@ -104,9 +103,12 @@ public class User extends BaseEntity implements UserDetails {
     private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_profile_id", unique = true)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private UserProfile userProfile;
+    @OneToMany(mappedBy = "refusedUser")
+    private List<TeamRefuse> teamRefuses = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<ServiceCenter> serviceCenters = new ArrayList<>();
 
     /**
      * Deprecated
@@ -125,14 +127,6 @@ public class User extends BaseEntity implements UserDetails {
         this.role = role;
     }
 
-    private Optional<UserProfile> getUserProfileOpt() {
-        return Optional.ofNullable(this.userProfile);
-    }
-
-    public UserProfile getUserProfile() {
-        return getUserProfileOpt().orElse(UserProfile.builder().user(this).build());
-    }
-
     public void changeFeedbackHide(){
         this.feedbackHider = !this.feedbackHider;
     }
@@ -142,13 +136,9 @@ public class User extends BaseEntity implements UserDetails {
 //    }
 
     //== 비즈니스 로직 ==//
-    public void updateNewRefreshToken(String newRefreshToken) {
+    public void updateNewRefreshToken(String newRefreshToken, Long id) {
         this.refreshToken = newRefreshToken;
-    }
-
-    public User updateUserLevel() {
-        this.userLevel = this.userPositions.stream().mapToLong(UserPosition::getPositionLevel).max().orElse(0L);
-        return this;
+        this.agreeTermOfServiceId = id;
     }
 
     public List<String> returnTagList() {
@@ -182,23 +172,40 @@ public class User extends BaseEntity implements UserDetails {
         this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
-    public User updateFirstLogin(AdditionalUserInfoRequest request) {
+    public User updateFirstLogin(ProfileRequest request, List<UserPosition> userPositions) {
         this.nickname = request.getNickname();
         this.pictureUrl = request.getPictureUrl();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
-        this.isFirstLogin = false;
+        this.userPositions = userPositions;
+        this.userLevel = userPositions.stream().mapToLong(UserPosition::getTypeLevel).max().orElse(0L);
+        this.isUnknown = false;
+
         return this;
     }
 
-    public User updateTermService() {
-        this.termOfService = true;
-        return this;
-    }
+//    public User updateTermService() {
+//        this.agreeTermOfService = true;
+//        return this;
+//    }
 
     public User updateUserLastLogin() {
         this.lastLogin = LocalDateTime.now();
         return this;
+    }
+
+    public User updateUserProfile(ProfileRequest request) {
+        this.pictureUrl = request.getPictureUrl();
+        this.nickname = request.getNickname();
+        return this;
+    }
+
+    public void addLike(){
+        this.likes++;
+    }
+
+    public void deleteLike(){
+        this.likes--;
     }
 
     @Override
@@ -235,13 +242,6 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public User updateUserProfile(UserProfileEditRequest request) {
-        this.pictureUrl = request.getPictureUrl();
-        this.nickname = request.getNickname();
-        this.isUnknown = false;
-        return this;
     }
 }
 

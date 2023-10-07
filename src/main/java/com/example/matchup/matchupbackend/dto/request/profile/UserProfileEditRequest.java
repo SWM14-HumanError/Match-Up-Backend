@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.dto.request.profile;
 
 import com.example.matchup.matchupbackend.entity.MeetingType;
-import com.example.matchup.matchupbackend.entity.UserPositionType;
+import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -33,11 +33,9 @@ public class UserProfileEditRequest {
     @Size(max = 700, message = "소개는 700자를 넘길 수 없습니다.")
     private String introduce;
 
-    @Size(max = 5, message = "BACK, FRONT, FULL, AI, DESIGN의 level을 받습니다.")
-    private Map<UserPositionType, Integer> userPositionLevels;
+    private Map<@Enum(enumClass = RoleType.class, message = "적절하지 않은 RoleType 입니다.") String, Integer> userPositionLevels;
 
-    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String,
-            @URL(message = "적절하지 않은 Link입니다.") String> link;
+    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String, @URL(message = "적절하지 않은 Link입니다.") String> Link;
 
     public MeetingType getMeetingType() {
         return (this.meetingType != null) ? MeetingType.valueOf(this.meetingType) : null;

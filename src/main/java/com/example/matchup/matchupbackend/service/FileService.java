@@ -9,6 +9,7 @@ import com.example.matchup.matchupbackend.error.exception.FileEx.FileExtensionEx
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -137,4 +138,19 @@ public class FileService {
     public void deleteImage(String originalFilename) {
         amazonS3.deleteObject(bucket, originalFilename);
     }
+
+    public MultipartFile convertBase64ToFile(String base64){
+        File file = new File(createStoreFileName("myFile1234"));
+        byte decode[] = Base64.decodeBase64(base64);
+        try{
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(decode);
+            fos.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return (MultipartFile) file;
+    }
+
 }

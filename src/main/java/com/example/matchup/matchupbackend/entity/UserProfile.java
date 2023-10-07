@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.request.profile.UserProfileEditRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,7 +29,8 @@ public class UserProfile extends BaseEntity{
     private String meetingTime;
     private String meetingNote;
 
-    @OneToOne(mappedBy = "userProfile")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @OneToMany(mappedBy = "userProfile")
@@ -44,7 +45,13 @@ public class UserProfile extends BaseEntity{
         this.user = user;
     }
 
-    public UserProfile updateUserProfile(UserProfileEditRequest request) {
+    public static UserProfile createSignUp(User user) {
+        return UserProfile.builder()
+                .user(user)
+                .build();
+    }
+
+    public UserProfile updateUserProfile(ProfileRequest request) {
         this.introduce = request.getIntroduce();
         this.meetingAddress = request.getMeetingAddress();
         this.meetingTime = request.getMeetingTime();

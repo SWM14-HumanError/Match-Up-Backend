@@ -1,8 +1,11 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.request.user.AdditionalUserInfoRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
+import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
@@ -23,6 +25,7 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class UserController {
 
     private final UserService userService;
+    private final AlertCreateService alertCreateService;
 
     @GetMapping("/list/user")
     @ResponseStatus(HttpStatus.OK)
@@ -31,14 +34,15 @@ public class UserController {
         return userService.searchSliceUserCard(userSearchRequest, pageable);
     }
 
+    /**
+     * 회원가입 후에 최소 정보를 받는다.
+     * 서비스에 사용할 닉네임과 프로필 사진, 생년월일, 개발 연차
+     */
     @PutMapping("/login/user/info")
-    public ResponseEntity<Long> additionalUserInfo(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                                   @Valid @RequestBody AdditionalUserInfoRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public String additionalUserInfo(@Valid @RequestBody ProfileRequest request) {
 
-        Long userId = userService.saveAdditionalUserInfo(authorizationHeader, request);
-        return (userId != null)
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.badRequest().build();
+        return userService.saveAdditionalUserInfo(request);
     }
 
     /**
@@ -55,11 +59,11 @@ public class UserController {
     /**
      * 유저가 이용약관에 동의
      */
-    @GetMapping("/login/user/term")
-    @ResponseStatus(HttpStatus.OK)
-    public void userAgreeTermOfService(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
-        userService.userAgreeTermOfService(authorizationHeader);
-    }
+//    @GetMapping("/login/user/term")
+//    @ResponseStatus(HttpStatus.OK)
+//    public String userAgreeTermOfService(@RequestParam("email") String email, @RequestParam("id") Long id) {
+//        return userService.userAgreeTermOfService(email, id);
+//    }
 
     /**
      * 유저가 온라인 상태를 지속하면 로그인 시간 최신화
@@ -68,5 +72,21 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void isUserOnline(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         userService.updateUserLastLogin(authorizationHeader);
+    }
+
+    /**
+     * 내 프로젝트에 초대하기에서 내 프로젝트 목록을 조회합니다.
+     */
+    @GetMapping("/user/invite")
+    @ResponseStatus(HttpStatus.OK)
+    public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return userService.getInviteMyTeam(authorizationHeader);
+    }
+
+    @PostMapping("/user/invite")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void suggestInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                    @Valid @RequestBody SuggestInviteMyTeamRequest request) {
+        alertCreateService.postInviteMyTeam(authorizationHeader, request);
     }
 }

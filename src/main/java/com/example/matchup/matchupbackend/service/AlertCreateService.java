@@ -2,8 +2,15 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
+import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.alert.AlertRepository;
+import com.example.matchup.matchupbackend.repository.team.TeamRepository;
+import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,12 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AlertCreateService {
     private final AlertRepository alertRepository;
+    private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
 
     /**
      * 팀 생성 알림 저장
@@ -28,7 +40,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 생성" : "스터디 생성")
                 .content(teamCreateRequest.getName() + " - 생성되었습니다.")
-                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/" + teamID : "/study/" + teamID)
+                .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         alert.setUser(sendTo);
@@ -45,7 +57,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
                 .content(teamCreateRequest.getName() + " - 정보가 업데이트 되었습니다.")
-                .redirectUrl(teamCreateRequest.getType().getTeamType() == 0L ? "/project/"+ teamID : "/study/" + teamID)
+                .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, alert);
@@ -60,7 +72,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 삭제" : "스터디 삭제")
                 .content(team.getTitle() + " - 팀장에 의해서 삭제되었습니다.")
-                .redirectUrl("/") // 삭제된 팀이라고 알림
+                .redirectUrl("/")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, alert);
@@ -72,12 +84,12 @@ public class AlertCreateService {
      * @param volunteer
      * @param team
      */
-    public void saveTeamUserRecruitAlert(User leader, User volunteer, Team team) {
+    public void saveTeamUserRecruitAlert(User leader, User volunteer, Team team, Long recruitID) {
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
                 .content(volunteer.getName() + " 님이 " + team.getTitle() + " 에 함께 하고 싶어 합니다.")
-                .redirectUrl("/유저 지원서 모달창URL") //todo 지원서 모달창 url
+                .redirectUrl("/team/" + team.getId() + "#팀원")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toLeader.setUser(leader);
@@ -87,7 +99,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
                 .content(team.getTitle() + " - 지원하였습니다.")
-                .redirectUrl("/유저 지원서 모달창URL") //todo 지원서 모달창 url
+                .redirectUrl("/team/" + team.getId() + "#팀원")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
@@ -108,7 +120,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 수락")
                 .content("축하드립니다! " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 하게 되었습니다.")
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(user);
@@ -118,7 +130,7 @@ public class AlertCreateService {
         Alert toTeamUser = Alert.builder()
                 .title("팀원 수락")
                 .content(volunteer.getUser().getName() + " 님이 " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 합니다.")
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToUsers(sendTo, toTeamUser);
@@ -129,14 +141,14 @@ public class AlertCreateService {
      * @param leader
      * @param volunteer
      */
-    public void saveUserRefusedToTeamAlert(TeamUser leader, User volunteer) {
+    public void saveUserRefusedToTeamAlert(TeamUser leader, User volunteer, Long refuseID) {
         Team team = leader.getTeam();
 
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title("팀원 거절")
                 .content(volunteer.getName() + " 님에게 팀원 거절 메세지를 보냈습니다.")
-                .redirectUrl("/거절사유URL") //todo 거절 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toLeader.setUser(leader.getUser());
@@ -146,7 +158,7 @@ public class AlertCreateService {
         Alert toVolunteer = Alert.builder()
                 .title("팀원 거절")
                 .content(team.getTitle() + " - 지원이 거절 되었습니다. (클릭하여 거절 사유 보기)")
-                .redirectUrl("/거절사유URL") //todo 거절 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toVolunteer.setUser(volunteer);
@@ -164,7 +176,7 @@ public class AlertCreateService {
         Alert toKickedUser = Alert.builder()
                 .title("강퇴 알림")
                 .content(team.getTitle() + " - 팀장에 의해서 강퇴되었습니다.")
-                .redirectUrl("/방출사유URL")
+                .redirectUrl("/방출사유URL") //todo 방출 사유 url
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toKickedUser.setUser(kickedUser.getUser());
@@ -182,7 +194,7 @@ public class AlertCreateService {
         Alert toGiver = Alert.builder()
                 .title("피드백이 발송되었습니다")
                 .content(team.getTitle() + " - " + receiver.getName() + "님에게 피드백을 전달했습니다.") // 휴먼에러 - 준혁님에게 피드백을 전달했습니다
-                .redirectUrl("/피드백URL")
+                .redirectUrl("")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toGiver.setUser(giver);
@@ -192,7 +204,7 @@ public class AlertCreateService {
         Alert toReceiver = Alert.builder()
                 .title("피드백이 도착하였습니다")
                 .content(team.getTitle() + " - 피드백이 도착했습니다.")
-                .redirectUrl("/피드백URL")
+                .redirectUrl("/mypage/profile#상호 평가")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toReceiver.setUser(receiver);
@@ -224,8 +236,8 @@ public class AlertCreateService {
      */
     public void saveFeedLikeAlert(User liker, Feed feed, Integer likes) { //todo 유저 많아지면 알림을 한번에 몰아서 보내는 방법도 생각해야 함
         Alert alert = Alert.builder()
-                .title(liker.getName() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
-                .content("누적 좋아요 갯수 - " + likes)
+                .title(liker.getNickname() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .content("누적 좋아요 갯수 : " + likes)
                 .redirectUrl("/feed/" + feed.getId())
                 .alertType(AlertType.FEED)
                 .build();
@@ -241,12 +253,26 @@ public class AlertCreateService {
      */
     public void saveTeamLikeAlert(User liker, Team team, Integer likes) { //todo 유저 많아지면 알림을 한번에 몰아서 보내는 방법도 생각해야 함
         Alert alert = Alert.builder()
-                .title(liker.getName() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
-                .content("누적 좋아요 갯수 - " + likes)
-                .redirectUrl(team.getType() == 0L ? "/project/" + team.getId() : "/study/" + team.getId())
+                .title(liker.getNickname() + " 님이 " + team.getTitle() + " 에 좋아요를 눌렀습니다.")
+                .content("누적 좋아요 갯수 : " + likes)
+                .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         sendAlertToTeamUsers(team.getTeamUserList(), alert);
+    }
+
+    /**
+     * 유저에 좋아요를 눌렀을때 알림 생성
+     */
+    public void saveUserLikeAlert(User liker, User receiver, Long likes) {
+        Alert alert = Alert.builder()
+                .title(liker.getNickname() + " 님이 " + receiver.getNickname() + " 님에게 좋아요를 눌렀습니다.")
+                .content("누적 좋아요 갯수 : " + likes)
+                .redirectUrl("/mypage/profile")
+                .alertType(AlertType.ETC)
+                .user(receiver)
+                .build();
+        alertRepository.save(alert);
     }
 
     /**
@@ -272,6 +298,41 @@ public class AlertCreateService {
             Alert newAlert = Alert.from(alert);
             newAlert.setUser(teamUser.getUser());
             alertRepository.save(newAlert);
+        }
+    }
+
+    /**
+     * 내 프로젝트에 초대하기에 지원할 때 필요한 검증과 대상자 알림에 등록합니다.
+     */
+    @Transactional
+    public void postInviteMyTeam(String authorizationHeader, SuggestInviteMyTeamRequest request) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 지원하고 있습니다.");
+        User suggester = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 제안 유저 id를 요청했습니다."));
+        User receiver = userRepository.findUserById(request.getReceiverId()).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 제안 유저 id를 요청했습니다."));
+        Team team = teamRepository.findTeamById(request.getTeamId()).orElseThrow(() -> new TeamNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 팀 id로 요청했습니다."));
+
+        isProperSuggestMyTeam(team, suggester, receiver);
+
+        alertRepository.save(Alert.builder()
+                .title(team.getType().equals(0L) ? "프로젝트에 초대받았습니다." : "스터디에 초대받았습니다.")
+                .redirectUrl("/team/" + request.getTeamId())
+                .content(request.getContent())
+                .alertType(team.getType().equals(0L) ? AlertType.PROJECT : AlertType.STUDY)
+                .user(receiver)
+                .build());
+    }
+
+    private void isProperSuggestMyTeam(Team team, User suggester, User receiver) {
+        if (!team.getIsDeleted().equals(0L)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 삭제된 팀으로 요청했습니다.");
+        }
+
+        if (team.getTeamUserList().stream().noneMatch(teamUser -> teamUser.getUser().equals(suggester) && teamUser.getApprove())) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 초대할 수 없는 팀원이 요청했습니다.");
+        }
+
+        if (team.getTeamUserList().stream().anyMatch(teamUser -> teamUser.getUser().equals(receiver))) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "내 프로젝트에 초대하기를 지원하면서 이미 합류된 팀원이나 자기 자신에게 초대를 보냈습니다.");
         }
     }
 }

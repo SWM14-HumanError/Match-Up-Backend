@@ -69,7 +69,7 @@ public class FeedService {
             if (user != null) {
                 isLiked = likeRepository.existsLikeByFeedAndUser(feed, user);
             }
-            feedSearchResponse.setLiked(isLiked);
+            feedSearchResponse.setIsLiked(isLiked);
             responseFeeds.add(feedSearchResponse);
         }
 

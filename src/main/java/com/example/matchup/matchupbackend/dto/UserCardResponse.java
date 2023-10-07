@@ -1,7 +1,6 @@
 package com.example.matchup.matchupbackend.dto;
 
-import com.example.matchup.matchupbackend.dto.Position;
-import com.example.matchup.matchupbackend.dto.TechStack;
+import com.example.matchup.matchupbackend.entity.User;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,5 +45,21 @@ public class UserCardResponse{
                 .techStacks(TechStacks)
                 .build();
         return build;
+    }
+
+    public static UserCardResponse fromEntity(User user) {
+        Position position = new Position(user.getPosition(), user.getPositionLevel());
+
+        return UserCardResponse.builder()
+                .userID(user.getId())
+                .profileImageURL(user.getPictureUrl())
+                .memberLevel(user.getUserLevel())
+                .nickname(user.getNickname())
+                .position(position)
+                .score(user.getFeedbackScore())
+                .like(user.getLikes())
+                .techStacks(user.returnStackList())
+                .build();
+
     }
 }

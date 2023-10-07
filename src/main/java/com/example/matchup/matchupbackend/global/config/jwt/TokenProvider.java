@@ -45,7 +45,6 @@ public class TokenProvider {
                 .setExpiration(expiry)
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
-                .claim("unknown",  user.getIsUnknown())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
@@ -97,8 +96,6 @@ public class TokenProvider {
 
     /**
      * Bearer 토큰을 받아 userId를 반환
-     * @param authorizationHeader: String
-     * @param callBack: String
      */
     public Long getUserId(String authorizationHeader, String callBack) {
         String token = getAccessToken(authorizationHeader);
@@ -109,6 +106,22 @@ public class TokenProvider {
         } else if (validToken(token) == TokenStatus.EXPIRED) {
             throw new ExpiredTokenException(callBack);
         }
+
+        Claims claims = getClaims(token);
+        return claims.get("id", Long.class);
+    }
+
+    private String getUserEmail(String token) {
+        if (token == null) return null;
+
+        Claims claims = getClaims(token);
+        return claims.get("sub", String.class);
+    }
+
+    public Long getUserIdByExpired(String authorizationHeader) {
+        String token = getAccessToken(authorizationHeader);
+
+        if (token == null) return null;
 
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);

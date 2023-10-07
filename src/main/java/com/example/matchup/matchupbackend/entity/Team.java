@@ -1,8 +1,8 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
-import com.example.matchup.matchupbackend.dto.TechStack;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class Team extends BaseEntity {
     private Long id;
     @Column(name = "team_title")
     private String title;
-    @Column(name = "description")
+    @Column(name = "description", length = 5000)
     private String description;
     @Column(name = "type")
     private Long type; //스터디인지 프로젝트 모임인지
@@ -60,6 +60,8 @@ public class Team extends BaseEntity {
     private List<Likes> likes = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<Feedback> teamUserFeedbackList = new ArrayList<>();
+    @OneToMany(mappedBy = "team")
+    private List<TeamRefuse> teamRefuseList = new ArrayList<>();
 
     @Builder
     public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList,String meetingTime) {
