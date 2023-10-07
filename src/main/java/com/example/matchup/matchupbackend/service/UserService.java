@@ -174,4 +174,16 @@ public class UserService {
             throw new AuthorizeException("회원가입을 하면서 유효하지 않은 id 값으로 요청했습니다.");
         }
     }
+
+    /**
+     * 회원 탈퇴를 진행하는 메서드
+     */
+    @Transactional
+    public void deleteUser(String userToken){
+        Long userId = tokenProvider.getUserId(userToken, "deleteUser");
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            throw new UserNotFoundException("회원 탈퇴하는 유저를 찾을수 없습니다.");
+        });
+        userRepository.delete(user);
+    }
 }

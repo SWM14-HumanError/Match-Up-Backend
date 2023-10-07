@@ -89,4 +89,11 @@ public class UserController {
                                     @Valid @RequestBody SuggestInviteMyTeamRequest request) {
         alertCreateService.postInviteMyTeam(authorizationHeader, request);
     }
+
+    @DeleteMapping("/user/delete")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader){
+        userService.deleteUser(authorizationHeader);
+    }
+
 }
