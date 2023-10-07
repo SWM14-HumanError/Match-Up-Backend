@@ -9,11 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,24 +56,4 @@ public class TeamCreateRequest {
         }
         return userStacks.stream().distinct().collect(Collectors.toList());
     }
-
-    public MultipartFile getThumbnailIMG() {
-        ByteArrayMultipartFileEditor byteArrayMultipartFileEditor = new ByteArrayMultipartFileEditor();
-        byteArrayMultipartFileEditor.setValue(decodeIMG);
-        return (MultipartFile) byteArrayMultipartFileEditor.getValue();
-//        String base64 = base64Thumbnail.replace('-', '+').replace('_', '/');
-//
-//        // Base64 문자열을 디코딩하여 바이트 배열로 변환
-//        byte[] decodedBytes = Base64.getDecoder().decode(base64);
-//
-//        // 바이트 배열을 InputStream으로 변환
-//        InputStream inputStream = new ByteArrayInputStream(decodedBytes);
-//
-//        // InputStream을 사용하여 MultipartFile 생성
-//        MultipartFile multipartFile  = new MockMultipartFile("file",
-//                "thumbnail.png", "image/png", inputStream);
-//        return multipartFile;
-//        return null;
-    }
-
 }
