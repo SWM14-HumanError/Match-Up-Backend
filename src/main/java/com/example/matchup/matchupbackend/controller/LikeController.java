@@ -44,6 +44,7 @@ public class LikeController {
 
     @GetMapping("/check/{userID}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "내가 유저에게 좋아요를 눌렀는지 체크하는 API")
     public UserLikeResponse checkUserLike(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                           @PathVariable("userID") Long userID) {
         Long likeGiverID = tokenProvider.getUserId(authorizationHeader, "checkUserLike");
