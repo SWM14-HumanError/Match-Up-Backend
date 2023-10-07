@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.dto.response.feed;
 
 import com.example.matchup.matchupbackend.entity.Feed;
+import com.example.matchup.matchupbackend.entity.ProjectDomain;
 import com.example.matchup.matchupbackend.entity.User;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,8 @@ public class FeedSearchResponse {
     private String userPictureUrl;
     private Long positionLevel;
     private Boolean isLiked;
+    private Long type;
+    private ProjectDomain projectDomain;
 
     @Builder
     public FeedSearchResponse(Feed feed, User user) {
@@ -32,5 +35,7 @@ public class FeedSearchResponse {
         this.userPictureUrl = user.getPictureUrl();
         this.positionLevel = user.getPositionLevel();
         this.userId = user.getId();
+        this.type = feed.getType();
+        this.projectDomain = feed.getProjectDomain();
     }
 }
