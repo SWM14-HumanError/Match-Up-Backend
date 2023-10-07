@@ -8,6 +8,7 @@ import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileExtensionException;
 import com.example.matchup.matchupbackend.error.exception.FileEx.FileUploadException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileService {
@@ -50,19 +52,21 @@ public class FileService {
         return new UploadFile(originalFileName, storeFileName, S3Url);
     }
 
+    /**
+     * base64로 디코딩 된 IMG를 파일로 만들어 S3에 저장하는 메서드
+     */
     public UploadFile storeBase64ToFile(String base64IMG, String originalFileName) {
         String storeFileName = createStoreFileName(originalFileName); // 저장용 파일 이름(UUID)
         File file = base64ToFile(base64IMG, storeFileName); // base64 -> file
-        //todo 로컬에 있는 파일 지우기
         amazonS3.putObject(new PutObjectRequest(bucket, storeFileName, file)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
-
+        removeNewFile(file);
         URL S3Url = amazonS3.getUrl(bucket, storeFileName);
         return new UploadFile(originalFileName, storeFileName, S3Url);
     }
 
     /**
-     * base64를 디코딩 해서 File로 만드는 매서드
+     * base64를 디코딩 해서 File로 만드는 메서드
      */
     public File base64ToFile(String base64IMG, String storeFileName){
         byte[] bytesIMG = Base64.getDecoder().decode(base64IMG);
@@ -76,6 +80,14 @@ public class FileService {
             throw new FileUploadException(e.getMessage(), storeFileName);
         } catch (IOException e) {
             throw new FileUploadException(e.getMessage(), storeFileName);
+        }
+    }
+
+    private void removeNewFile(File targetFile) {
+        if(targetFile.delete()) {
+            log.info("파일이 삭제되었습니다.");
+        }else {
+            log.info("파일이 삭제되지 못했습니다.");
         }
     }
 
