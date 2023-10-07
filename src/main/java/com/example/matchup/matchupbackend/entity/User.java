@@ -71,6 +71,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name ="feedbackHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean feedbackHider = false;
 
+    @Column(name ="profileHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean profileHider = false;
+
     //링크는 조인해서 가져온다
     private String expertize;
     private Long expYear;

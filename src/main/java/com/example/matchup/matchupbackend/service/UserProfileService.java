@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedbackResponse;
+import com.example.matchup.matchupbackend.dto.response.profile.UserSettingStateResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.userposition.UserPositionDetailResponse;
 import com.example.matchup.matchupbackend.entity.*;
@@ -202,5 +203,13 @@ public class UserProfileService {
 //                    .collect(Collectors.toCollection(ArrayList::new));
 //            userPositionRepository.saveAll(userPositions);
 //        }
+    }
+
+    /**
+     * 유저 설정 페이지에서 현재 유저 설정을 반환하는 메서드
+     */
+    public UserSettingStateResponse getUserSettingState(Long userID){
+        User user = userRepository.findById(userID).get();
+        return UserSettingStateResponse.fromEntity(user);
     }
 }
