@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.response.user.UserLikeResponse;
 import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.User;
@@ -20,10 +21,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -137,5 +135,30 @@ public class LikeService {
 
     private List<UserCardResponse> userCardResponseList(List<User> userList) {
         return userList.stream().map(user -> UserCardResponse.fromEntity(user)).collect(Collectors.toList());
+    }
+
+    /**
+     * 유저가 좋아요를 눌렀는지 확인하는 메서드
+     * @param userId
+     * @param receiverId
+     * @return
+     */
+    public UserLikeResponse checkUserLiked(Long userId, Long receiverId) {
+        User likeReceiver = userRepository.findById(receiverId).orElseThrow(() -> {
+            throw new UserNotFoundException("좋아요를 눌렀는지 체크 당하는 유저가 없습니다");
+        });
+        if (userId != null) { //로그인 한 사용자인 경우
+            Optional<Likes> likes = likeRepository.findByUserIdAndLikeReceiver(userId, likeReceiver);
+            return UserLikeResponse.builder()
+                    .check(likes.isPresent())
+                    .totalLike(likeReceiver.getLikes())
+                    .build();
+        } else { //로그인 안한 사용자인 경우
+            return UserLikeResponse.builder()
+                    .check(false)
+                    .totalLike(likeReceiver.getLikes())
+                    .build();
+        }
+
     }
 }

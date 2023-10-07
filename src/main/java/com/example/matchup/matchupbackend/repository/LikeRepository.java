@@ -35,4 +35,6 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
     List<Likes> findLikesJoinUserByUserId(@Param(value = "userId") Long userId);
 
     boolean existsByUserIdAndAndLikeReceiverId(Long userId, Long likeReceiverId);
+
+    Optional<Likes> findByUserIdAndLikeReceiver(Long userId, User likeReceiver);
 }

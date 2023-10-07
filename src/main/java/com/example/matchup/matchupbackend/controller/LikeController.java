@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.response.team.SliceTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
+import com.example.matchup.matchupbackend.dto.response.user.UserLikeResponse;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.LikeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +39,15 @@ public class LikeController {
         likeService.deleteLikeToUser(likeGiverID, userId);
         log.info("userID: " + userId + " 에게 준 좋아요를 삭제하였습니다.");
         return "userID: " + userId + " 에게 준 좋아요를 삭제하였습니다.";
+    }
+
+
+    @GetMapping("/check/{userID}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserLikeResponse checkUserLike(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
+                                          @PathVariable("userID") Long userID) {
+        Long likeGiverID = tokenProvider.getUserId(authorizationHeader, "checkUserLike");
+        return likeService.checkUserLiked(likeGiverID, userID);
     }
 
     @GetMapping("/mylike/project")
