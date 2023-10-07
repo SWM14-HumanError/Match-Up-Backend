@@ -30,7 +30,6 @@ public class ProfileRequest {
     @Size(max = 20, message = "닉네임은 20글자를 넘을 수 없습니다.")
     private String nickname;
 
-    @URL(message = "적절하지 않은 이미지 URL입니다.")
     private String pictureUrl;
 
     // todo: LocalDate validation

@@ -3,23 +3,24 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.entity.TeamUser;
-import com.example.matchup.matchupbackend.entity.User;
-import com.example.matchup.matchupbackend.entity.UserPosition;
-import com.example.matchup.matchupbackend.entity.UserProfile;
+import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
+import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
+import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
+import com.example.matchup.matchupbackend.repository.usertag.UserTagRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +49,8 @@ public class UserService {
     private final TokenService tokenService;
     private final UserPositionRepository userPositionRepository;
     private final UserProfileRepository userProfileRepository;
+    private final UserTagRepository userTagRepository;
+    private final TagRepository tagRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -82,6 +86,7 @@ public class UserService {
                         .map(userPosition -> UserPosition.create(userPosition, user))
                         .toList();
         user.updateFirstLogin(request, userPositions);
+        updateUserTags(request, user);
         userPositionRepository.saveAll(userPositions);
         userProfileRepository.save(UserProfile.createSignUp(user));
 
@@ -173,5 +178,20 @@ public class UserService {
         if (!user.getAgreeTermOfServiceId().equals(id)) {
             throw new AuthorizeException("회원가입을 하면서 유효하지 않은 id 값으로 요청했습니다.");
         }
+    }
+
+    private void updateUserTags(ProfileRequest request, User user) {
+        List<UserTag> userTags = new ArrayList<>();
+        for (ProfileTagPositionRequest requestTagDetail : request.getProfileTagPositions()) {
+            RoleType type = requestTagDetail.getType();
+            for (String tagName: requestTagDetail.getTags()) {
+                Tag tag = tagRepository.findByName(tagName);
+                if (tag == null) {
+                    tag = Tag.create(tagName);
+                }
+                userTags.add(UserTag.create(tagName, type, tag, user));
+            }
+        }
+        userTagRepository.saveAll(userTags);
     }
 }

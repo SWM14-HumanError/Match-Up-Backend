@@ -13,10 +13,12 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Use
 import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
+import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserSnsLinkRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
+import com.example.matchup.matchupbackend.repository.usertag.UserTagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,8 +27,10 @@ import org.webjars.NotFoundException;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +43,8 @@ public class UserProfileService {
     private final TeamService teamService;
     private final TokenProvider tokenProvider;
     private final UserProfileRepository userProfileRepository;
+    private final UserTagRepository userTagRepository;
+    private final TagRepository tagRepository;
     private final UserPositionRepository userPositionRepository;
     private final UserSnsLinkRepository userSnsLinkRepository;
     private final FeedbackRepository feedbackRepository;
@@ -50,6 +56,18 @@ public class UserProfileService {
                 .filter(teamUser -> teamUser.getApprove() && teamUser.getTeam().getIsDeleted().equals(0L))
                 .toList();
         List<UserPosition> userPositions = user.getUserPositions();
+        List<UserTag> userTags = userTagRepository.findAllByUser(user);
+        Set<RoleType> tagSet = userTags.stream()
+                .map(UserTag::getType)
+                .collect(Collectors.toSet());
+        Map<RoleType, List<String>> tagMap = tagSet.stream()
+                .collect(Collectors.toMap(
+                        t -> t,
+                        tag -> userTags.stream()
+                                .filter(userTag -> userTag.getType() == tag)
+                                .map(UserTag::getTagName)
+                                .toList()
+                ));
 
         return UserProfileDetailResponse.builder()
                 .pictureUrl(user.getPictureUrl())
@@ -64,9 +82,10 @@ public class UserProfileService {
                 .introduce(userProfile.getIntroduce())
                 .userPositions(userPositions.stream().map(
                         position -> UserPositionDetailResponse.builder()
-                            .type(position.getType())
-                            .typeLevel(position.getTypeLevel())
-                            .build())
+                                .type(position.getType())
+                                .typeLevel(position.getTypeLevel())
+                                .tags(tagMap.get(position.getType()))
+                                .build())
                         .toList())
                 .meetingAddress(userProfile.getMeetingAddress())
                 .meetingTime(userProfile.getMeetingTime())
@@ -98,6 +117,7 @@ public class UserProfileService {
         UserProfile userProfile = user.getUserProfile();
 
         updateUserPositions(request, user);
+        updateUserTags(request, user);
 
         // UserSnsLink update
         // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
@@ -203,5 +223,20 @@ public class UserProfileService {
 //                    .collect(Collectors.toCollection(ArrayList::new));
 //            userPositionRepository.saveAll(userPositions);
 //        }
+    }
+
+    private void updateUserTags(ProfileRequest request, User user) {
+        List<UserTag> userTags = new ArrayList<>();
+        for (ProfileTagPositionRequest requestTagDetail : request.getProfileTagPositions()) {
+            RoleType type = requestTagDetail.getType();
+            for (String tagName: requestTagDetail.getTags()) {
+                Tag tag = tagRepository.findByName(tagName);
+                if (tag == null) {
+                    tag = Tag.create(tagName);
+                }
+                userTags.add(UserTag.create(tagName, type, tag, user));
+            }
+        }
+        userTagRepository.saveAll(userTags);
     }
 }

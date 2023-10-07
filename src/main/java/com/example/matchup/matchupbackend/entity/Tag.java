@@ -42,6 +42,12 @@ public class Tag {
         this.name = name;
     }
 
+    public static Tag create(String tagName) {
+        return Tag.builder()
+                .name(tagName)
+                .build();
+    }
+
     //== 비즈니스 로직 ==//
 
 
