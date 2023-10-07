@@ -90,6 +90,7 @@ public class UserController {
         alertCreateService.postInviteMyTeam(authorizationHeader, request);
     }
 
+    //todo 회원 탈퇴 관련해서는 더 고민해 보아야 함 ex) 팀장이 회원 탈퇴를 한 경우
     @DeleteMapping("/user/delete")
     @ResponseStatus(HttpStatus.OK)
     public void deleteUser(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader){
