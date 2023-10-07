@@ -1,19 +1,16 @@
 package com.example.matchup.matchupbackend.dto.request.team;
 
-import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
 import com.example.matchup.matchupbackend.dto.Member;
+import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamTypeResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.apache.logging.log4j.util.Base64Util;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -22,6 +19,7 @@ import java.util.stream.Collectors;
 @Data
 public class TeamCreateRequest {
     private String base64Thumbnail;
+    private String IMGName;
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     @Size(max = 30, message = "제목은 30자를 넘을 수 없습니다.")
     private String name;

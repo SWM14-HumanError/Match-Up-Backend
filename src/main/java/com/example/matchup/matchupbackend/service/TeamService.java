@@ -84,7 +84,7 @@ public class TeamService {
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
         Team team = Team.of(leaderID, teamCreateRequest);
         if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
-            UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getBase64Thumbnail(), teamCreateRequest.getIMGName());
             team.setUploadFile(uploadFile);
         }
         teamRepository.save(team);
@@ -154,9 +154,9 @@ public class TeamService {
         teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
 
         //썸네일 사진 수정 로직
+        fileService.deleteImage(team.getThumbnailUrl());
         if (teamCreateRequest.getBase64Thumbnail() != null) {
-            fileService.deleteImage(team.getThumbnailUrl());
-            UploadFile uploadFile = fileService.storeFile(teamCreateRequest.getThumbnailIMG());
+            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getBase64Thumbnail(), teamCreateRequest.getIMGName());
             team.setUploadFile(uploadFile);
         }
 
