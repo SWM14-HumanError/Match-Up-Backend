@@ -12,13 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +48,35 @@ public class FileService {
         }
         URL S3Url = amazonS3.getUrl(bucket, storeFileName);
         return new UploadFile(originalFileName, storeFileName, S3Url);
+    }
+
+    public UploadFile storeBase64ToFile(String base64IMG, String originalFileName) {
+        String storeFileName = createStoreFileName(originalFileName); // 저장용 파일 이름(UUID)
+        File file = base64ToFile(base64IMG, storeFileName); // base64 -> file
+        //todo 로컬에 있는 파일 지우기
+        amazonS3.putObject(new PutObjectRequest(bucket, storeFileName, file)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
+
+        URL S3Url = amazonS3.getUrl(bucket, storeFileName);
+        return new UploadFile(originalFileName, storeFileName, S3Url);
+    }
+
+    /**
+     * base64를 디코딩 해서 File로 만드는 매서드
+     */
+    public File base64ToFile(String base64IMG, String storeFileName){
+        byte[] bytesIMG = Base64.getDecoder().decode(base64IMG);
+        try {
+            File IMGFile = new File(storeFileName);
+            FileOutputStream fos = new FileOutputStream(IMGFile);
+            fos.write(bytesIMG);
+            fos.close();
+            return IMGFile;
+        } catch (FileNotFoundException e) {
+            throw new FileUploadException(e.getMessage(), storeFileName);
+        } catch (IOException e) {
+            throw new FileUploadException(e.getMessage(), storeFileName);
+        }
     }
 
     /**
