@@ -33,7 +33,7 @@ public class FeedRepositoryCustom {
             if (request.getDomain() == ProjectDomain.전체) {
                 String jpql = (request.getSearchType() == FeedSearchType.TITLE)
                         ? "SELECT f FROM Feed f WHERE f.title LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC"
-                        : "SELECT f FROM Feed f join f.user u on u.name LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC";
+                        : "SELECT f FROM Feed f join f.user u on u.nickname LIKE CONCAT('%', :searchValue, '%') ORDER BY f.id DESC";
 
                 feeds = em.createQuery(jpql, Feed.class)
                         .setParameter("searchValue", request.getSearchValue())
@@ -43,7 +43,7 @@ public class FeedRepositoryCustom {
             } else {
                 String jpql = (request.getSearchType() == FeedSearchType.TITLE)
                         ? "SELECT f FROM Feed f WHERE f.title LIKE CONCAT('%', :searchValue, '%') and f.projectDomain = :domain ORDER BY f.id DESC"
-                        : "SELECT f FROM Feed f join f.user u on u.name LIKE CONCAT('%', :searchValue, '%') and f.projectDomain = :domain ORDER BY f.id DESC";
+                        : "SELECT f FROM Feed f join f.user u on u.nickname LIKE CONCAT('%', :searchValue, '%') and f.projectDomain = :domain ORDER BY f.id DESC";
 
                 feeds = em.createQuery(jpql, Feed.class)
                         .setParameter("searchValue", request.getSearchValue())

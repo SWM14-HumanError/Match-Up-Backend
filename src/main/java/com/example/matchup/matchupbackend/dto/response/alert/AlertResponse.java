@@ -5,13 +5,14 @@ import com.example.matchup.matchupbackend.entity.AlertType;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Data
 public class AlertResponse {
     private Long id;
     private String title;
-    private LocalDateTime createdDate;
+    private ZonedDateTime createdDate;
     private String content;
     private boolean isRead;
     private String redirectUrl;
@@ -21,7 +22,7 @@ public class AlertResponse {
         AlertResponse alertResponse = AlertResponse.builder()
                 .id(alert.getId())
                 .title(alert.getTitle())
-                .createdDate(alert.getCreateTime())
+                .createdDate(ZonedDateTime.of(alert.getCreateTime(), ZoneId.of("Asia/Seoul")))
                 .content(alert.getContent())
                 .isRead(alert.isRead())
                 .redirectUrl(alert.getRedirectUrl())
@@ -31,7 +32,7 @@ public class AlertResponse {
     }
 
     @Builder
-    public AlertResponse(Long id, String title, LocalDateTime createdDate, String content, boolean isRead, String redirectUrl, AlertType alertType) {
+    public AlertResponse(Long id, String title, ZonedDateTime createdDate, String content, boolean isRead, String redirectUrl, AlertType alertType) {
         this.id = id;
         this.title = title;
         this.createdDate = createdDate;

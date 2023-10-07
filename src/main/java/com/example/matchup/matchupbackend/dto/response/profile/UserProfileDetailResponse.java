@@ -6,7 +6,7 @@ import com.example.matchup.matchupbackend.entity.MeetingType;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public class UserProfileDetailResponse {
     private Map<String, String> snsLinks;
     private Boolean isMentor;
     private Boolean isAuth;
-    private LocalDateTime lastLogin;
+    private ZonedDateTime lastLogin;
     private String introduce;
     private List<UserPositionDetailResponse> userPositions;
     private String meetingAddress;

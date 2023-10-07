@@ -1,6 +1,8 @@
 package com.example.matchup.matchupbackend.global.config;
 
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.global.util.CookieUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,14 +25,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
-
-        String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
-
-        if (tokenProvider.validTokenInFilter(authorizationHeader)) {
-            Authentication authentication = tokenProvider.getAuthentication(authorizationHeader);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
+            if (tokenProvider.validTokenInFilter(authorizationHeader)) {
+                Authentication authentication = tokenProvider.getAuthentication(authorizationHeader);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (ExpiredJwtException ex) {
+            CookieUtil.deleteCookie(request, response, "token");
+            CookieUtil.deleteCookie(request, response, "tokenExpire");
+        } finally {
+            filterChain.doFilter(request, response);
         }
 
-        filterChain.doFilter(request, response);
     }
 }
