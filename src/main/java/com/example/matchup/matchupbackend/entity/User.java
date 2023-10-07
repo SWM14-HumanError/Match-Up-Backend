@@ -7,19 +7,23 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Entity
 @Getter
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User extends BaseTimeEntity implements UserDetails {
@@ -28,6 +32,8 @@ public class User extends BaseTimeEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    private String tokenId;
 
     @Column(name = "user_name") // 실제 이름 (가지고만 있어야 함)
     private String name;
@@ -139,6 +145,19 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void updateNewRefreshToken(String newRefreshToken, Long id) {
         this.refreshToken = newRefreshToken;
         this.agreeTermOfServiceId = id;
+        if (this.tokenId == null) {
+            String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            SecureRandom random = new SecureRandom();
+            String randomString = IntStream.range(0, 5)
+                    .mapToObj(i -> CHARACTERS.charAt(random.nextInt(CHARACTERS.length())))
+                    .map(String::valueOf)
+                    .collect(Collectors.joining());
+            String randomNumber = IntStream.range(0, 13)
+                    .mapToObj(i -> Integer.toString(random.nextInt(10))) // 0부터 9까지의 숫자
+                    .collect(Collectors.joining());
+            this.tokenId = randomString + randomNumber;
+        }
     }
 
     public List<String> returnTagList() {
