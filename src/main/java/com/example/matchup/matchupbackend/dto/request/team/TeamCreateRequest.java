@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
@@ -17,9 +18,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@NoArgsConstructor
 public class TeamCreateRequest {
     private String base64Thumbnail;
-    private String IMGName;
+    private String fileName;
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     @Size(max = 30, message = "제목은 30자를 넘을 수 없습니다.")
     private String name;
