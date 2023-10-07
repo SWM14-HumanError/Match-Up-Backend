@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,7 +60,7 @@ public class UserProfileService {
                         .collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
                 .isMentor(user.getIsMentor())
                 .isAuth(user.getIsAuth())
-                .lastLogin(user.getLastLogin())
+                .lastLogin(ZonedDateTime.of(user.getLastLogin(), ZoneId.of("Asia/Seoul")))
                 .introduce(userProfile.getIntroduce())
                 .userPositions(userPositions.stream().map(
                         position -> UserPositionDetailResponse.builder()
