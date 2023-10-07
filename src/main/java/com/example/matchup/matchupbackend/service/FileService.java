@@ -70,7 +70,7 @@ public class FileService {
      * base64를 디코딩 해서 File로 만드는 메서드
      */
     public File base64ToFile(String base64IMG, String storeFileName){
-        byte[] bytesIMG = Base64.getMimeDecoder().decode(base64IMG);
+        byte[] bytesIMG = java.util.Base64.getMimeDecoder().decode(base64IMG);
         try {
             File IMGFile = new File(storeFileName);
             FileOutputStream fos = new FileOutputStream(IMGFile);
