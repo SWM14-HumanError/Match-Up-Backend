@@ -1,6 +1,8 @@
 package com.example.matchup.matchupbackend.repository.user;
 
 import com.example.matchup.matchupbackend.entity.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
     Optional<User> findUserByNicknameAndIdNot(String nickname, Long userId);
 
     Optional<User> findUserByNickname(String nickname);
+
+    Slice<User> findAllByIdIn(List<Long> userId, Pageable pageable);
 }

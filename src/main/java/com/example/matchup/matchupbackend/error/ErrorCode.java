@@ -39,7 +39,9 @@ public enum ErrorCode {
     ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "A-S-001", "알림 정보가 존재하지 않습니다."),
     ALERT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "A-S-002", "이미 삭제된 알림입니다."),
     RECRUIT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-005", "지원 정보가 존재하지 않습니다."),
-    REFUSE_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-006", "거절 정보가 존재하지 않습니다.");
+    REFUSE_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-006", "거절 정보가 존재하지 않습니다."),
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "L-S-001", "좋아요를 누른 기록이 없습니다."),
+    INVALID_LIKE(HttpStatus.BAD_REQUEST, "L-S-002", "잘못된 좋아요입니다.");
 
 
     private HttpStatus status;

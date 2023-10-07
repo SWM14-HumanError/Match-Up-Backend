@@ -30,6 +30,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 .where(
                         searchEq(userSearchRequest.getSearch()),
                         placeEq(userSearchRequest.getPlace()),
+                        meetingTypeEq(userSearchRequest.getMeetingType()),
                         positionEq(userSearchRequest.getPosition())
                 )
                 .orderBy(orderByTo(userSearchRequest.getOrderBy()))
@@ -61,6 +62,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         return (place != null) ? user.address.contains(place) : null;
     }
 
+    private BooleanExpression meetingTypeEq(MeetingType meetingType) {
+        return (meetingType != null) ? user.meetingType.eq(meetingType) : null;
+    }
 
     private BooleanExpression positionEq(String position) {
         return (position != null) ? user.position.eq(position) : null;
