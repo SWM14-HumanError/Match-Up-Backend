@@ -251,6 +251,7 @@ public class UserProfileService {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("프로필 숨김 여부 설정에서 유저를 가져올수 없습니다."));
         user.changeProfileHide();
         return "프로필 공개 여부가 " + (user.getProfileHider() ? "숨김" : "공개") + " 처리 되었습니다.";
+    }
 
     private void updateUserTags(ProfileRequest request, User user) {
         List<UserTag> userTags = new ArrayList<>();
