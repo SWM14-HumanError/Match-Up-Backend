@@ -29,6 +29,7 @@ public class AlertService {
         List<AlertResponse> alertResponseList = alertSlice.getContent().stream()
                 .map(alert -> AlertResponse.from(alert))
                 .collect(Collectors.toList());
+        log.info("시간대: {}", alertResponseList.get(0).getCreatedDate());
         return new SliceAlertResponse(alertResponseList, alertSlice.getSize(), alertSlice.hasNext());
     }
 
