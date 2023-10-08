@@ -60,7 +60,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: info
-    org.hibernate.type:
+    org.hibernate.type: info
 
   file:
     name: /var/log/spring/spring.log
