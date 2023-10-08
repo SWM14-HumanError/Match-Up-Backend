@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.controller;
 
+import com.example.matchup.matchupbackend.global.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,9 @@ public class UserLoginController {
      * redirect에 포함된 query parameter에 access 토큰 값이 포함되며,
      */
     @GetMapping("/login")
-    public String login() {
+    public String login(HttpServletRequest request, HttpServletResponse response) {
+        CookieUtil.deleteCookie(request, response, "token");
+        CookieUtil.deleteCookie(request, response, "tokenExpire");
         return "login_form";
     }
 

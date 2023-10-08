@@ -3,8 +3,13 @@ package com.example.matchup.matchupbackend.global.config.jwt;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuth2LoginUrl;
+import com.example.matchup.matchupbackend.global.util.CookieUtil;
+import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletWebRequest;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -26,6 +33,7 @@ public class TokenProvider {
 
     private final JwtProperties jwtProperties;
     private final OAuth2LoginUrl oAuth2LoginUrl;
+    private final UserRepository userRepository;
 
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String TOKEN_PRIFIX = "Bearer ";
@@ -45,6 +53,7 @@ public class TokenProvider {
                 .setExpiration(expiry)
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
+                .claim("tokenId", user.getTokenId())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
@@ -68,7 +77,7 @@ public class TokenProvider {
         }
     }
 
-    public boolean validTokenInFilter(String authorizationHeader) {
+    public boolean validTokenInFilter(String authorizationHeader) throws ExpiredJwtException{
         String token = getAccessToken(authorizationHeader);
 
         try {
@@ -95,7 +104,7 @@ public class TokenProvider {
     }
 
     /**
-     * Bearer 토큰을 받아 userId를 반환
+     * Bearer 토큰을 받아 user를 반환
      */
     public Long getUserId(String authorizationHeader, String callBack) {
         String token = getAccessToken(authorizationHeader);
@@ -108,7 +117,20 @@ public class TokenProvider {
         }
 
         Claims claims = getClaims(token);
-        return claims.get("id", Long.class);
+        Long userId = claims.get("id", Long.class);
+        String tokenId = claims.get("tokenId", String.class);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않은 아이디를 가진 토큰으로 접근했습니다."));
+
+        if (!user.getTokenId().equals(tokenId)) {
+            ServletWebRequest servletContainer = (ServletWebRequest)RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = servletContainer.getRequest();
+            HttpServletResponse response = servletContainer.getResponse();
+
+            CookieUtil.deleteCookie(request, response, "token");
+            CookieUtil.deleteCookie(request, response, "tokenExpire");
+            throw new ExpiredTokenException("관리자에 의해 만료된 토큰입니다.");
+        }
+        return user.getId();
     }
 
     private String getUserEmail(String token) {
@@ -136,15 +158,15 @@ public class TokenProvider {
                 .getBody();
     }
 
-    public Boolean getUnknown(String authorizationHeader, String callBack) {
-        String token = getAccessToken(authorizationHeader);
-
-        if (token == null) return null;
-        if (validToken(token) == TokenStatus.INVALID_OTHER) throw new AuthorizeException(callBack);
-
-        Claims claims = getClaims(token);
-        return claims.get("unknown", Boolean.class);
-    }
+//    public Boolean getUnknown(String authorizationHeader, String callBack) {
+//        String token = getAccessToken(authorizationHeader);
+//
+//        if (token == null) return null;
+//        if (validToken(token) == TokenStatus.INVALID_OTHER) throw new AuthorizeException(callBack);
+//
+//        Claims claims = getClaims(token);
+//        return claims.get("unknown", Boolean.class);
+//    }
 
     /**
      * Authorization in Header에서 Bearer을 제거하여 토큰만 추출

@@ -9,7 +9,10 @@ import com.example.matchup.matchupbackend.dto.response.team.*;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateLikeException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidMemberValueException;
-import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.*;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.CommentNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamDetailNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
@@ -27,7 +30,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -340,8 +342,11 @@ public class TeamService {
         if (likeRepository.existsLikeByTeamAndUser(team, user)) {
             throw new DuplicateLikeException("이미 좋아요를 누른 사용자가 같은 팀에 요청을 보냈습니다.");
         }
+        if (isUserNotInTeam(user, team)) {
+            alertCreateService.saveTeamLikeAlert(user, team, team.getLikes().size());
+        }
         likeRepository.save(Likes.builder().user(user).team(team).build());
-        alertCreateService.saveTeamLikeAlert(user, team, team.getLikes().size());
+
         return userId;
     }
 
@@ -358,6 +363,11 @@ public class TeamService {
         } else {
             throw new ResourceNotPermitException(COMMENT_NOT_FOUND, "팀의 좋아요를 삭제하는 과정에서 존재하지 않는 댓글에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
         }
+    }
+
+    private boolean isUserNotInTeam(User user, Team team) {
+        return team.getTeamUserList().stream()
+                .noneMatch(teamUser -> teamUser.getUser().equals(user));
     }
 }
 

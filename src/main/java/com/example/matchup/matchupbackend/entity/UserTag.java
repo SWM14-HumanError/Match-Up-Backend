@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.entity;
 import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,21 @@ public class UserTag {
     @JoinColumn(name = "tag_id")
     private Tag tag;
 
-    //== 비즈니스 로직 ==//
+    @Builder
+    public UserTag(String tagName, RoleType type, User user, Tag tag) {
+        this.tagName = tagName;
+        this.type = type;
+        this.user = user;
+        this.tag = tag;
+    }
 
+    //== 비즈니스 로직 ==//
+    public static UserTag create(String tagName, RoleType type, Tag tag, User user) {
+        return UserTag.builder()
+                .tag(tag)
+                .user(user)
+                .tagName(tagName)
+                .type(type)
+                .build();
+    }
 }

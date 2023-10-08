@@ -253,8 +253,14 @@ public class FeedService {
             throw new DuplicateLikeException("이미 좋아요를 누른 사용자가 같은 피드에 요청을 보냈습니다.");
         }
         likeRepository.save(Likes.builder().user(user).feed(feed).build());
-        alertCreateService.saveFeedLikeAlert(user, feed, feed.getLikes().size() + 1);
+        if (isNotFeedOfUser(user, feed)) {
+            alertCreateService.saveFeedLikeAlert(user, feed, feed.getLikes().size() + 1);
+        }
         return userId;
+    }
+
+    private static boolean isNotFeedOfUser(User user, Feed feed) {
+        return !feed.getUser().equals(user);
     }
 
     @Transactional
