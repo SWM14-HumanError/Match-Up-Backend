@@ -25,14 +25,6 @@ spring:
       enabled: true
       force: true
 
-logging:
-  file:
-    name: /var/log/spring/spring.log
-
-logging.level:
-  org.hibernate.SQL: debug
-  org.hibernate.type: trace
-
 # 클라우드 설정
 cloud:
   aws:

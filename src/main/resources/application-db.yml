@@ -28,6 +28,11 @@ spring:
     console:
       enabled: true
 
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
 --- # mysql for dev prod
 spring:
   config:
@@ -38,6 +43,10 @@ spring:
     hibernate:
       ddl-auto: create
 
+    properties:
+      hibernate:
+        format_sql: false
+
   sql:
     init:
       mode: never
@@ -47,6 +56,14 @@ spring:
     username: matchup_admin
     password: matchup!
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  level:
+    org.hibernate.SQL: info
+    org.hibernate.type:
+
+  file:
+    name: /var/log/spring/spring.log
 
 --- # h2-in-memory
 spring:
@@ -77,3 +94,8 @@ spring:
   h2:
     console:
       enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
