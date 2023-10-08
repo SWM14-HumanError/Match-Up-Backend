@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedbackResponse;
+import com.example.matchup.matchupbackend.dto.response.profile.UserSettingStateResponse;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateUserNicknameException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.UserProfileService;
@@ -52,6 +53,7 @@ public class UserProfileController {
     }
 
     @GetMapping(value = {"/profile/{user_id}/feedbacks/{grade}", "/profile/{user_id}/feedbacks"})
+    @ResponseStatus(HttpStatus.OK)
     @Operation(description = "유저 프로필 페이지 / 피드백 API")
     public ResponseEntity<UserProfileFeedbackResponse> getFeedbacks(@PathVariable("user_id") Long userId, @PathVariable(value = "grade", required = false) String grade) {
         UserProfileFeedbackResponse response = userProfileService.getUserProfileFeedbacks(userId, grade);
@@ -61,10 +63,26 @@ public class UserProfileController {
     }
 
     @PutMapping("/profile/feedbacks/hide")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(description = "피드백 숨김/공개를 변경 하는 API")
     public String hideFeedbacks(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "hideFeedbacks");
         return userProfileService.hideFeedbacks(userId);
     }
 
+    @PutMapping("/profile/user/hide")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "유저 프로필을 숨김/공개를 변경 하는 API")
+    public String hideProfile(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "hideProfile");
+        return userProfileService.hideProfile(userId);
+    }
+
+    @GetMapping("/profile/state")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "현재 사용자의 설정 상태를 반환하는 API")
+    public UserSettingStateResponse getUserSetting(@RequestHeader(TokenProvider.HEADER_AUTHORIZATION) String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader, "getUserSetting");
+        return userProfileService.getUserSettingState(userId);
+    }
 }

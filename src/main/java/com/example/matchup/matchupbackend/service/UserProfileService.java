@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.profile.UserProfileFeedbackResponse;
+import com.example.matchup.matchupbackend.dto.response.profile.UserSettingStateResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.userposition.UserPositionDetailResponse;
 import com.example.matchup.matchupbackend.entity.*;
@@ -170,7 +171,8 @@ public class UserProfileService {
      */
     public UserProfileFeedbackResponse getUserProfileFeedbacks(Long userId, String grade) {
        List<Feedback> feedbacks = feedbackRepository.findUserFeedbackByGrade(userId, grade);
-       return UserProfileFeedbackResponse.from(feedbacks);
+        User user = userRepository.findById(userId).get();
+        return UserProfileFeedbackResponse.from(feedbacks, user.getFeedbackHider());
     }
 
     /**
@@ -235,6 +237,21 @@ public class UserProfileService {
 //        }
     }
 
+
+    /**
+     * 유저 설정 페이지에서 현재 유저 설정을 반환하는 메서드
+     */
+    public UserSettingStateResponse getUserSettingState(Long userID){
+        User user = userRepository.findById(userID).get();
+        return UserSettingStateResponse.fromEntity(user);
+    }
+
+    @Transactional
+    public String hideProfile(Long userId) {
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("프로필 숨김 여부 설정에서 유저를 가져올수 없습니다."));
+        user.changeProfileHide();
+        return "프로필 공개 여부가 " + (user.getProfileHider() ? "숨김" : "공개") + " 처리 되었습니다.";
+
     private void updateUserTags(ProfileRequest request, User user) {
         List<UserTag> userTags = new ArrayList<>();
         for (ProfileTagPositionRequest requestTagDetail : request.getProfileTagPositions()) {
@@ -248,5 +265,6 @@ public class UserProfileService {
             }
         }
         userTagRepository.saveAll(userTags);
+
     }
 }

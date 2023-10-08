@@ -80,6 +80,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name ="feedbackHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean feedbackHider = false;
 
+    @Column(name ="profileHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean profileHider = false;
+
     //링크는 조인해서 가져온다
     private String expertize;
     private Long expYear;
@@ -103,7 +106,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<UserTag> userTagList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
-    @OneToMany(mappedBy = "giver", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "giver", cascade = CascadeType.PERSIST)
     private List<Feedback> giveFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
@@ -112,9 +115,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<Alert> alertList = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private UserProfile userProfile;
-    @OneToMany(mappedBy = "refusedUser")
+    @OneToMany(mappedBy = "refusedUser", cascade = CascadeType.REMOVE)
     private List<TeamRefuse> teamRefuses = new ArrayList<>();
     @OneToMany(mappedBy = "user")
     private List<ServiceCenter> serviceCenters = new ArrayList<>();
@@ -138,6 +141,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void changeFeedbackHide(){
         this.feedbackHider = !this.feedbackHider;
+    }
+
+    public void changeProfileHide(){
+        this.profileHider = !this.profileHider;
     }
 //    public void addTeamUser(TeamUser teamUser) {
 //        teamUserList.add(teamUser);
