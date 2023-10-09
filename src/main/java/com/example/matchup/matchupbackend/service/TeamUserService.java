@@ -13,13 +13,14 @@ import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateAcceptTeamUserException;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateRecruitEx.DuplicateTeamRecruitException;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidFeedbackException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidRecruitException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.global.Values;
-import com.example.matchup.matchupbackend.repository.TeamRefuseRepository;
-import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
 import com.example.matchup.matchupbackend.repository.TeamRecruitRepository;
+import com.example.matchup.matchupbackend.repository.TeamRefuseRepository;
+import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -222,11 +223,8 @@ public class TeamUserService {
         }
         TeamUser recruitUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID())
                 .orElseThrow(() -> {
-                    throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");
-                });
-        if (recruitUser.getApprove()) { // 이미 팀에 속한 팀원인 경우
-            throw new DuplicateAcceptTeamUserException(acceptForm.getRecruitUserID(), teamID);
-        }
+                    throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");});
+        validAcceptUserToTeam(recruitUser);
         recruitUser.approveUser();
 
         teamUserRepository.updateTeamUserStatusByAcceptUser(teamID, acceptForm.getRole());
@@ -239,6 +237,22 @@ public class TeamUserService {
         List<User> sendTo = teamUserRepository.findAcceptedTeamUserJoinUser(teamID)
                 .stream().map(teamUser -> teamUser.getUser()).collect(Collectors.toList());
         alertCreateService.saveUserAcceptedToTeamAlert(sendTo, recruitUser, acceptForm);
+    }
+
+    /**
+     * 유저가 팀원으로 함께 할수 있는지 검증
+     */
+    private void validAcceptUserToTeam(TeamUser recruitUser) {
+        TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(recruitUser.getTeam().getId(), recruitUser.getRole())
+                .orElseThrow(() -> {
+                    throw new TeamPositionNotFoundException("팀 구성 정보가 없습니다");
+                });
+        if (teamPosition.getCount().equals(teamPosition.getMaxCount())) { // 팀원이 꽉찬 경우
+            throw new InvalidRecruitException("teamID: " + recruitUser.getTeam().getId() + " - " + teamPosition.getRole() + "역할의 팀원이 꽉 찼습니다.");
+        }
+        if (recruitUser.getApprove()) { // 이미 팀에 속한 팀원인 경우
+            throw new DuplicateAcceptTeamUserException(recruitUser.getUser().getId(), recruitUser.getTeam().getId());
+        }
     }
 
     /**
