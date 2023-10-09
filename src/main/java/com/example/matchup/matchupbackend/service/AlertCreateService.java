@@ -88,7 +88,7 @@ public class AlertCreateService {
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
-                .content(volunteer.getName() + " 님이 " + team.getTitle() + " 에 함께 하고 싶어 합니다.")
+                .content(volunteer.getNickname() + " 님이 " + team.getTitle() + " 에 함께 하고 싶어 합니다.")
                 .redirectUrl("/team/" + team.getId() + "#팀원")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
@@ -129,7 +129,7 @@ public class AlertCreateService {
         // 기존 유저에게 보낼 알림
         Alert toTeamUser = Alert.builder()
                 .title("팀원 수락")
-                .content(volunteer.getUser().getName() + " 님이 " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 합니다.")
+                .content(volunteer.getUser().getNickname() + " 님이 " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 합니다.")
                 .redirectUrl("/team/" + team.getId())
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
@@ -147,7 +147,7 @@ public class AlertCreateService {
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
                 .title("팀원 거절")
-                .content(volunteer.getName() + " 님에게 팀원 거절 메세지를 보냈습니다.")
+                .content(volunteer.getNickname() + " 님에게 팀원 거절 메세지를 보냈습니다.")
                 .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
@@ -193,7 +193,7 @@ public class AlertCreateService {
         // 피드백 보낸 사람 알림
         Alert toGiver = Alert.builder()
                 .title("피드백이 발송되었습니다")
-                .content(team.getTitle() + " - " + receiver.getName() + "님에게 피드백을 전달했습니다.") // 휴먼에러 - 준혁님에게 피드백을 전달했습니다
+                .content(team.getTitle() + " - " + receiver.getNickname() + "님에게 피드백을 전달했습니다.") // 휴먼에러 - 준혁님에게 피드백을 전달했습니다
                 .redirectUrl("")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
@@ -219,7 +219,7 @@ public class AlertCreateService {
      */
     public void saveCommentCreateAlert(Feed feed, User commenter, Comment comment) {
         Alert alert = Alert.builder()
-                .title(commenter.getName() + " 님이 댓글을 작성했습니다.")
+                .title(commenter.getNickname() + " 님이 댓글을 작성했습니다.")
                 .content(comment.getContent())
                 .redirectUrl("/feed/" + feed.getId())
                 .alertType(AlertType.FEED)
