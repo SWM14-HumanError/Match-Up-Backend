@@ -224,7 +224,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     public User updateUserProfile(ProfileRequest request) {
-        this.pictureUrl = request.getPictureUrl();
         this.nickname = request.getNickname();
         return this;
     }
