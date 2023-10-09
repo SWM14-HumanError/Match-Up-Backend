@@ -69,7 +69,7 @@ public class FeedController {
                                            @PathVariable("feed_id") Long feedId) {
         if (feedService.deleteFeed(authorizationHeader, feedId)) {
             log.info("id: {}의 피드가 삭제되었습니다.", feedId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
     }
