@@ -33,11 +33,11 @@ public class TeamUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "recruit_id", nullable = true)
     private TeamRecruit teamRecruit;
 
-    @OneToMany(mappedBy = "teamUser", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "teamUser", cascade = CascadeType.PERSIST)
     private List<Feedback> feedback;
 
     @Builder

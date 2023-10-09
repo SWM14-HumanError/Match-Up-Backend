@@ -272,6 +272,10 @@ public class TeamUserService {
         log.info("userID: " + refuseForm.getRecruitUserID().toString() + " 거절 완료");
 
         //알림 저장 로직
+        alertToLeaderAndRecruiter(leaderID, teamID, refuseForm, teamRefuse);
+    }
+
+    private void alertToLeaderAndRecruiter(Long leaderID, Long teamID, RefuseFormRequest refuseForm, TeamRefuse teamRefuse) {
         TeamUser leader = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, leaderID)
                 .orElseThrow(() -> {
                     throw new UserNotFoundException("팀장 정보가 없습니다");
