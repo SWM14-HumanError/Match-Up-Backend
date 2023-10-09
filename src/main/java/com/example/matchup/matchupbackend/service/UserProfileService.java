@@ -123,10 +123,9 @@ public class UserProfileService {
         updateUserPositions(request, user);
         updateUserTags(request, user);
 
-        // todo 개선되엇음
+
         if (request.getPictureUrl() != null) { //썸네일 사진이 있는 경우
-            MultipartFile multipartFile = fileService.convertBase64ToFile(request.getPictureUrl());
-            UploadFile uploadFile = fileService.storeFile(multipartFile);
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getPictureUrl(), request.getPictureName());
             user.setUploadFile(uploadFile);
         }
 
@@ -253,7 +252,7 @@ public class UserProfileService {
         return "프로필 공개 여부가 " + (user.getProfileHider() ? "숨김" : "공개") + " 처리 되었습니다.";
     }
 
-    private void updateUserTags(ProfileRequest request, User user) {
+    private void updateUserTags (ProfileRequest request, User user) {
         List<UserTag> userTags = new ArrayList<>();
         for (ProfileTagPositionRequest requestTagDetail : request.getProfileTagPositions()) {
             RoleType type = requestTagDetail.getType();
