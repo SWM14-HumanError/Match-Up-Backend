@@ -28,10 +28,7 @@ import org.webjars.NotFoundException;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -190,14 +187,14 @@ public class UserProfileService {
     }
 
     private void checkDuplicateNickname(String nickname, Long userId) {
-        User user;
+        Optional<User> user;
         if (userId != null) {
-            user = userRepository.findUserByNicknameAndIdNot(nickname, userId).orElse(null);
+            user = userRepository.findUserByNicknameAndIdNot(nickname, userId);
         } else {
-            user = userRepository.findUserByNickname(nickname).orElse(null);
+            user = userRepository.findUserByNickname(nickname);
         }
 
-        if (user != null) {
+        if (user.isPresent()) {
             throw new DuplicateUserNicknameException();
         }
     }
