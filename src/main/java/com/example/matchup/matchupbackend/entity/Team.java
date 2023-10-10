@@ -151,4 +151,9 @@ public class Team extends BaseEntity {
         this.thumbnailUploadUrl = uploadFile.getUploadFileName();
         this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
     }
+
+    public void deleteImage(){
+        this.thumbnailUploadUrl = null;
+        this.thumbnailUrl = null;
+    }
 }

@@ -178,6 +178,7 @@ public class TeamService {
     private void teamThumbNailUpdate(TeamCreateRequest teamCreateRequest, Team team) {
         if (team.getThumbnailUrl() != null) {
             fileService.deleteImage(team.getThumbnailUrl());
+            team.deleteImage();
         }
         if (teamCreateRequest.getImageBase64() != null) {
             UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getImageBase64(), teamCreateRequest.getImageName());
