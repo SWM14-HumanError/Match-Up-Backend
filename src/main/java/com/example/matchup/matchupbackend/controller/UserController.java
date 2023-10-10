@@ -41,7 +41,6 @@ public class UserController {
     @PutMapping("/login/user/info")
     @ResponseStatus(HttpStatus.CREATED)
     public String additionalUserInfo(@Valid @RequestBody ProfileRequest request) {
-
         return userService.saveAdditionalUserInfo(request);
     }
 
