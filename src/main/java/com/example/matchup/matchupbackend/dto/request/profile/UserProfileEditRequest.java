@@ -5,7 +5,6 @@ import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.hibernate.validator.constraints.URL;
 
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class UserProfileEditRequest {
 
     private Map<@Enum(enumClass = RoleType.class, message = "적절하지 않은 RoleType 입니다.") String, Integer> userPositionLevels;
 
-    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String, @URL(message = "적절하지 않은 Link입니다.") String> Link;
+    private Map<@Size(max = 20, message = "sns 이름은 20글자를 넘길 수 없습니다.") String, String> Link;
 
     public MeetingType getMeetingType() {
         return (this.meetingType != null) ? MeetingType.valueOf(this.meetingType) : null;
