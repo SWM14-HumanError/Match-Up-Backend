@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.request.teamuser.KickFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -42,6 +43,15 @@ public class TeamRefuse extends BaseEntity {
     public static TeamRefuse of(RefuseFormRequest refuseForm, TeamUser teamUser) {
         return TeamRefuse.builder()
                 .refuseReason(refuseForm.getRefuseReason())
+                .position(teamUser.getRole())
+                .refusedUser(teamUser.getUser())
+                .team(teamUser.getTeam())
+                .build();
+    }
+
+    public static TeamRefuse of(KickFormRequest kickForm, TeamUser teamUser) {
+        return TeamRefuse.builder()
+                .refuseReason(kickForm.getRefuseReason())
                 .position(teamUser.getRole())
                 .refusedUser(teamUser.getUser())
                 .team(teamUser.getTeam())

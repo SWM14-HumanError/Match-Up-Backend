@@ -158,14 +158,14 @@ public class AlertCreateService {
      * 팀장이 유저를 강퇴하였을때 알림 생성
      * @param kickedUser
      */
-    public void saveUserKickedToTeamAlert(TeamUser kickedUser) {
+    public void saveUserKickedToTeamAlert(TeamUser kickedUser, Long refuseID) {
         Team team = kickedUser.getTeam();
 
         // 강퇴 유저에게 보낼 알림
         Alert toKickedUser = Alert.builder()
                 .title("강퇴 알림")
                 .content(team.getTitle() + " - 팀장에 의해서 강퇴되었습니다.")
-                .redirectUrl("/방출사유URL") //todo 방출 사유 url
+                .redirectUrl("?modal=denyContents&refuseID=" + refuseID)
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toKickedUser.setUser(kickedUser.getUser());

@@ -1,9 +1,6 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.*;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RefuseReasonResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
@@ -87,13 +84,13 @@ public class TeamUserController {
     @DeleteMapping("/team/{teamID}/kickUser")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(description = "팀장이 팀원을 강퇴하는 API")
-    public String kickUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody AcceptFormRequest acceptForm) {
+    public String kickUserToTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamID, @Valid @RequestBody KickFormRequest kickForm) {
         Long leaderID = tokenProvider.getUserId(authorizationHeader, "kickUserToTeam");
         if (leaderID == null) {
             throw new AuthorizeException("TeamUserKick");
         }
         log.info("leaderID: " + leaderID);
-        teamUserService.kickUserToTeam(leaderID, teamID, acceptForm);
+        teamUserService.kickUserToTeam(leaderID, teamID, kickForm);
         return "유저가 강퇴되었습니다";
     }
 
