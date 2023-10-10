@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.entity;
 import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -224,6 +225,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public User updateUserProfile(ProfileRequest request) {
         this.nickname = request.getNickname();
+        if (request.getProfileTagPositions() != null) {
+            this.userLevel = request.getProfileTagPositions().stream()
+                    .mapToLong(ProfileTagPositionRequest::getTypeLevel).max().orElse(0L);
+        }
         return this;
     }
 

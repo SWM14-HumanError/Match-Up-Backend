@@ -33,7 +33,7 @@ public class FeedSearchResponse {
         this.createdDate = feed.getCreateTime().toLocalDate();
         this.nickname = user.getNickname();
         this.userPictureUrl = user.getPictureUrl();
-        this.positionLevel = user.getPositionLevel();
+        this.positionLevel = user.getUserLevel();
         this.userId = user.getId();
         this.type = feed.getType();
         this.projectDomain = feed.getProjectDomain();
