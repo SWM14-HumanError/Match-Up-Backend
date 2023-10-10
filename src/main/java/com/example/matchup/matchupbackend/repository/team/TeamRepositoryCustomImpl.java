@@ -42,6 +42,7 @@ public class TeamRepositoryCustomImpl implements TeamRepositoryCustom {
                         team.isDeleted.eq(0L))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
+                .orderBy(team.createBy.desc())
                 .fetch();
 
         boolean hasNext = false;
