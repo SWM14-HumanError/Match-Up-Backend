@@ -160,10 +160,22 @@ public class FeedService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed 중에 존재하지 않는 유저에 접근했습니다."));
 
         if (feed.getUser().equals(user)) {
+            feedThumbnailUpdate(feed, request);
             return feed.updateFeed(request);
         }
         else {
             throw new AuthorizeException("updateFeed 중에 인가받지 못한 유저의 접근입니다.");
+        }
+    }
+
+    private void feedThumbnailUpdate(Feed feed, FeedCreateOrUpdateRequest request) {
+        if(feed.getThumbnailUrl() != null){
+            fileService.deleteImage(feed.getThumbnailUrl());
+            feed.deleteImage();
+        }
+        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            feed.setUploadFile(uploadFile);
         }
     }
 
