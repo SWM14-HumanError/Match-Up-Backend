@@ -114,17 +114,6 @@ public class AlertCreateService {
      */
     public void saveUserAcceptedToTeamAlert(List<User> sendTo, TeamUser volunteer, AcceptFormRequest acceptForm) {
         Team team = volunteer.getTeam();
-        User user = volunteer.getUser();
-
-        // 지원자에게 보낼 알림
-        Alert toVolunteer = Alert.builder()
-                .title("팀원 수락")
-                .content("축하드립니다! " + team.getTitle() + " - " + acceptForm.getRole() + "로 함께 하게 되었습니다.")
-                .redirectUrl("/team/" + team.getId())
-                .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
-                .build();
-        toVolunteer.setUser(user);
-        alertRepository.save(toVolunteer);
 
         // 기존 유저에게 보낼 알림
         Alert toTeamUser = Alert.builder()
