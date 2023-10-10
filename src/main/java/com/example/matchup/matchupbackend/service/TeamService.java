@@ -157,11 +157,7 @@ public class TeamService {
         teamTagRepository.deleteByTeamId(teamID); // 팀의 기술 스택 전체 삭제
 
         //썸네일 사진 수정 로직
-        fileService.deleteImage(team.getThumbnailUrl());
-        if (teamCreateRequest.getImageBase64() != null) {
-            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getImageBase64(), teamCreateRequest.getImageName());
-            team.setUploadFile(uploadFile);
-        }
+        teamThumbNailUpdate(teamCreateRequest, team);
 
         //실제 수정 로직
         team.updateTeam(teamCreateRequest); // 팀의 기본 정보 업데이트
@@ -177,6 +173,16 @@ public class TeamService {
 
         log.info("Update team ID : " + teamID);
         return teamID;
+    }
+
+    private void teamThumbNailUpdate(TeamCreateRequest teamCreateRequest, Team team) {
+        if (!team.getThumbnailUrl().isEmpty()) {
+            fileService.deleteImage(team.getThumbnailUrl());
+        }
+        if (teamCreateRequest.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getImageBase64(), teamCreateRequest.getImageName());
+            team.setUploadFile(uploadFile);
+        }
     }
 
     /**

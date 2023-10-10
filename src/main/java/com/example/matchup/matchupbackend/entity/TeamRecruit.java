@@ -20,10 +20,10 @@ public class TeamRecruit {
     private String role;
     @Column(name = "content")
     private String content;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
     @OneToOne(mappedBy = "teamRecruit", fetch = FetchType.LAZY)
