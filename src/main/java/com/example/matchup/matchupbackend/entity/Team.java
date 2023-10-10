@@ -58,7 +58,7 @@ public class Team extends BaseEntity {
     private List<TeamPosition> teamPositionList = new ArrayList<>();
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<Likes> likes = new ArrayList<>();
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.PERSIST)
     private List<Feedback> teamUserFeedbackList = new ArrayList<>();
     @OneToMany(mappedBy = "team")
     private List<TeamRefuse> teamRefuseList = new ArrayList<>();

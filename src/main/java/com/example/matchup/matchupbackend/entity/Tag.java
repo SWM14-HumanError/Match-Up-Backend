@@ -22,9 +22,9 @@ public class Tag {
     @Column(name = "tag_name")
     private String name;
     private String imageUrl;
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tag")
     private List<TeamTag> teamTagList = new ArrayList<>();
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tag")
     private List<UserTag> userTagList = new ArrayList<>();
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id")
