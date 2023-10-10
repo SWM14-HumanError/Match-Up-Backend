@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.FeedSearchType;
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.comment.FeedCommentCreateOrUpdateRequest;
@@ -51,7 +52,7 @@ public class FeedService {
     private final CommentRepositoryCustom commentRepositoryCustom;
     private final LikeRepository likeRepository;
     private final AlertCreateService alertCreateService;
-
+    private final FileService fileService;
     /**
      * 유저가 로그인을 한 경우라면 유저가 표시한 좋아요 여부를 같이 응답
      * 아니라면 도메인, 작성자 혹은 피드 제목을 기준으로 필터된 값을 슬라이스하여 응답
@@ -145,6 +146,10 @@ public class FeedService {
         Long userId = tokenProvider.getUserId(authorizationHeader, "createFeed 중에 훼손된 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeed 중에 존재하지 않는 유저에 접근했습니다."));
         Feed feed = request.toEntity(user);
+        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            feed.setUploadFile(uploadFile);
+        }
         return feedRepository.save(feed);
     }
 

@@ -31,8 +31,8 @@ cloud:
     s3:
       bucket: match-up-142023
     credentials:
-      access-key: AKIAUQRV7XQ4YC2SIDNU
-      secret-key: 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
+      access-key: AKIAUQRV7XQ4426BN742
+      secret-key: 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
     region:
       static: ap-northeast-2
       auto: false

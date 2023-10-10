@@ -120,8 +120,8 @@ public class UserProfileService {
         updateUserTags(request, user);
 
 
-        if (request.getPictureUrl() != null) { //썸네일 사진이 있는 경우
-            UploadFile uploadFile = fileService.storeBase64ToFile(request.getPictureUrl(), request.getPictureName());
+        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
             user.setUploadFile(uploadFile);
         }
 

@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,6 +29,7 @@ public class Feed extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private ProjectDomain projectDomain;
+    private String thumbnailUploadUrl;
     private String thumbnailUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,7 +55,12 @@ public class Feed extends BaseEntity{
         this.content = (request.getContent() == null) ? this.content : request.getContent();
         this.type = request.getType();
         this.projectDomain = (request.getDomain() == null) ? this.projectDomain : request.getDomain();
-        this.thumbnailUrl = (request.getImageUrl() == null) ? this.thumbnailUrl : request.getImageUrl();
+        this.thumbnailUrl = (request.getImageBase64() == null) ? this.thumbnailUrl : request.getImageBase64();
         return this;
+    }
+
+    public void setUploadFile(UploadFile uploadFile){
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
     }
 }
