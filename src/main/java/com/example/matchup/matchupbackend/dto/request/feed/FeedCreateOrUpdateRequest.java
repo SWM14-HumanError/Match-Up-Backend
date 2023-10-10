@@ -22,6 +22,7 @@ public class FeedCreateOrUpdateRequest {
     private String content;
 
     private String imageName;
+
     private String imageBase64;
 
     @NotNull(message = "피드의 타입은 필수 입력 값입니다.")
@@ -36,6 +37,7 @@ public class FeedCreateOrUpdateRequest {
         return Feed.builder()
                 .title(title)
                 .content(content)
+                .thumbnailUrl(imageBase64)
                 .type(type)
                 .projectDomain(getDomain())
                 .user(user)

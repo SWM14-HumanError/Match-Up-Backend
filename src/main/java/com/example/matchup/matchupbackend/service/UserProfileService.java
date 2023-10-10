@@ -248,7 +248,9 @@ public class UserProfileService {
         return "프로필 공개 여부가 " + (user.getProfileHider() ? "숨김" : "공개") + " 처리 되었습니다.";
     }
 
-    private void updateUserTags (ProfileRequest request, User user) {
+    public void updateUserTags (ProfileRequest request, User user) {
+        userTagRepository.deleteAllByUser(user);
+
         List<UserTag> userTags = new ArrayList<>();
         for (ProfileTagPositionRequest requestTagDetail : request.getProfileTagPositions()) {
             RoleType type = requestTagDetail.getType();
@@ -256,6 +258,7 @@ public class UserProfileService {
                 Tag tag = tagRepository.findByName(tagName);
                 if (tag == null) {
                     tag = Tag.create(tagName);
+                    tagRepository.save(tag);
                 }
                 userTags.add(UserTag.create(tagName, type, tag, user));
             }
