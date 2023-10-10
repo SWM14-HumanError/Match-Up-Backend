@@ -5,11 +5,8 @@ import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.oauth.dto.OAuth2LoginUrl;
-import com.example.matchup.matchupbackend.global.util.CookieUtil;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import io.jsonwebtoken.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletWebRequest;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -122,12 +117,6 @@ public class TokenProvider {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않은 아이디를 가진 토큰으로 접근했습니다."));
 
         if (!user.getTokenId().equals(tokenId)) {
-            ServletWebRequest servletContainer = (ServletWebRequest)RequestContextHolder.getRequestAttributes();
-            HttpServletRequest request = servletContainer.getRequest();
-            HttpServletResponse response = servletContainer.getResponse();
-
-            CookieUtil.deleteCookie(request, response, "token");
-            CookieUtil.deleteCookie(request, response, "tokenExpire");
             throw new ExpiredTokenException("관리자에 의해 만료된 토큰입니다.");
         }
         return user.getId();
