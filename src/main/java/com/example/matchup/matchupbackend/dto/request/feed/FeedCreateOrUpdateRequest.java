@@ -22,7 +22,7 @@ public class FeedCreateOrUpdateRequest {
     private String content;
 
     private String imageName;
-    private String imageUrl;
+    private String imageBase64;
 
     @NotNull(message = "피드의 타입은 필수 입력 값입니다.")
     @Range(max = 1, message = "0(Project) or 1(Study)로만 입력하세요")

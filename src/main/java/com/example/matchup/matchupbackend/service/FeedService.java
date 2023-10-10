@@ -146,8 +146,8 @@ public class FeedService {
         Long userId = tokenProvider.getUserId(authorizationHeader, "createFeed 중에 훼손된 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("createFeed 중에 존재하지 않는 유저에 접근했습니다."));
         Feed feed = request.toEntity(user);
-        if (request.getImageUrl() != null) { //썸네일 사진이 있는 경우
-            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageUrl(), request.getImageName());
+        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
             feed.setUploadFile(uploadFile);
         }
         return feedRepository.save(feed);

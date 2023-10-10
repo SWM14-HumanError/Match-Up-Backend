@@ -55,7 +55,7 @@ public class Feed extends BaseEntity{
         this.content = (request.getContent() == null) ? this.content : request.getContent();
         this.type = request.getType();
         this.projectDomain = (request.getDomain() == null) ? this.projectDomain : request.getDomain();
-        this.thumbnailUrl = (request.getImageUrl() == null) ? this.thumbnailUrl : request.getImageUrl();
+        this.thumbnailUrl = (request.getImageBase64() == null) ? this.thumbnailUrl : request.getImageBase64();
         return this;
     }
 

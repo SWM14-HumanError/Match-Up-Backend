@@ -86,8 +86,8 @@ public class TeamService {
     @Transactional
     public Long makeNewTeam(Long leaderID, TeamCreateRequest teamCreateRequest) {
         Team team = Team.of(leaderID, teamCreateRequest);
-        if (teamCreateRequest.getBase64Thumbnail() != null) { //썸네일 사진이 있는 경우
-            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getBase64Thumbnail(), teamCreateRequest.getFileName());
+        if (teamCreateRequest.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getImageBase64(), teamCreateRequest.getImageName());
             team.setUploadFile(uploadFile);
         }
         teamRepository.save(team);
@@ -158,8 +158,8 @@ public class TeamService {
 
         //썸네일 사진 수정 로직
         fileService.deleteImage(team.getThumbnailUrl());
-        if (teamCreateRequest.getBase64Thumbnail() != null) {
-            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getBase64Thumbnail(), teamCreateRequest.getFileName());
+        if (teamCreateRequest.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(teamCreateRequest.getImageBase64(), teamCreateRequest.getImageName());
             team.setUploadFile(uploadFile);
         }
 

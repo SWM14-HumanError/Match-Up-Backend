@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 public class TeamCreateRequest {
-    private String base64Thumbnail;
-    private String fileName;
+    private String imageBase64;
+    private String imageName;
     @NotBlank(message = "제목은 필수 입력 값입니다.")
     @Size(max = 30, message = "제목은 30자를 넘을 수 없습니다.")
     private String name;
