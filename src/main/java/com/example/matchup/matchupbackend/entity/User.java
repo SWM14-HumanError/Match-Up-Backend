@@ -203,7 +203,6 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public User updateFirstLogin(ProfileRequest request, List<UserPosition> userPositions) {
         this.nickname = request.getNickname();
-        this.pictureUrl = request.getPictureUrl();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();
         this.userPositions = userPositions;

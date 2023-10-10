@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
-import org.hibernate.validator.constraints.URL;
 
 @Data
 public class FeedCreateOrUpdateRequest {
@@ -22,7 +21,8 @@ public class FeedCreateOrUpdateRequest {
     @Size(max = 700, message = "피드의 내용은 700글자를 넘길 수 없습니다.")
     private String content;
 
-    private String imageUrl;
+    private String imageName;
+    private String imageBase64;
 
     @NotNull(message = "피드의 타입은 필수 입력 값입니다.")
     @Range(max = 1, message = "0(Project) or 1(Study)로만 입력하세요")
@@ -36,7 +36,6 @@ public class FeedCreateOrUpdateRequest {
         return Feed.builder()
                 .title(title)
                 .content(content)
-                .thumbnailUrl(imageUrl)
                 .type(type)
                 .projectDomain(getDomain())
                 .user(user)

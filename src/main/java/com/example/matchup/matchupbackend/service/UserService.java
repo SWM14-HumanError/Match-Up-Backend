@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.Position;
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
@@ -51,6 +52,7 @@ public class UserService {
     private final UserProfileRepository userProfileRepository;
     private final UserTagRepository userTagRepository;
     private final TagRepository tagRepository;
+    private final FileService fileService;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -85,6 +87,10 @@ public class UserService {
         List<UserPosition> userPositions = request.getProfileTagPositions().stream()
                         .map(userPosition -> UserPosition.create(userPosition, user))
                         .toList();
+        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            user.setUploadFile(uploadFile);
+        }
         user.updateFirstLogin(request, userPositions);
         updateUserTags(request, user);
         userPositionRepository.saveAll(userPositions);
