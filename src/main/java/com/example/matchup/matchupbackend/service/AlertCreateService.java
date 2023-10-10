@@ -221,7 +221,8 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(commenter.getNickname() + " 님이 댓글을 작성했습니다.")
                 .content(comment.getContent())
-                .redirectUrl("/feed/" + feed.getId())
+//                .redirectUrl("/feed/" + feed.getId()) todo: 피드 상세페이지 추가되면 수정
+                .redirectUrl("/feed")
                 .alertType(AlertType.FEED)
                 .build();
         alert.setUser(feed.getUser());
