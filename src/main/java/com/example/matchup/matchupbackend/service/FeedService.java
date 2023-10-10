@@ -193,7 +193,9 @@ public class FeedService {
                 .feed(feed)
                 .user(user)
                 .build();
-        alertCreateService.saveCommentCreateAlert(feed, user, comment); // 댓글 작성 알림 생성
+        if (isNotFeedOfUser(user, feed)) {
+            alertCreateService.saveCommentCreateAlert(feed, user, comment); // 댓글 작성 알림 생성
+        }
         return commentRepository.save(comment);
     }
 

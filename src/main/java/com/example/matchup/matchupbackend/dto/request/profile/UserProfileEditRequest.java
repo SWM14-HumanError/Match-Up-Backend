@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.dto.request.profile;
 import com.example.matchup.matchupbackend.entity.MeetingType;
 import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -12,8 +13,11 @@ import java.util.Map;
 @Data
 public class UserProfileEditRequest {
 
-    private String pictureUrl;
+    private String imageName;
 
+    private String imageBase64;
+
+    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
     @Size(max = 20, message = "닉네임은 20글자를 넘을 수 없습니다.")
     private String nickname;
 

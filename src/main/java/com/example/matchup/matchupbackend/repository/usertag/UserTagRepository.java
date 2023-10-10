@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface UserTagRepository extends JpaRepository<UserTag, Long> {
     List<UserTag> findAllByUser(User user);
+
+    void deleteAllByUser(User user);
 }
