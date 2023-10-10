@@ -176,7 +176,7 @@ public class TeamService {
     }
 
     private void teamThumbNailUpdate(TeamCreateRequest teamCreateRequest, Team team) {
-        if (!team.getThumbnailUrl().isEmpty()) {
+        if (team.getThumbnailUrl() == null) {
             fileService.deleteImage(team.getThumbnailUrl());
         }
         if (teamCreateRequest.getImageBase64() != null) {
