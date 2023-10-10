@@ -22,8 +22,8 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     List<TeamUser> isUserRecruitDuplicated(@Param("userId") Long userId, @Param("teamId") Long teamId);
 
     @Query("select teamuser from TeamUser teamuser " +
-            "left join fetch teamuser.team " +
-            "left join fetch teamuser.user " +
+            "join fetch teamuser.team " +
+            "join fetch teamuser.user " +
             "where teamuser.team.id=:teamId and teamuser.user.id=:userId")
     Optional<TeamUser> findTeamUserJoinTeamAndUser(@Param("teamId") Long teamId, @Param("userId") Long userId);
 

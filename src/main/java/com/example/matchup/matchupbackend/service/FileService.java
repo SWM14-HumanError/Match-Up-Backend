@@ -136,7 +136,8 @@ public class FileService {
      * @param originalFilename
      */
     public void deleteImage(String originalFilename) {
-        amazonS3.deleteObject(bucket, originalFilename);
+        String keyName = originalFilename.substring(originalFilename.lastIndexOf("/") + 1);
+        amazonS3.deleteObject(bucket, keyName);
     }
 
     public MultipartFile convertBase64ToFile(String base64){

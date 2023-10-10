@@ -125,8 +125,8 @@ public class LikeService {
      */
     public SliceUserCardResponse getLikedSliceUserCardResponse(Long userId, Pageable pageable) {
         List<Likes> entireLikes = likeRepository.findLikesJoinUserByUserId(userId);
-        List<Long> userIds = entireLikes.stream().filter(likes -> likes.getUser() != null)
-                .map(likes -> likes.getUser().getId()).collect(Collectors.toList());
+        List<Long> userIds = entireLikes.stream().filter(likes -> likes.getLikeReceiver() != null)
+                .map(likes -> likes.getLikeReceiver().getId()).collect(Collectors.toList());
         Slice<User> userSlice = userRepository.findAllByIdIn(userIds, pageable);
         return SliceUserCardResponse.builder()
                 .userCardResponses(userCardResponseList(userSlice.getContent()))

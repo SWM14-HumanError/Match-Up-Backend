@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.response.team.MeetingSpotResponse;
 import com.example.matchup.matchupbackend.dto.response.team.TeamTypeResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -33,18 +34,8 @@ public class TeamCreateRequest {
     private MeetingSpotResponse meetingSpot;
     private String meetingDate;
     @Valid
-    @NotNull(message = "모집 팀원은 필수 입력 값입니다.")
+    @NotEmpty(message = "모집 팀원은 필수 입력 값입니다.")
     private List<Member> memberList;
-
-    //계층구조가 있는 데이터는 굳이 클래스로 다 안나누고 1. 띄어쓰기 2. List로 보내고 받을수 있다(프론트와 상의)
-    public List<String> returnTagList() //사용자의 태그들을 모아서 중복을 제거함
-    {
-        List<String> userStacks = new ArrayList<>();
-        for (Member member : memberList) {
-            userStacks.addAll(member.getStacks());
-        }
-        return userStacks.stream().distinct().collect(Collectors.toList());
-    }
 
     public List<String> returnTagListByRole(String role) //사용자의 태그들을 모아서 중복을 제거함
     {
