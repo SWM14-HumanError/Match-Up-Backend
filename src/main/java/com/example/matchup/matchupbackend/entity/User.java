@@ -245,6 +245,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.pictureUrl = String.valueOf(uploadFile.getS3Url());
     }
 
+    public void deleteImage(){
+        this.thumbnailUploadUrl = null;
+        this.pictureUrl = null;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
