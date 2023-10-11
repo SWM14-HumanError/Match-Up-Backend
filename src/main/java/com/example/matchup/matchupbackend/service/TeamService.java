@@ -121,7 +121,7 @@ public class TeamService {
     public void makeTeamPositionTag(List<TeamPosition> teamPositions, TeamCreateRequest teamCreateRequest) {
         for (TeamPosition teamPosition : teamPositions) {
             List<String> tagList = teamCreateRequest.returnTagListByRole(teamPosition.getRole()); //BE, FE 태그 다 섞여 있음
-            tagList.stream().forEach(tagName -> {
+            tagList.forEach(tagName -> {
                 Tag isExistTag = tagRepository.findByName(tagName);
                 if (isExistTag != null) //이미 있는 태그
                 {

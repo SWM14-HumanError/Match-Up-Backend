@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.entity.Feedback;
 import com.example.matchup.matchupbackend.entity.TeamRecruit;
 import com.example.matchup.matchupbackend.entity.TeamUser;
+import com.example.matchup.matchupbackend.global.RoleType;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,14 +19,15 @@ import java.util.Optional;
 @NoArgsConstructor
 @SuperBuilder
 public class TeamUserCardResponse extends UserCardResponse {
-    private String role;
+
+    private RoleType role;
     private Boolean approve; // 팀 가입 승인여부
     private Long recruitID;
     private LocalDateTime lastFeedbackAt; // 마지막 피드백 시간
     private LocalDateTime toFeedbackAt; // 피드백 해야 하는 시간
 
     @QueryProjection
-    public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, String role, Boolean approve, Long recruitID, LocalDateTime lastFeedbackAt, LocalDateTime toFeedbackAt) {
+    public TeamUserCardResponse(Long userID, String profileImageURL, Long memberLevel, String nickname, String positionName, Long positionLevel, Double score, Long like, List<TechStack> TechStacks, RoleType role, Boolean approve, Long recruitID, LocalDateTime lastFeedbackAt, LocalDateTime toFeedbackAt) {
         super(userID, profileImageURL, memberLevel, nickname, positionName, positionLevel, score, like, TechStacks);
         this.role = role;
         this.approve = approve;
