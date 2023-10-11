@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.dto;
 
 import com.example.matchup.matchupbackend.global.RoleType;
+import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -16,7 +17,8 @@ import java.util.List;
 public class Member {
 
     @NotBlank(message = "팀원의 역할은 필수 값입니다")
-    private RoleType role;
+    @Enum(enumClass = RoleType.class, message = "PLAN, UI_UX, FE, BE, APP, GAME, AI, ETC, LEADER")
+    private String role;
 
     @NotNull(message = "팀원의 기술 스택은 필수 값입니다") // 빈 리스트는 가능
     private List<String> stacks;
@@ -26,8 +28,12 @@ public class Member {
     private Long maxCount;
 
     public Member(RoleType role, List<String> stacks, Long maxCount) {
-        this.role = role;
+        this.role = role.toString();
         this.stacks = stacks;
         this.maxCount = maxCount;
+    }
+
+    public RoleType getRole() {
+        return RoleType.valueOf(role);
     }
 }

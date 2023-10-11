@@ -64,6 +64,9 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team")
     private List<TeamRefuse> teamRefuseList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "team")
+    private List<InviteTeam> inviteTeams = new ArrayList<>();
+
     @Builder
     public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList,String meetingTime) {
         this.title = title;

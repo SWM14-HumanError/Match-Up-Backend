@@ -50,7 +50,7 @@ public class TeamCreateRequest {
     {
         List<String> userStacks = new ArrayList<>();
         for (Member member : memberList) {
-            if (role.equals(member.getRole())) {
+            if (role == member.getRole()) {
                 userStacks.addAll(member.getStacks());
             }
         }
