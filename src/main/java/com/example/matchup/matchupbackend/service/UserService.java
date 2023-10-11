@@ -190,9 +190,7 @@ public class UserService {
     @Transactional
     public void deleteUser(String userToken) {
         Long userId = tokenProvider.getUserId(userToken, "deleteUser");
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            throw new UserNotFoundException("회원 탈퇴하는 유저를 찾을수 없습니다.");
-        });
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("회원 탈퇴하는 유저를 찾을수 없습니다."));
         userRepository.delete(user);
     }
 }
