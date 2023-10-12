@@ -8,16 +8,14 @@ import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
-import com.example.matchup.matchupbackend.entity.TeamUser;
-import com.example.matchup.matchupbackend.entity.User;
-import com.example.matchup.matchupbackend.entity.UserPosition;
-import com.example.matchup.matchupbackend.entity.UserProfile;
+import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
+import com.example.matchup.matchupbackend.repository.InviteTeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
@@ -34,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.example.matchup.matchupbackend.global.config.oauth.handler.OAuth2SuccessHandler.*;
@@ -51,6 +50,7 @@ public class UserService {
     private final UserProfileRepository userProfileRepository;
     private final FileService fileService;
     private final UserProfileService userProfileService;
+    private final InviteTeamRepository inviteTeamRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -141,18 +141,25 @@ public class UserService {
     /**
      * 내 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
      */
-    public InviteMyTeamResponse getInviteMyTeam(String authorizationHeader) {
+    public InviteMyTeamResponse getInviteMyTeam(String authorizationHeader, Long receiverId) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 조회하고 있습니다.");
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
-        List<TeamUser> teamUsers = user.getTeamUserList().stream().filter(teamUser -> (teamUser != null && teamUser.getApprove() != null &&teamUser.getApprove())).toList();
+        User sender = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+        User receiver = userRepository.findUserById(receiverId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+        List<TeamUser> teamUsers = sender.getTeamUserList().stream().filter(teamUser -> (teamUser != null && teamUser.getApprove() != null && teamUser.getApprove())).toList();
+
+        List<InviteTeam> inviteTeams = inviteTeamRepository.findAllByReceiverAndSender(receiver, sender);
+        Set<Team> inviteTeamsSet = inviteTeams.stream()
+                .map(InviteTeam::getTeam)
+                .collect(Collectors.toSet());
 
         List<InviteMyTeamInfoResponse> response = teamUsers.stream()
                 .map(TeamUser::getTeam)
-                .filter(team -> team.getIsDeleted().equals(0L))
+                .filter(team -> team.getIsDeleted().equals(0L) && notDuplicateSuggestTeam(inviteTeamsSet, team))
                 .map(team -> InviteMyTeamInfoResponse.builder().team(team).build())
                 .toList();
         return new InviteMyTeamResponse(response);
     }
+
     /**
      * OAuth2SuccessHandler 로그인에 성공하면
      * Refresh 토큰을 User 엔터티에 저장
@@ -197,5 +204,9 @@ public class UserService {
         Long userId = tokenProvider.getUserId(userToken, "deleteUser");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("회원 탈퇴하는 유저를 찾을수 없습니다."));
         userRepository.delete(user);
+    }
+
+    private boolean notDuplicateSuggestTeam(Set<Team> inviteTeamsSet, Team team) {
+        return !inviteTeamsSet.contains(team);
     }
 }

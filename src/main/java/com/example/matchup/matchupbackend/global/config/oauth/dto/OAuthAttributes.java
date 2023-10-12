@@ -47,7 +47,6 @@ public record OAuthAttributes(
     private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
 
         String userNameAttributeName = "id";
-        log.info("attributes : " + attributes.toString());
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account"); // 검토 type cast check
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");

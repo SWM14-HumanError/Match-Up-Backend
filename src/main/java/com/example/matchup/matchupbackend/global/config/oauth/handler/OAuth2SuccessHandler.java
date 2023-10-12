@@ -60,7 +60,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                     .queryParam("email", user.getEmail())
                     .queryParam("id", id)
-                    .queryParam("image", URLEncoder.encode(user.getPictureUrl(), UTF_8))
+                    .queryParam("image", user.getPictureUrl()!= null ? URLEncoder.encode(user.getPictureUrl(), UTF_8) : "")
                     .build()
                     .toUriString();
 
