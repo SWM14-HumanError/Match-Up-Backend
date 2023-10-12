@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,11 +63,15 @@ public class UserService {
     }
 
     public List<UserCardResponse> userCardResponseList(List<User> userList) {
+        List<UserPosition> userPositionList = userPositionRepository.findAllJoinUserBy(userList);
         return userList.stream().map(
                 user -> {
-                    Position position = new Position(user.getPosition(), user.getPositionLevel());
+                    List<UserPosition> userPositions = userPositionList.stream()
+                            .filter(userPosition -> userPosition.getUser().getId().equals(user.getId()))
+                            .sorted(Comparator.comparing(UserPosition::getTypeLevel).reversed()).collect(Collectors.toList());
+
                     return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
-                            user.getNickname(), position, user.getFeedbackScore(),
+                            user.getNickname(), Position.from(userPositions.get(0)), user.getFeedbackScore(),
                             user.getLikes(), user.returnStackList());
                 }
         ).collect(Collectors.toList());

@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.dto;
 
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,7 @@ public class Position {
         this.level = level;
     }
 
+    public static Position from(UserPosition userPosition) {
+        return new Position(userPosition.getType().getRole(), userPosition.getTypeLevel().longValue());
+    }
 }
