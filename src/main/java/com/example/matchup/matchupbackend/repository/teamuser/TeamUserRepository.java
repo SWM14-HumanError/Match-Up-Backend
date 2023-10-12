@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.repository.teamuser;
 
 import com.example.matchup.matchupbackend.entity.TeamUser;
+import com.example.matchup.matchupbackend.global.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,11 +30,11 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count + 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
-    void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") String role);
+    void updateTeamUserStatusByAcceptUser(@Param("teamId") Long teamId, @Param("role") RoleType role);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE TeamUser teamuser SET teamuser.count = teamuser.count - 1 WHERE teamuser.team.id =:teamId AND teamuser.role =:role")
-    void updateTeamUserStatusByKickedUser(@Param("teamId") Long teamId, @Param("role") String role);
+    void updateTeamUserStatusByKickedUser(@Param("teamId") Long teamId, @Param("role") RoleType role);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId")

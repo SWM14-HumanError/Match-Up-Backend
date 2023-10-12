@@ -53,6 +53,7 @@ public class FeedService {
     private final LikeRepository likeRepository;
     private final AlertCreateService alertCreateService;
     private final FileService fileService;
+
     /**
      * 유저가 로그인을 한 경우라면 유저가 표시한 좋아요 여부를 같이 응답
      * 아니라면 도메인, 작성자 혹은 피드 제목을 기준으로 필터된 값을 슬라이스하여 응답
@@ -231,6 +232,7 @@ public class FeedService {
         Long userId = tokenProvider.getUserId(authorizationHeader, "피드 댓글을 삭제하는 과정에서 유효하지 않은 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("피드 댓글을 삭제하는 과정에서 존재하지 않는 유저 id를 받았습니다."));
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new FeedNotFoundException("피드 댓글을 삭제하는 과정에서 존재하지 않은 피드 id를 받았습니다."));
+        User feedOwner = feed.getUser();
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException("피드 댓글을 삭제하는 과정에서 존재하지 않은 댓글 id를 받았습니다."));
 
         if (comment.getUser().equals(user) && comment.getFeed().equals(feed)) {

@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
+import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,8 +20,11 @@ public class TeamUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_user_id")
     private Long id;
+
     @Column(name = "role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
     @Column(name = "count")
     private Long count;
     @Column(name = "approve", columnDefinition = "BOOLEAN DEFAULT false")
@@ -41,7 +45,7 @@ public class TeamUser {
     private List<Feedback> feedback;
 
     @Builder
-    public TeamUser(String role, Long count, Boolean approve, Team team, User user, TeamRecruit teamRecruit) {
+    public TeamUser(RoleType role, Long count, Boolean approve, Team team, User user, TeamRecruit teamRecruit) {
         this.role = role;
         this.count = count;
         this.approve = approve;
@@ -68,7 +72,7 @@ public class TeamUser {
         return build;
     }
 
-    public static TeamUser of(String role, Long count, Boolean approve, Team team, User user) {
+    public static TeamUser of(RoleType role, Long count, Boolean approve, Team team, User user) {
         TeamUser build = TeamUser.builder()
                 .count(count)
                 .user(user)

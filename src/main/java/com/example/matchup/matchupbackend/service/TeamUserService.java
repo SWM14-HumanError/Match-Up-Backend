@@ -1,10 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
-import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.*;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RefuseReasonResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
@@ -32,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +71,7 @@ public class TeamUserService {
     private List<TeamUserCardResponse> getTeamUserCardForGeneral(Long teamID) {
         List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID);
         return acceptedTeamUsers.stream().map(
-                acceptedTeamUser -> TeamUserCardResponse.fromEntity(acceptedTeamUser)
+                TeamUserCardResponse::fromEntity
         ).collect(Collectors.toList());
     }
 
@@ -127,7 +121,7 @@ public class TeamUserService {
     }
 
     private Map<TeamUser, Feedback> mappingLatestFeedback(List<TeamUser> teamUsers, List<Feedback> feedbacks) {
-        Map<TeamUser, Feedback> map = new HashMap();
+        Map<TeamUser, Feedback> map = new HashMap<>();
         for (TeamUser teamUser : teamUsers) {
             map.put(teamUser, null);
             for (Feedback feedback : feedbacks) {
@@ -152,14 +146,12 @@ public class TeamUserService {
             throw new TeamPositionNotFoundException("팀 or 팀 구성 정보가 없습니다");
         }
         List<ApprovedMemberCount> approvedMemberCountList = new ArrayList<>();
-        teamPositionList.stream().forEach(teamPosition -> {
+        teamPositionList.forEach(teamPosition -> {
             approvedMemberCountList.add(ApprovedMemberCount.fromEntity(teamPosition));
         });
         Team team = teamRepository.findTeamById(teamID)
-                .orElseThrow(() -> {
-                    throw new TeamNotFoundException("존재하지 않는 게시물");
-                });
-        boolean state = team.numberOfApprovedUser() < numberOfMaxTeamMember(teamPositionList) ? false : true;
+                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 게시물"));
+        boolean state = team.numberOfApprovedUser() >= numberOfMaxTeamMember(teamPositionList);
         //false = 모집중 , true = 모집완료
         return new TeamApprovedInfoResponse(state, approvedMemberCountList);
     }
@@ -181,17 +173,11 @@ public class TeamUserService {
     @Transactional
     public Long recruitToTeam(Long userID, Long teamID, RecruitFormRequest recruitForm) {
         Team team = teamRepository.findTeamById(teamID)
-                .orElseThrow(() -> {
-                    throw new TeamNotFoundException("존재하지 않는 게시물");
-                });
-        User user = userRepository.findUserById(userID).orElseThrow(() -> {
-            throw new UserNotFoundException("teamID: " + teamID.toString() + "로 신청한 " +
-                    "userID: " + userID.toString() + " 유저 정보를 찾을수 없습니다");
-        });
+                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 게시물"));
+        User user = userRepository.findUserById(userID).orElseThrow(() -> new UserNotFoundException("teamID: " + teamID.toString() + "로 신청한 " +
+                "userID: " + userID.toString() + " 유저 정보를 찾을수 없습니다"));
         TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(teamID, recruitForm.getRole())
-                .orElseThrow(() -> {
-                    throw new TeamPositionNotFoundException("팀 구성 정보가 없습니다");
-                });
+                .orElseThrow(() -> new TeamPositionNotFoundException("팀 구성 정보가 없습니다"));
         if (!isRecruitAvailable(userID, teamID)) {
             throw new DuplicateTeamRecruitException(userID, teamID);
         }
@@ -222,8 +208,7 @@ public class TeamUserService {
             throw new LeaderOnlyPermitException("팀원으로 유저 수락 부분");
         }
         TeamUser recruitUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID())
-                .orElseThrow(() -> {
-                    throw new UserNotFoundException("유저로 지원한 유저 정보가 없습니다");});
+                .orElseThrow(() -> new UserNotFoundException("유저로 지원한 유저 정보가 없습니다"));
         validAcceptUserToTeam(recruitUser);
         recruitUser.approveUser();
 
@@ -235,7 +220,7 @@ public class TeamUserService {
 
         //알림 저장 로직
         List<User> sendTo = teamUserRepository.findAcceptedTeamUserJoinUser(teamID)
-                .stream().map(teamUser -> teamUser.getUser()).collect(Collectors.toList());
+                .stream().map(TeamUser::getUser).collect(Collectors.toList());
         alertCreateService.saveUserAcceptedToTeamAlert(sendTo, recruitUser, acceptForm);
     }
 
@@ -244,9 +229,7 @@ public class TeamUserService {
      */
     private void validAcceptUserToTeam(TeamUser recruitUser) {
         TeamPosition teamPosition = teamPositionRepository.findTeamPositionByTeamIdAndRole(recruitUser.getTeam().getId(), recruitUser.getRole())
-                .orElseThrow(() -> {
-                    throw new TeamPositionNotFoundException("팀 구성 정보가 없습니다");
-                });
+                .orElseThrow(() -> new TeamPositionNotFoundException("팀 구성 정보가 없습니다"));
         if (teamPosition.getCount().equals(teamPosition.getMaxCount())) { // 팀원이 꽉찬 경우
             throw new InvalidRecruitException("teamID: " + recruitUser.getTeam().getId() + " - " + teamPosition.getRole() + "역할의 팀원이 꽉 찼습니다.");
         }
@@ -264,9 +247,7 @@ public class TeamUserService {
             throw new LeaderOnlyPermitException("팀원으로 유저 거절 부분");
         }
         // 거절 로직
-        TeamUser teamUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, refuseForm.getRecruitUserID()).orElseThrow(() -> {
-            throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
-        });
+        TeamUser teamUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, refuseForm.getRecruitUserID()).orElseThrow(() -> new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다"));
         TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(refuseForm, teamUser));
         teamUserRepository.delete(teamUser);
         log.info("userID: " + refuseForm.getRecruitUserID().toString() + " 거절 완료");
@@ -277,45 +258,39 @@ public class TeamUserService {
 
     private void alertToLeaderAndRecruiter(Long leaderID, Long teamID, RefuseFormRequest refuseForm, TeamRefuse teamRefuse) {
         TeamUser leader = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, leaderID)
-                .orElseThrow(() -> {
-                    throw new UserNotFoundException("팀장 정보가 없습니다");
-                });
-        User recruitUser = userRepository.findById(refuseForm.getRecruitUserID()).orElseThrow(() -> {
-            throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
-        });
+                .orElseThrow(() -> new UserNotFoundException("팀장 정보가 없습니다"));
+        User recruitUser = userRepository.findById(refuseForm.getRecruitUserID()).orElseThrow(() -> new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다"));
         alertCreateService.saveUserRefusedToTeamAlert(leader, recruitUser, teamRefuse.getId());
     }
 
     @Transactional
-    public void kickUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
+    public void kickUserToTeam(Long leaderID, Long teamID, KickFormRequest kickForm) {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new LeaderOnlyPermitException("유저 강퇴 부분");
         }
-        TeamUser kickedUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID()).orElseThrow(
-                () -> {
-                    throw new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다");
-                });
+        TeamUser kickedUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, kickForm.getKickUserID()).orElseThrow(
+                () -> new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다"));
 
-        teamUserRepository.updateTeamUserStatusByKickedUser(teamID, acceptForm.getRole());
+        // 삭제 로직
+        TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(kickForm, kickedUser));
+
+        teamUserRepository.updateTeamUserStatusByKickedUser(teamID, kickForm.getRole());
         log.info("teamUser 업데이트 완료");
 
-        teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, acceptForm.getRole());
+        teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, kickForm.getRole());
         log.info("teamPosition 업데이트 완료");
 
         // 알림 저장 로직
-        alertCreateService.saveUserKickedToTeamAlert(kickedUser);
+        alertCreateService.saveUserKickedToTeamAlert(kickedUser, teamRefuse.getId());
 
-        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        log.info("userID:" + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
+        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, kickForm.getKickUserID());
+        log.info("userID:" + kickForm.getKickUserID().toString() + " 강퇴 완료");
     }
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {
         Team team = teamRepository.findTeamById(teamID)
-                .orElseThrow(() -> {
-                    throw new TeamNotFoundException("존재하지 않는 게시물");
-                });
-        if (team.getLeaderID() != leaderID) return false;
-        return true;
+                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 게시물"));
+        return Objects.equals(team.getLeaderID(), leaderID);
     }
 
     /**

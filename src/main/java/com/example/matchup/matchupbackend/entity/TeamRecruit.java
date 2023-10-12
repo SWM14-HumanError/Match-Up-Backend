@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
+import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,8 +17,11 @@ public class TeamRecruit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recruit_id")
     private Long id;
+
     @Column(name = "role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
     @Column(name = "content")
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,7 +34,7 @@ public class TeamRecruit {
     private TeamUser teamUser;
 
     @Builder
-    public TeamRecruit(String role, String content, Team team, User user) {
+    public TeamRecruit(RoleType role, String content, Team team, User user) {
         this.role = role;
         this.content = content;
         this.team = team;

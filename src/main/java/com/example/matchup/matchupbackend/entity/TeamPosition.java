@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.Member;
+import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,8 +20,11 @@ public class TeamPosition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "position_id")
     private Long id;
+
     @Column(name = "role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
     @Column(name = "count")
     private Long count;
     @Column(name = "max_count")
@@ -32,7 +36,7 @@ public class TeamPosition {
     private List<TeamTag> tags = new ArrayList<>();
 
     @Builder
-    public TeamPosition(String role, Long count, Long maxCount, Team team, List<TeamTag> tags) {
+    public TeamPosition(RoleType role, Long count, Long maxCount, Team team, List<TeamTag> tags) {
         this.role = role;
         this.count = count;
         this.maxCount = maxCount;
@@ -55,7 +59,7 @@ public class TeamPosition {
         return this;
     }
 
-    public static TeamPosition of(String role, Long count, Long maxCount, Team team) {
+    public static TeamPosition of(RoleType role, Long count, Long maxCount, Team team) {
         TeamPosition build = TeamPosition.builder()
                 .role(role)
                 .count(count)

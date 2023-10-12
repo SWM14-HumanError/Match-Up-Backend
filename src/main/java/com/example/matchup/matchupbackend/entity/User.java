@@ -123,6 +123,12 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<ServiceCenter> serviceCenters = new ArrayList<>();
 
+    @OneToMany(mappedBy = "receiver")
+    private List<InviteTeam> inviteTeamReceivers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender")
+    private List<InviteTeam> inviteTeamSenders = new ArrayList<>();
+
     /**
      * Deprecated
      */
@@ -245,6 +251,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.pictureUrl = String.valueOf(uploadFile.getS3Url());
     }
 
+    public void deleteImage(){
+        this.thumbnailUploadUrl = null;
+        this.pictureUrl = null;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 

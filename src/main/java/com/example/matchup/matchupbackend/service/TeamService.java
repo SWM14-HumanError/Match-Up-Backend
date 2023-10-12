@@ -15,6 +15,7 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Tea
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.LeaderOnlyPermitException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
+import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.matchup.matchupbackend.error.ErrorCode.COMMENT_NOT_FOUND;
+import static com.example.matchup.matchupbackend.global.RoleType.LEADER;
 
 @Service
 @RequiredArgsConstructor
@@ -92,10 +94,8 @@ public class TeamService {
         }
         teamRepository.save(team);
         makeTeamPosition(teamCreateRequest, team); //팀의 직무별 팀원 모집 정보 생성
-        User user = userRepository.findById(leaderID).orElseThrow(() -> {
-            throw new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다");
-        });
-        Long teamID = teamUserRepository.save(TeamUser.of("Leader", 1L, true,  team, user)).getTeam().getId();
+        User user = userRepository.findById(leaderID).orElseThrow(() -> new UserNotFoundException("팀을 만든 유저를 찾을수 없습니다"));
+        Long teamID = teamUserRepository.save(TeamUser.of(LEADER, 1L, true,  team, user)).getTeam().getId();
         alertCreateService.saveTeamCreateAlert(teamID, user, teamCreateRequest);
         return teamID;
     }
@@ -106,7 +106,7 @@ public class TeamService {
     @Transactional
     public void makeTeamPosition(TeamCreateRequest teamCreateRequest, Team team) {
         List<TeamPosition> teamPositions = new ArrayList<>();
-        teamCreateRequest.getMemberList().stream().forEach(member -> {
+        teamCreateRequest.getMemberList().forEach(member -> {
             TeamPosition teamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
             teamPositionRepository.save(teamPosition);
             teamPositions.add(teamPosition);
@@ -121,7 +121,7 @@ public class TeamService {
     public void makeTeamPositionTag(List<TeamPosition> teamPositions, TeamCreateRequest teamCreateRequest) {
         for (TeamPosition teamPosition : teamPositions) {
             List<String> tagList = teamCreateRequest.returnTagListByRole(teamPosition.getRole()); //BE, FE 태그 다 섞여 있음
-            tagList.stream().forEach(tagName -> {
+            tagList.forEach(tagName -> {
                 Tag isExistTag = tagRepository.findByName(tagName);
                 if (isExistTag != null) //이미 있는 태그
                 {
@@ -195,17 +195,17 @@ public class TeamService {
     @Transactional
     public void updateTeamPosition(List<TeamPosition> teamPositionList, TeamCreateRequest teamCreateRequest, Team team) {
         List<TeamPosition> newTeamPositions = new ArrayList<>();
-        Map<String, TeamPosition> teamPositionMappedRole = new HashMap<>();
-        teamPositionList.stream().forEach(teamPosition -> {
-            if (!teamPosition.getRole().equals("Leader")) {
+        Map<RoleType, TeamPosition> teamPositionMappedRole = new HashMap<>();
+        teamPositionList.forEach(teamPosition -> {
+            if (teamPosition.getRole() != LEADER) {
                 teamPositionMappedRole.put(teamPosition.getRole(), teamPosition);
             }
         }); // ex) teamPositionMap.put("FrontEnd", teamPosition)
 
         for (Member member : teamCreateRequest.getMemberList()) {
-            if (teamPositionMappedRole.containsKey(member.getRole()) == true) { // 이미 있는 포지션인 경우
+            if (teamPositionMappedRole.containsKey(member.getRole())) { // 이미 있는 포지션인 경우
                 teamPositionMappedRole.get(member.getRole()).updateTeamPosition(member);
-            } else if (teamPositionMappedRole.containsKey(member.getRole()) == false) { // 새로 추가한 포지션인 경우
+            } else { // 새로 추가한 포지션인 경우
                 TeamPosition newTeamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
                 teamPositionRepository.save(newTeamPosition);
                 newTeamPositions.add(newTeamPosition);
@@ -221,7 +221,7 @@ public class TeamService {
      * 팀 수정 할때 현재 있는 팀원보다 더 적은 max 팀원을 설정 할 경우 예외
      */
     private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
-        if (leaderID != team.getLeaderID()) { // 팀 수정 시도 하는 사람이 리더인지 체크
+        if (team.getLeaderID().equals(leaderID)) { // 팀 수정 시도 하는 사람이 리더인지 체크
             throw new LeaderOnlyPermitException("팀 업데이트 - teamID: " + team.getId());
         }
         if (team.getIsDeleted() == 1L) { // 이미 지워진 팀을 수정 하는지 체크
@@ -234,8 +234,7 @@ public class TeamService {
                         && teamUser.getCount() > member.getMaxCount()) {
                     throw new InvalidMemberValueException(member.getMaxCount().toString());
                 }
-                if ((!teamUser.getRole().contains(member.getRole()) && !teamUser.getRole().equals("Leader"))
-                        && teamUser.getCount() >= 1) { // FE(1/4) 상황에서 FE 역할을 삭제 한 경우
+                if (teamUser.getRole() == member.getRole() && teamUser.getRole() != LEADER && teamUser.getCount() >= 1) { // FE(1/4) 상황에서 FE 역할을 삭제 한 경우
                     throw new InvalidMemberValueException(teamUser.getRole() + " - 팀원이 있을땐 역할을 삭제 할수 없습니다.");
                 }
             }

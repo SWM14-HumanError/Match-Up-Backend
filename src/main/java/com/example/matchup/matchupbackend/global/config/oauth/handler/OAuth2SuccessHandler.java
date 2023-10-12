@@ -15,7 +15,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.Duration;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,13 +55,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private String getTargetUrl(String token, User user, Long id) {
+        log.info("이미지 주소:  {}", URLEncoder.encode(user.getPictureUrl(), UTF_8));
 
         if (user.getIsUnknown()) {
             return UriComponentsBuilder.fromUriString(
                             tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                     .queryParam("email", user.getEmail())
                     .queryParam("id", id)
-                    .queryParam("image", user.getPictureUrl())
+                    .queryParam("image", URLEncoder.encode(user.getPictureUrl(), UTF_8))
                     .build()
                     .toUriString();
 
