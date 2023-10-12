@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.global.RoleType;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                         placeEq(userSearchRequest.getPlace()),
                         meetingTypeEq(userSearchRequest.getMeetingType()),
                         positionEq(userSearchRequest.getPosition()),
+                        notSignUpUserEq(user.nickname),
                         user.profileHider.eq(false)
                 )
                 .orderBy(orderByTo(userSearchRequest.getOrderBy()))
@@ -47,6 +49,10 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
             content.remove(pageable.getPageSize());
         }
         return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    private Predicate notSignUpUserEq(StringPath nickname) {
+        return nickname.isNotEmpty();
     }
 
     @Override

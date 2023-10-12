@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.dto.response.teamuser;
 import com.example.matchup.matchupbackend.dto.response.userposition.UserPositionDetailResponse;
 import com.example.matchup.matchupbackend.entity.TeamRecruit;
 import com.example.matchup.matchupbackend.entity.UserPosition;
+import com.example.matchup.matchupbackend.global.RoleType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,7 +20,7 @@ public class RecruitInfoResponse {
     private List<UserPositionDetailResponse> userPosition;
 
     // 지원서
-    private String applyRole;
+    private RoleType applyRole;
     private String content;
 
     public static RecruitInfoResponse from(TeamRecruit recruit, List<UserPosition> userPosition) {

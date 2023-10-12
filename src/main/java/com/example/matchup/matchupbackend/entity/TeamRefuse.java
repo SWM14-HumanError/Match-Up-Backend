@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.request.teamuser.KickFormRequest;
 import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
+import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,7 +23,8 @@ public class TeamRefuse extends BaseEntity {
     private String refuseReason;
 
     @Column(name = "position")
-    private String position;
+    @Enumerated(EnumType.STRING)
+    private RoleType position;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -33,7 +35,7 @@ public class TeamRefuse extends BaseEntity {
     private Team team;
 
     @Builder
-    public TeamRefuse(String refuseReason, String position, User refusedUser, Team team) {
+    public TeamRefuse(String refuseReason, RoleType position, User refusedUser, Team team) {
         this.refuseReason = refuseReason;
         this.position = position;
         this.refusedUser = refusedUser;
