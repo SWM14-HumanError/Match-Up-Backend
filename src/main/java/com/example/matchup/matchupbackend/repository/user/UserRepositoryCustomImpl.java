@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.global.RoleType;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
