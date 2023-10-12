@@ -1,10 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.ApprovedMemberCount;
-import com.example.matchup.matchupbackend.dto.request.teamuser.AcceptFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RecruitFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.RefuseFormRequest;
-import com.example.matchup.matchupbackend.dto.request.teamuser.TeamUserFeedbackRequest;
+import com.example.matchup.matchupbackend.dto.request.teamuser.*;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RecruitInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.RefuseReasonResponse;
 import com.example.matchup.matchupbackend.dto.response.teamuser.TeamApprovedInfoResponse;
@@ -272,24 +269,27 @@ public class TeamUserService {
     }
 
     @Transactional
-    public void kickUserToTeam(Long leaderID, Long teamID, AcceptFormRequest acceptForm) {
+    public void kickUserToTeam(Long leaderID, Long teamID, KickFormRequest kickForm) {
         if (!isTeamLeader(leaderID, teamID)) {
             throw new LeaderOnlyPermitException("유저 강퇴 부분");
         }
-        TeamUser kickedUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, acceptForm.getRecruitUserID()).orElseThrow(
-                () -> new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다"));
+        TeamUser kickedUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, kickForm.getKickUserID()).orElseThrow(
+                () -> { throw new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다"); });
 
-        teamUserRepository.updateTeamUserStatusByKickedUser(teamID, acceptForm.getRole());
+        // 삭제 로직
+        TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(kickForm, kickedUser));
+
+        teamUserRepository.updateTeamUserStatusByKickedUser(teamID, kickForm.getRole());
         log.info("teamUser 업데이트 완료");
 
-        teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, acceptForm.getRole());
+        teamPositionRepository.updateTeamPositionStatusByKickedUser(teamID, kickForm.getRole());
         log.info("teamPosition 업데이트 완료");
 
         // 알림 저장 로직
-        alertCreateService.saveUserKickedToTeamAlert(kickedUser);
+        alertCreateService.saveUserKickedToTeamAlert(kickedUser, teamRefuse.getId());
 
-        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, acceptForm.getRecruitUserID());
-        log.info("userID:" + acceptForm.getRecruitUserID().toString() + " 강퇴 완료");
+        teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, kickForm.getKickUserID());
+        log.info("userID:" + kickForm.getKickUserID().toString() + " 강퇴 완료");
     }
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {

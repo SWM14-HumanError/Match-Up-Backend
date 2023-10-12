@@ -120,10 +120,7 @@ public class UserProfileService {
         updateUserTags(request, user);
 
 
-        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
-            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
-            user.setUploadFile(uploadFile);
-        }
+        userThumbnailUpdate(request, user);
 
         // UserSnsLink update
         // todo: request DTO 필드가 널이면 아래와 같이 가정문으로 해결할 수밖에 없나?
@@ -157,6 +154,17 @@ public class UserProfileService {
 
         // User update
         user.updateUserProfile(request);
+    }
+
+    private void userThumbnailUpdate(ProfileRequest request, User user) {
+        if(user.getPictureUrl() != null){
+            fileService.deleteImage(user.getPictureUrl());
+            user.deleteImage();
+        }
+        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            user.setUploadFile(uploadFile);
+        }
     }
 
     /**
