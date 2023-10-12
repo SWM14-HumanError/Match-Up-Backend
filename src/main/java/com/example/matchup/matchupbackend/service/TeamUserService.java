@@ -29,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -250,9 +247,7 @@ public class TeamUserService {
             throw new LeaderOnlyPermitException("팀원으로 유저 거절 부분");
         }
         // 거절 로직
-        TeamUser teamUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, refuseForm.getRecruitUserID()).orElseThrow(() -> {
-            throw new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다");
-        });
+        TeamUser teamUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, refuseForm.getRecruitUserID()).orElseThrow(() -> new UserNotFoundException("유저로 지원했던 유저 정보가 없습니다"));
         TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(refuseForm, teamUser));
         teamUserRepository.delete(teamUser);
         log.info("userID: " + refuseForm.getRecruitUserID().toString() + " 거절 완료");
@@ -274,7 +269,7 @@ public class TeamUserService {
             throw new LeaderOnlyPermitException("유저 강퇴 부분");
         }
         TeamUser kickedUser = teamUserRepository.findTeamUserJoinTeamAndUser(teamID, kickForm.getKickUserID()).orElseThrow(
-                () -> { throw new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다"); });
+                () -> new UserNotFoundException("이미 탈퇴되어 유저를 찾을수 없습니다"));
 
         // 삭제 로직
         TeamRefuse teamRefuse = teamRefuseRepository.save(TeamRefuse.of(kickForm, kickedUser));
@@ -294,11 +289,8 @@ public class TeamUserService {
 
     public boolean isTeamLeader(Long leaderID, Long teamID) {
         Team team = teamRepository.findTeamById(teamID)
-                .orElseThrow(() -> {
-                    throw new TeamNotFoundException("존재하지 않는 게시물");
-                });
-        if (team.getLeaderID() != leaderID) return false;
-        return true;
+                .orElseThrow(() -> new TeamNotFoundException("존재하지 않는 게시물"));
+        return Objects.equals(team.getLeaderID(), leaderID);
     }
 
     /**
