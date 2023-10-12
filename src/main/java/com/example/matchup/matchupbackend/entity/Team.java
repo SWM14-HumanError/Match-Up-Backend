@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.entity;
 import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
+import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -63,6 +64,9 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team")
     private List<TeamRefuse> teamRefuseList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "team")
+    private List<InviteTeam> inviteTeams = new ArrayList<>();
+
     @Builder
     public Team(String title, String description, Long type, String detailType, String thumbnailUploadUrl, String thumbnailStoreUrl, String onOffline, String city, String detailSpot, String recruitFinish, Long leaderID, List<TeamPosition> teamPositionList,String meetingTime) {
         this.title = title;
@@ -102,10 +106,10 @@ public class Team extends BaseEntity {
         isDeleted = 1L;
     }
 
-    public Long numberOfUserByPosition(String position) {
+    public Long numberOfUserByPosition(RoleType position) {
         Long result = 0L;
         for (TeamUser teamUser : teamUserList) {
-            if (teamUser.getApprove() == true && position.equals(teamUser.getRole())) {
+            if (teamUser.getApprove() && position.equals(teamUser.getRole())) {
                 result++;
             }
         }
@@ -115,7 +119,7 @@ public class Team extends BaseEntity {
     public Long numberOfApprovedUser() {
         Long number = 0L;
         for (TeamUser teamUser : teamUserList) {
-            if (teamUser.getApprove() == true) {
+            if (teamUser.getApprove()) {
                 number++;
             }
         }
@@ -124,7 +128,7 @@ public class Team extends BaseEntity {
 
     public List<TechStack> returnStackList() {
         List<TechStack> techStacks = new ArrayList<>();
-        teamTagList.stream().forEach(teamTag -> {
+        teamTagList.forEach(teamTag -> {
             techStacks.add(TechStack.builder().tagID(teamTag.getId())
                     .tagName(teamTag.getTagName()).build());
         });

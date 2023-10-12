@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.dto.response.teamuser;
 
 import com.example.matchup.matchupbackend.entity.TeamRefuse;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.global.RoleType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +16,7 @@ public class RefuseReasonResponse {
     private String leaderName;
     private Long teamId;
     private String teamName;
-    private String position;
+    private RoleType position;
     private String refusedUser;
     private String refuseReason;
     private LocalDateTime refuseDate;
