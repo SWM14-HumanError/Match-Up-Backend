@@ -47,7 +47,7 @@ public class UserProfileService {
     private final UserSnsLinkRepository userSnsLinkRepository;
     private final FeedbackRepository feedbackRepository;
 
-    public UserProfileDetailResponse showUserProfile(Long userId) {
+    public UserProfileDetailResponse getUserProfile(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("사용자 프로필을 조회하는 과정에서 존재하지 않는 user id로 요청했습니다."));
         UserProfile userProfile = user.getUserProfile();
         if (userProfile == null) throw new UserNotFoundException("회원가입이 완료되지 않은 사용자입니다.");
