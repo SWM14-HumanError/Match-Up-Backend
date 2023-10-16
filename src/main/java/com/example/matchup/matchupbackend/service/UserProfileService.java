@@ -226,7 +226,13 @@ public class UserProfileService {
                 .toList();
         userPositionRepository.saveAll(newUserPositions);
 
-        //        userPositionRepository.deleteAllByUser(user);
+        // 아예 없어진 기술 스택(UserPosition) 삭제하기
+        List<UserPosition> deletedUserPositions = userPositions.stream()
+                .filter(userPosition -> !userPositionMap.keySet().stream().toList().contains(userPosition.getType()))
+                .toList();
+        userPositionRepository.deleteAll(deletedUserPositions);
+
+//                userPositionRepository.deleteAllByUser(user);
 //        if (request.getProfileTagPositionRequests() != null) {
 //            List<UserPosition> userPositions = request.getProfileTagPositionRequests().stream()
 //                    .map(profileTagPositionRequest -> UserPosition.builder()
