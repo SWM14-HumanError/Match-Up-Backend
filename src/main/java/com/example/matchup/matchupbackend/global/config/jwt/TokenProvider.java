@@ -122,6 +122,27 @@ public class TokenProvider {
         return user.getId();
     }
 
+    public Long getUserId(String authorizationHeader) {
+        String token = getAccessToken(authorizationHeader);
+
+        if (token == null) return null;
+        if (validToken(token) == TokenStatus.INVALID_OTHER) {
+            throw new AuthorizeException("");
+        } else if (validToken(token) == TokenStatus.EXPIRED) {
+            throw new ExpiredTokenException("");
+        }
+
+        Claims claims = getClaims(token);
+        Long userId = claims.get("id", Long.class);
+        String tokenId = claims.get("tokenId", String.class);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않은 아이디를 가진 토큰으로 접근했습니다."));
+
+        if (!user.getTokenId().equals(tokenId)) {
+            throw new ExpiredTokenException("관리자에 의해 만료된 토큰입니다.");
+        }
+        return user.getId();
+    }
+
     private String getUserEmail(String token) {
         if (token == null) return null;
 
