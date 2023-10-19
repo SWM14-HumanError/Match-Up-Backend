@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.example.matchup.matchupbackend.entity.Role.USER;
+
 @Entity
 @Getter
 @Slf4j
@@ -139,11 +141,23 @@ public class User extends BaseTimeEntity implements UserDetails {
      * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
      */
     @Builder
-    public User(String email, String name, String pictureUrl, Role role) {
+    public User(String email, String name, String pictureUrl, Role role, Long agreeTermOfServiceId, String nickname) {
         this.email = email;
         this.name = name;
         this.pictureUrl = pictureUrl;
         this.role = role;
+        this.agreeTermOfServiceId = agreeTermOfServiceId;
+        this.nickname = nickname;
+    }
+
+    public static User createUserForTest() {
+        return User.builder()
+                .email("test@test.com")
+                .nickname("test")
+                .agreeTermOfServiceId(1483L)
+                .role(USER)
+                .build();
+
     }
 
     public void changeFeedbackHide(){

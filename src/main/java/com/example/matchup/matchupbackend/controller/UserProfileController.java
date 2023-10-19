@@ -26,10 +26,8 @@ public class UserProfileController {
 
     @GetMapping("/profile/{user_id}")
     public ResponseEntity<UserProfileDetailResponse> showProfile(@PathVariable("user_id") Long userId) {
-        UserProfileDetailResponse response = userProfileService.showUserProfile(userId);
-        return (response != null)
-                ? ResponseEntity.ok(response)
-                : ResponseEntity.notFound().build();
+        UserProfileDetailResponse response = userProfileService.getUserProfile(userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/profile/unique")
