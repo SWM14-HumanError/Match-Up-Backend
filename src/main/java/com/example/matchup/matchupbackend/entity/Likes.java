@@ -32,6 +32,10 @@ public class Likes extends BaseEntity{
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentoring_id")
+    private Mentoring mentoring;
+
     /**
      * 피드 좋아요
      * 혹은 프로젝트, 스터디 좋아요

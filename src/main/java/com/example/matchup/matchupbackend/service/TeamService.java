@@ -287,8 +287,10 @@ public class TeamService {
 
     public List<MentoringCardResponse> getTeamMentoringCardList(Long teamID) {
         List<TeamMentoring> teamMentoringList = teamRepository.findTeamMentoringListByTeamId(teamID);
+
         List<MentoringCardResponse> teamMentoringCards = new ArrayList<>();
-        teamMentoringList.stream().forEach(
+
+        teamMentoringList.forEach(
                 teamMentoring -> {
                     Mentoring mentoring = teamMentoring.getMentoring();
                     teamMentoringCards.add(MentoringCardResponse.fromEntity(mentoring));

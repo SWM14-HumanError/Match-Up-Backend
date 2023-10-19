@@ -42,6 +42,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Column(unique = true)
     private String nickname; // 닉네임
+
     @Column(name = "user_level")
     private Long userLevel;
 
