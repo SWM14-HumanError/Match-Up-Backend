@@ -50,4 +50,11 @@ public class MentoringController {
                                 @PathVariable Long mentoringId) {
         mentoringService.deleteMentoring(authorizationHeader, mentoringId);
     }
+
+    @PostMapping("/mentoring/{mentoringId}/like")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postMentoringLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                  @PathVariable Long mentoringId) {
+        mentoringService.pushLikeOfMentoring(authorizationHeader, mentoringId);
+    }
 }

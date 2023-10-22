@@ -41,10 +41,11 @@ public class Likes extends BaseEntity{
      * 혹은 프로젝트, 스터디 좋아요
      */
     @Builder
-    private Likes(User user, User likeReceiver, Feed feed, Team team) {
+    private Likes(User user, User likeReceiver, Feed feed, Team team, Mentoring mentoring) {
         this.user = user;
         this.likeReceiver = likeReceiver;
         this.feed = feed;
         this.team = team;
+        this.mentoring = mentoring;
     }
 }

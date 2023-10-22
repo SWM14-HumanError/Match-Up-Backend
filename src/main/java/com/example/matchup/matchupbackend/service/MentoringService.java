@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
+import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.Mentoring;
 import com.example.matchup.matchupbackend.entity.MentoringTag;
 import com.example.matchup.matchupbackend.entity.User;
@@ -95,6 +96,19 @@ public class MentoringService {
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
         mentoring.delete();
+    }
+
+    @Transactional
+    public void pushLikeOfMentoring(String authorizationHeader, Long mentoringId) {
+        Long userId = tokenProvider.getUserId(authorizationHeader);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 유저입니다."));
+        Mentoring mentoring = mentoringRepository.findById(mentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링입니다."));
+
+        Likes likeMentoring = Likes.builder()
+                .mentoring(mentoring)
+                .user(user)
+                .build();
+        likeRepository.save(likeMentoring);
     }
 
     private User loadMentor(String authorizationHeader) {
