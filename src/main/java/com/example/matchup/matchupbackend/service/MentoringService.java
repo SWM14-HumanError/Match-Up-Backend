@@ -1,7 +1,8 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.mentoring.SliceMentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
+import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
 import com.example.matchup.matchupbackend.entity.Mentoring;
 import com.example.matchup.matchupbackend.entity.MentoringTag;
 import com.example.matchup.matchupbackend.entity.User;
@@ -9,16 +10,22 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Res
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
+import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringTagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_FOUND;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
@@ -29,13 +36,32 @@ import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 @Service
 public class MentoringService {
 
-    private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
     private final MentoringRepository mentoringRepository;
     private final MentoringTagRepository mentoringTagRepository;
     private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
 
-    public SliceMentoringCardResponse showMentorings(Pageable pageable) {
-        return null;
+    /*
+    로그인한 유저가 멘토링 목록을 조회하면 자신이 누른 좋아요를 확인할 수 있어야하므로 토큰을 받는다.
+     */
+    public MentoringSliceResponse showMentorings(String authorizationHeader, @Valid MentoringSearchParam param, Pageable pageable) {
+        User user = (authorizationHeader != null) ? loadMentor(authorizationHeader) : null;
+
+        // 검색한 결과를 페이징
+        Slice<Mentoring> pageOfMentoringSearchSlice = mentoringRepository.findMentoringByMentoringSearchParam(param, pageable);
+        List<Mentoring> mentorings = pageOfMentoringSearchSlice.getContent();
+        // 멘토링에서 좋아요 수로 매핑
+        Map<Mentoring, Long> mentoringToLikesCountMap = mentorings.stream()
+                .collect(Collectors.toMap(m -> m, likeRepository::countByMentoring));
+        // 멘토링에서 좋아요 눌렀는 지를 매핑
+        if (user != null) {
+            Map<Mentoring, Boolean> mentoringToCheckLikeMap = mentorings.stream()
+                    .collect(Collectors.toMap(m -> m, mentoring -> likeRepository.existsByUserAndMentoring(user, mentoring)));
+            return MentoringSliceResponse.of(pageOfMentoringSearchSlice, mentoringToLikesCountMap, mentoringToCheckLikeMap);
+        }
+
+        return MentoringSliceResponse.of(pageOfMentoringSearchSlice, mentoringToLikesCountMap, Collections.emptyMap());
     }
 
     @Transactional
