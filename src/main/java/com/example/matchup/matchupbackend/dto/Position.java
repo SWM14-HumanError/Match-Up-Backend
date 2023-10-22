@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Position {
     private String positionName;
-    private Long level; //팀원은 초보,중수,고수로 멘토는 대학생, 카카오 이런식으로 나눔
+    private Long level;
     @QueryProjection
     public Position(String positionName, Long level) {
         this.positionName = positionName;
@@ -18,5 +18,8 @@ public class Position {
 
     public static Position from(UserPosition userPosition) {
         return new Position(userPosition.getType().getRole(), userPosition.getTypeLevel().longValue());
+    }
+    public static Position of(String positionName, Long level) {
+        return new Position(positionName, level);
     }
 }
