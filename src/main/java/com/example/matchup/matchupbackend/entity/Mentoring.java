@@ -1,17 +1,19 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.request.mentoring.CreateMentoringRequest;
+import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "mentoring")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Mentoring {
 
     @Id
@@ -19,33 +21,36 @@ public class Mentoring {
     @Column(name = "mentoring_id")
     private Long id;
 
-    @Column(name = "mentoring_title")
+    @Column(length = 50)
     private String title;
 
-    @Column(name = "mentoring_content")
+    @Column(length = 700)
     private String content;
 
-//    private String thumbnailUrl;
-//    private String thumbnailUploadUrl;
-
-    // UserPosition RoleType 중에 하나로 선택
     @Enumerated(EnumType.STRING)
     private RoleType roleType; // 직무
 
     @Enumerated(EnumType.STRING)
     private Career career; // 경력
 
-//    @Column(name = "likes")
-//    private Long likes;
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted = false;
+
+    private String thumbnailUrl;
+
+    private String thumbnailUploadUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentor_id")
     private User mentor;
 
-    @OneToMany(mappedBy = "mentoring")
-    private List<Likes> likes = new ArrayList<>();
+    @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
+    private List<MentoringTag> mentoringTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
+    private List<Likes> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "mentoring")
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
@@ -62,7 +67,7 @@ public class Mentoring {
     }
 
     @Builder
-    private Mentoring(String title, String content, RoleType roleType, Career career, User mentor, List<Likes> likes, List<TeamMentoring> teamMentoringList, List<Review> mentoringReviewList) {
+    private Mentoring(String title, String content, RoleType roleType, Career career, User mentor, List<Likes> likes, List<TeamMentoring> teamMentoringList, List<Review> mentoringReviewList, List<MentoringTag> mentoringTags) {
         this.title = title;
         this.content = content;
         this.roleType = roleType;
@@ -71,15 +76,35 @@ public class Mentoring {
         this.likes = likes;
         this.teamMentoringList = teamMentoringList;
         this.mentoringReviewList = mentoringReviewList;
+        this.mentoringTags = mentoringTags;
     }
 
-    public static Mentoring create(CreateMentoringRequest request, User mentor) {
-        return Mentoring.builder()
-                .title(request.getTitle())
-                .content(request.getContent())
-                .roleType(request.getRoleType())
-                .career(request.getCareer())
-                .mentor(mentor)
-                .build();
+    private Mentoring(CreateOrEditMentoringRequest request, User mentor) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.roleType = request.getRoleType();
+        this.career = request.getCareer();
+        this.mentor = mentor;
+        this.mentoringTags = request.getStacks().stream()
+                .map(stack -> MentoringTag.builder()
+                        .tagName(stack)
+                        .mentoring(this)
+                        .build())
+                .toList();
+    }
+
+    public static Mentoring create(CreateOrEditMentoringRequest request, User mentor) {
+        return new Mentoring(request, mentor);
+    }
+
+    public void edit(CreateOrEditMentoringRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.career = request.getCareer();
+        this.roleType = request.getRoleType();
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

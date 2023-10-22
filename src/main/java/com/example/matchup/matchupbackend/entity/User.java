@@ -130,6 +130,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "sender")
     private List<InviteTeam> inviteTeamSenders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.REMOVE)
+    private List<Mentoring> mentorings = new ArrayList<>();
+
     /**
      * Deprecated
      */
@@ -140,7 +143,8 @@ public class User extends BaseTimeEntity implements UserDetails {
      * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
      */
     @Builder
-    public User(String email, String name, String pictureUrl, Role role) {
+    public User(String nickname, String email, String name, String pictureUrl, Role role) {
+        this.nickname = nickname;
         this.email = email;
         this.name = name;
         this.pictureUrl = pictureUrl;

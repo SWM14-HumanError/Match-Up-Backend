@@ -26,6 +26,7 @@ public class Tag {
     private List<TeamTag> teamTagList = new ArrayList<>();
     @OneToMany(mappedBy = "tag")
     private List<UserTag> userTagList = new ArrayList<>();
+
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id")
 //    private User user;
@@ -47,9 +48,5 @@ public class Tag {
                 .name(tagName)
                 .build();
     }
-
-    //== 비즈니스 로직 ==//
-
-
 
 }

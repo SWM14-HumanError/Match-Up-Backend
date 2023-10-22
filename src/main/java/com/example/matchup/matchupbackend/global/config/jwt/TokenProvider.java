@@ -10,12 +10,14 @@ import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -29,6 +31,7 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final OAuth2LoginUrl oAuth2LoginUrl;
     private final UserRepository userRepository;
+    private final Environment environment;
 
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String TOKEN_PRIFIX = "Bearer ";
@@ -102,6 +105,10 @@ public class TokenProvider {
      * Bearer 토큰을 받아 user를 반환
      */
     public Long getUserId(String authorizationHeader, String callBack) {
+        if (authorizationHeader.equals("test") && Arrays.asList(environment.getActiveProfiles()).contains("local")) {
+            return userRepository.findUserByNickname("test").orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
+        }
+
         String token = getAccessToken(authorizationHeader);
 
         if (token == null) return null;
@@ -123,6 +130,10 @@ public class TokenProvider {
     }
 
     public Long getUserId(String authorizationHeader) {
+        if (authorizationHeader.equals("test") && Arrays.asList(environment.getActiveProfiles()).contains("local")) {
+            return userRepository.findUserByNickname("test").orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
+        }
+
         String token = getAccessToken(authorizationHeader);
 
         if (token == null) return null;

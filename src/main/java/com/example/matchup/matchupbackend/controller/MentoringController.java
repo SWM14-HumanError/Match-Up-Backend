@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.mentoring.SliceMentoringCardResponse;
-import com.example.matchup.matchupbackend.dto.request.mentoring.CreateMentoringRequest;
+import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,22 @@ public class MentoringController {
     @PostMapping("/mentoring")
     @ResponseStatus(HttpStatus.CREATED)
     public void postMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                              @Valid @RequestBody CreateMentoringRequest request) {
+                              @Valid @RequestBody CreateOrEditMentoringRequest request) {
         mentoringService.createMentoring(authorizationHeader, request);
+    }
+
+    @PutMapping("/mentoring/{mentoringId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void putMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                             @Valid @RequestBody CreateOrEditMentoringRequest request,
+                             @PathVariable Long mentoringId) {
+        mentoringService.editMentoring(authorizationHeader, request, mentoringId);
+    }
+
+    @DeleteMapping("/mentoring/{mentoringId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                @PathVariable Long mentoringId) {
+        mentoringService.deleteMentoring(authorizationHeader, mentoringId);
     }
 }

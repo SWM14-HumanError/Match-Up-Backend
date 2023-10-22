@@ -5,11 +5,10 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "mentoring_team")
 public class TeamMentoring {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "mentoring_team_id")
+    @Column(name = "team_mentoring_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
