@@ -97,11 +97,12 @@ public class Mentoring {
         return new Mentoring(request, mentor);
     }
 
-    public void edit(CreateOrEditMentoringRequest request) {
+    public void edit(CreateOrEditMentoringRequest request, List<MentoringTag> mentoringTags) {
         this.title = request.getTitle();
         this.content = request.getContent();
         this.career = request.getCareer();
         this.roleType = request.getRoleType();
+        this.mentoringTags = mentoringTags;
     }
 
     public void delete() {

@@ -149,6 +149,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.name = name;
         this.pictureUrl = pictureUrl;
         this.role = role;
+        this.isMentor = true;
     }
 
     public void changeFeedbackHide(){

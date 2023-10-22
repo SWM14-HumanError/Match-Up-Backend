@@ -10,6 +10,7 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Use
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.MentoringTagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class MentoringService {
 
     private final UserRepository userRepository;
     private final MentoringRepository mentoringRepository;
+    private final MentoringTagRepository mentoringTagRepository;
     private final TokenProvider tokenProvider;
 
     public SliceMentoringCardResponse showMentorings(Pageable pageable) {
@@ -42,8 +44,6 @@ public class MentoringService {
         isAvailableCreateMentoring(mentor);
 
         Mentoring mentoring = Mentoring.create(request, mentor);
-
-
         mentoringRepository.save(mentoring);
     }
 
@@ -52,17 +52,15 @@ public class MentoringService {
         User mentor = loadMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
-        mentoring.edit(request);
+        mentoringTagRepository.deleteAll(mentoring.getMentoringTags());
+        List<MentoringTag> mentoringTags = request.getStacks().stream()
+                .map(stack -> MentoringTag.builder()
+                        .tagName(stack)
+                        .mentoring(mentoring)
+                        .build())
+                .toList();
 
-        List<String> stacks = request.getStacks();
-        if (!stacks.isEmpty()) {
-            List<MentoringTag> mentoringTags = stacks.stream()
-                    .map(stack -> MentoringTag.builder()
-                            .tagName(stack)
-                            .mentoring(mentoring)
-                            .build())
-                    .toList();
-        }
+        mentoring.edit(request, mentoringTags);
     }
 
     @Transactional
