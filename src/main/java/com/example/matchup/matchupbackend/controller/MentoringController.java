@@ -1,9 +1,11 @@
 package com.example.matchup.matchupbackend.controller;
 
+import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -70,5 +72,19 @@ public class MentoringController {
     @ResponseStatus(HttpStatus.OK)
     public MentoringDetailResponse getMentoringDetail(@PathVariable Long mentoringId) {
         return mentoringService.showMentoringDetail(mentoringId);
+    }
+
+    @PostMapping("/mentoring/verify")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postVerifyMentor(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                 @Valid @RequestBody ApplyVerifyMentorRequest request) {
+        mentoringService.verifyMentor(request, authorizationHeader);
+    }
+
+    @GetMapping("/mentoring/verify/list")
+    @ResponseStatus(HttpStatus.OK)
+    public VerifyMentorsSliceResponse getVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                       Pageable pageable) {
+        return mentoringService.showVerifyMentors(authorizationHeader, pageable);
     }
 }

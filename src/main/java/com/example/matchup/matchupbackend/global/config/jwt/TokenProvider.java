@@ -105,7 +105,7 @@ public class TokenProvider {
      * Bearer 토큰을 받아 user를 반환
      */
     public Long getUserId(String authorizationHeader, String callBack) {
-        if (authorizationHeader.equals("test") && Arrays.asList(environment.getActiveProfiles()).contains("local")) {
+        if ("test".equals(authorizationHeader) && Arrays.asList(environment.getActiveProfiles()).contains("local")) {
             return userRepository.findUserByNickname("test").orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
         }
 

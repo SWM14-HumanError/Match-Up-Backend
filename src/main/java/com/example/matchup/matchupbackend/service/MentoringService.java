@@ -2,17 +2,17 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
+import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
-import com.example.matchup.matchupbackend.entity.Likes;
-import com.example.matchup.matchupbackend.entity.Mentoring;
-import com.example.matchup.matchupbackend.entity.MentoringTag;
-import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
+import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.MentorVerifyRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringTagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
@@ -41,6 +41,7 @@ public class MentoringService {
     private final LikeRepository likeRepository;
     private final MentoringRepository mentoringRepository;
     private final MentoringTagRepository mentoringTagRepository;
+    private final MentorVerifyRepository mentorVerifyRepository;
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
 
@@ -126,6 +127,24 @@ public class MentoringService {
         return MentoringDetailResponse.of(mentoring);
     }
 
+    @Transactional
+    public void verifyMentor(ApplyVerifyMentorRequest request, String authorizationHeader) {
+        User user = getUser(authorizationHeader);
+        isAvailableMentor(user);
+
+        MentorVerify mentorVerify = MentorVerify.create(request, user);
+
+        mentorVerifyRepository.save(mentorVerify);
+    }
+
+    public VerifyMentorsSliceResponse showVerifyMentors(String authorizationHeader, Pageable pageable) {
+        User admin = getUser(authorizationHeader);
+        admin.isAdmin();
+
+        Slice<MentorVerify> mentorVerifySlice = mentorVerifyRepository.findAllByOrderByIdDesc(pageable);
+        return VerifyMentorsSliceResponse.of(mentorVerifySlice, pageable);
+    }
+
     private Mentoring getMentoring(Long mentoringId) {
         return mentoringRepository.findById(mentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링입니다."));
     }
@@ -153,6 +172,15 @@ public class MentoringService {
     private void isAvailableCreateMentoring(User mentor) {
         if (!mentor.getIsMentor()) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링을 생성할 수 없는 유저입니다.");
+        }
+    }
+
+    private void isAvailableMentor(User user) {
+        if (user.getIsMentor()) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "이미 인증된 멘토입니다.");
+        }
+        if (mentorVerifyRepository.existsByUser(user)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "관리자의 승인을 기다리는 멘토입니다.");
         }
     }
 }
