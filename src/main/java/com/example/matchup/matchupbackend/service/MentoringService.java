@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchP
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
@@ -162,6 +163,21 @@ public class MentoringService {
         MentorVerify mentorVerify = mentorVerifyRepository.findById(verifyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "요청한 멘토 인증이 존재하지 않습니다."));
 
         mentorVerifyRepository.delete(mentorVerify);
+    }
+
+    public VerifyMentorsResponse showVerifyMentorEditForm(String authorizationHeader) {
+        User user = getUser(authorizationHeader);
+        MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
+
+        return VerifyMentorsResponse.of(mentorVerify);
+    }
+
+    @Transactional
+    public void editVerifyMentor(@Valid ApplyVerifyMentorRequest request, String authorizationHeader) {
+        User user = getUser(authorizationHeader);
+        MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
+
+        mentorVerify.edit(request);
     }
 
     private void isAdmin(String authorizationHeader) {

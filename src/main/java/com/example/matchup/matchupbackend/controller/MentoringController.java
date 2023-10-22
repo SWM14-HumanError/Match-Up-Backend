@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMent
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
@@ -100,5 +101,18 @@ public class MentoringController {
     public void postRefuseVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                         @PathVariable Long verifyId) {
         mentoringService.refuseVerifyMentors(authorizationHeader, verifyId);
+    }
+
+    @GetMapping("/mentoring/verify")
+    @ResponseStatus(HttpStatus.OK)
+    public VerifyMentorsResponse getVerifyMentorEditForm(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return mentoringService.showVerifyMentorEditForm(authorizationHeader);
+    }
+
+    @PutMapping("/mentoring/verify")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void putVerifyMentor(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                 @Valid @RequestBody ApplyVerifyMentorRequest request) {
+        mentoringService.editVerifyMentor(request, authorizationHeader);
     }
 }

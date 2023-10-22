@@ -55,4 +55,11 @@ public class MentorVerify {
                 .user(user)
                 .build();
     }
+
+    public void edit(ApplyVerifyMentorRequest request) {
+        this.roleType = request.getRoleType();
+        this.career = request.getCareer();
+        this.content = request.getContent();
+        this.link = request.getLink();
+    }
 }
