@@ -94,4 +94,11 @@ public class MentoringController {
                                                        @PathVariable Long verifyId) {
         mentoringService.acceptVerifyMentors(authorizationHeader, verifyId);
     }
+
+    @PostMapping("/mentoring/verify/{verifyId}/refuse")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postRefuseVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                        @PathVariable Long verifyId) {
+        mentoringService.refuseVerifyMentors(authorizationHeader, verifyId);
+    }
 }

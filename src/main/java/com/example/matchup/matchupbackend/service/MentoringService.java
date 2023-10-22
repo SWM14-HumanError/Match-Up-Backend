@@ -155,6 +155,15 @@ public class MentoringService {
         mentorVerifyRepository.delete(mentorVerify);
     }
 
+    @Transactional
+    public void refuseVerifyMentors(String authorizationHeader, Long verifyId) {
+        isAdmin(authorizationHeader);
+
+        MentorVerify mentorVerify = mentorVerifyRepository.findById(verifyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "요청한 멘토 인증이 존재하지 않습니다."));
+
+        mentorVerifyRepository.delete(mentorVerify);
+    }
+
     private void isAdmin(String authorizationHeader) {
         User admin = getUser(authorizationHeader);
         admin.isAdmin();
