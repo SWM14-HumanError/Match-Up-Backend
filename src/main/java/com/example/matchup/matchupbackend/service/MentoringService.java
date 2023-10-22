@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
 import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.Mentoring;
@@ -117,6 +118,12 @@ public class MentoringService {
         Likes like = likeRepository.findByUserAndMentoring(user, mentoring);
 
         likeRepository.delete(like);
+    }
+
+    public MentoringDetailResponse showMentoringDetail(Long mentoringId) {
+        Mentoring mentoring = getMentoring(mentoringId);
+
+        return MentoringDetailResponse.of(mentoring);
     }
 
     private Mentoring getMentoring(Long mentoringId) {

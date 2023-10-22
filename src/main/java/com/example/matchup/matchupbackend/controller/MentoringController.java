@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
@@ -63,5 +64,11 @@ public class MentoringController {
     public void deleteMentoringLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                   @PathVariable Long mentoringId) {
         mentoringService.undoLikeOfMentoring(authorizationHeader, mentoringId);
+    }
+
+    @GetMapping("/mentoring/{mentoringId}")
+    @ResponseStatus(HttpStatus.OK)
+    public MentoringDetailResponse getMentoringDetail(@PathVariable Long mentoringId) {
+        return mentoringService.showMentoringDetail(mentoringId);
     }
 }

@@ -34,6 +34,7 @@ public class MentoringRepositoryImpl implements MentoringRepositoryCustom {
                         stackEq(param.getStack()),
                         roleTypeEq(param.getRoleType())
                 )
+                .orderBy(mentoring.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
