@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
@@ -178,6 +179,11 @@ public class MentoringService {
         MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
 
         mentorVerify.edit(request);
+    }
+
+    @Transactional
+    public void applyMentoring(ApplyMentoringRequest request, Long mentoringId, String authorizationHeader) {
+
     }
 
     private void isAdmin(String authorizationHeader) {

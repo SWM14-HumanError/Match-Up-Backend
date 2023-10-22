@@ -1,12 +1,9 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +52,12 @@ public class MentoringController {
         mentoringService.deleteMentoring(authorizationHeader, mentoringId);
     }
 
+    @GetMapping("/mentoring/{mentoringId}")
+    @ResponseStatus(HttpStatus.OK)
+    public MentoringDetailResponse getMentoringDetail(@PathVariable Long mentoringId) {
+        return mentoringService.showMentoringDetail(mentoringId);
+    }
+
     @PostMapping("/mentoring/{mentoringId}/like")
     @ResponseStatus(HttpStatus.CREATED)
     public void postMentoringLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
@@ -65,54 +68,7 @@ public class MentoringController {
     @DeleteMapping("/mentoring/{mentoringId}/like")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMentoringLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                  @PathVariable Long mentoringId) {
+                                    @PathVariable Long mentoringId) {
         mentoringService.undoLikeOfMentoring(authorizationHeader, mentoringId);
-    }
-
-    @GetMapping("/mentoring/{mentoringId}")
-    @ResponseStatus(HttpStatus.OK)
-    public MentoringDetailResponse getMentoringDetail(@PathVariable Long mentoringId) {
-        return mentoringService.showMentoringDetail(mentoringId);
-    }
-
-    @PostMapping("/mentoring/verify")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void postVerifyMentor(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                 @Valid @RequestBody ApplyVerifyMentorRequest request) {
-        mentoringService.verifyMentor(request, authorizationHeader);
-    }
-
-    @GetMapping("/mentoring/verify/list")
-    @ResponseStatus(HttpStatus.OK)
-    public VerifyMentorsSliceResponse getVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                                       Pageable pageable) {
-        return mentoringService.showVerifyMentors(authorizationHeader, pageable);
-    }
-
-    @PostMapping("/mentoring/verify/{verifyId}/accept")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void postAcceptVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                                       @PathVariable Long verifyId) {
-        mentoringService.acceptVerifyMentors(authorizationHeader, verifyId);
-    }
-
-    @PostMapping("/mentoring/verify/{verifyId}/refuse")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void postRefuseVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                        @PathVariable Long verifyId) {
-        mentoringService.refuseVerifyMentors(authorizationHeader, verifyId);
-    }
-
-    @GetMapping("/mentoring/verify")
-    @ResponseStatus(HttpStatus.OK)
-    public VerifyMentorsResponse getVerifyMentorEditForm(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
-        return mentoringService.showVerifyMentorEditForm(authorizationHeader);
-    }
-
-    @PutMapping("/mentoring/verify")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void putVerifyMentor(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                                 @Valid @RequestBody ApplyVerifyMentorRequest request) {
-        mentoringService.editVerifyMentor(request, authorizationHeader);
     }
 }
