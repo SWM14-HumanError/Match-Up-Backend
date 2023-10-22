@@ -51,6 +51,7 @@ dependencies {
 
     //Amazon 서비스
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'com.github.derjust:spring-data-dynamodb'
 
     //웹 소캣
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
