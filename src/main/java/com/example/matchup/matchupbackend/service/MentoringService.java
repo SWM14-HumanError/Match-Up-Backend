@@ -100,15 +100,33 @@ public class MentoringService {
 
     @Transactional
     public void pushLikeOfMentoring(String authorizationHeader, Long mentoringId) {
-        Long userId = tokenProvider.getUserId(authorizationHeader);
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 유저입니다."));
-        Mentoring mentoring = mentoringRepository.findById(mentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링입니다."));
+        User user = getUser(authorizationHeader);
+        Mentoring mentoring = getMentoring(mentoringId);
 
         Likes likeMentoring = Likes.builder()
                 .mentoring(mentoring)
                 .user(user)
                 .build();
         likeRepository.save(likeMentoring);
+    }
+
+    @Transactional
+    public void undoLikeOfMentoring(String authorizationHeader, Long mentoringId) {
+        User user = getUser(authorizationHeader);
+        Mentoring mentoring = getMentoring(mentoringId);
+        Likes like = likeRepository.findByUserAndMentoring(user, mentoring);
+
+        likeRepository.delete(like);
+    }
+
+    private Mentoring getMentoring(Long mentoringId) {
+        return mentoringRepository.findById(mentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링입니다."));
+    }
+
+    private User getUser(String authorizationHeader) {
+        Long userId = tokenProvider.getUserId(authorizationHeader);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 유저입니다."));
+        return user;
     }
 
     private User loadMentor(String authorizationHeader) {
