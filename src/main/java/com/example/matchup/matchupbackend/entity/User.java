@@ -256,6 +256,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         return this;
     }
 
+    public void acceptMentor() {
+        this.isMentor = true;
+    }
+
     public void addLike(){
         this.likes++;
     }

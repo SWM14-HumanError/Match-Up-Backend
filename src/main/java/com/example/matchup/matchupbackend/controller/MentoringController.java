@@ -87,4 +87,11 @@ public class MentoringController {
                                                        Pageable pageable) {
         return mentoringService.showVerifyMentors(authorizationHeader, pageable);
     }
+
+    @PostMapping("/mentoring/verify/{verifyId}/accept")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postAcceptVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                       @PathVariable Long verifyId) {
+        mentoringService.acceptVerifyMentors(authorizationHeader, verifyId);
+    }
 }

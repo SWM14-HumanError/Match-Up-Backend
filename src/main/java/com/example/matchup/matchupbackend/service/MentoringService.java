@@ -138,11 +138,26 @@ public class MentoringService {
     }
 
     public VerifyMentorsSliceResponse showVerifyMentors(String authorizationHeader, Pageable pageable) {
-        User admin = getUser(authorizationHeader);
-        admin.isAdmin();
+        isAdmin(authorizationHeader);
 
         Slice<MentorVerify> mentorVerifySlice = mentorVerifyRepository.findAllByOrderByIdDesc(pageable);
         return VerifyMentorsSliceResponse.of(mentorVerifySlice, pageable);
+    }
+
+    @Transactional
+    public void acceptVerifyMentors(String authorizationHeader, Long verifyId) {
+        isAdmin(authorizationHeader);
+
+        MentorVerify mentorVerify = mentorVerifyRepository.findById(verifyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "요청한 멘토 인증이 존재하지 않습니다."));
+        User acceptedMentor = mentorVerify.getUser();
+        acceptedMentor.acceptMentor();
+
+        mentorVerifyRepository.delete(mentorVerify);
+    }
+
+    private void isAdmin(String authorizationHeader) {
+        User admin = getUser(authorizationHeader);
+        admin.isAdmin();
     }
 
     private Mentoring getMentoring(Long mentoringId) {
@@ -151,8 +166,7 @@ public class MentoringService {
 
     private User getUser(String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader);
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 유저입니다."));
-        return user;
+        return userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 유저입니다."));
     }
 
     private User loadMentor(String authorizationHeader) {
