@@ -4,12 +4,10 @@ import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyMentoringRe
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
-import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.*;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
@@ -17,6 +15,8 @@ import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentorVerifyRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringTagRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.TeamMentoringRepository;
+import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.example.matchup.matchupbackend.entity.ApplyStatus.WAITING;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_FOUND;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 
@@ -44,6 +45,8 @@ public class MentoringService {
     private final MentoringRepository mentoringRepository;
     private final MentoringTagRepository mentoringTagRepository;
     private final MentorVerifyRepository mentorVerifyRepository;
+    private final TeamRepository teamRepository;
+    private final TeamMentoringRepository teamMentoringRepository;
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
 
@@ -181,9 +184,80 @@ public class MentoringService {
         mentorVerify.edit(request);
     }
 
+    public List<TeamInfoResponse> getApplyMentoringForm(String authorizationHeader) {
+        User leader = getUser(authorizationHeader);
+        List<Team> teams = teamRepository.findByLeaderIDAndIsDeletedAndType(leader.getId(), 0L, 0L);
+
+        return teams.stream().map(TeamInfoResponse::of).toList();
+    }
+
     @Transactional
     public void applyMentoring(ApplyMentoringRequest request, Long mentoringId, String authorizationHeader) {
+        User leader = getUser(authorizationHeader);
+        Team team = teamRepository.findTeamByIdAndIsDeleted(request.getTeamId(), 0L).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
+        Mentoring mentoring = mentoringRepository.findByIdAndIsDeleted(mentoringId, false).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "존재하지 않는 멘토링입니다."));
 
+        isAvailableApplyMentoring(leader, team, mentoring);
+
+        TeamMentoring teamMentoring = TeamMentoring.create(mentoring, team, request);
+        teamMentoringRepository.save(teamMentoring);
+    }
+
+    @Transactional
+    public void acceptApplyMentoring(Long applyId, String comment, String authorizationHeader) {
+        User mentor = getUser(authorizationHeader);
+        TeamMentoring teamMentoring = teamMentoringRepository.findById(applyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링 신청입니다."));
+
+        isAvailableAcceptOrRefuseMentoring(mentor, teamMentoring);
+
+        teamMentoring.acceptMentoring();
+    }
+
+    @Transactional
+    public void refuseApplyMentoring(Long applyId, String comment, String authorizationHeader) {
+        User mentor = getUser(authorizationHeader);
+        TeamMentoring teamMentoring = teamMentoringRepository.findById(applyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링 신청입니다."));
+
+        isAvailableAcceptOrRefuseMentoring(mentor, teamMentoring);
+
+        teamMentoring.refuseMentoring();
+    }
+
+    public List<MentoringApplyListResponse> showApplyMentoringList(String authorizationHeader) {
+        User mentor = getUser(authorizationHeader);
+        List<Mentoring> mentorings = mentoringRepository.findALlByMentorOrderByIdDesc(mentor);
+
+        List<TeamMentoring> teamMentorings = mentorings.stream()
+                .flatMap(mentoring -> mentoring.getTeamMentoringList().stream()
+                        .filter(teamMentoring -> teamMentoring.getStatus() == WAITING))
+                .toList();
+
+        return teamMentorings.stream().map(MentoringApplyListResponse::of).toList();
+    }
+
+    private void isAvailableAcceptOrRefuseMentoring(User mentor, TeamMentoring teamMentoring) {
+        if (teamMentoring.getStatus() != WAITING) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링이 이미 처리되었습니다.");
+        }
+        if (!teamMentoring.getMentoring().getMentor().equals(mentor)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "요청한 멘터링 신청의 멘토가 아닙니다.");
+        }
+    }
+
+    private void isAvailableApplyMentoring(User leader, Team team, Mentoring mentoring) {
+        if (!team.getLeaderID().equals(leader.getId())) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "리더가 아닌 유저가 멘토링을 신청했습니다.");
+        }
+        if (alreadyApply(team, mentoring)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "이미 멘토링에 지원했습니다.");
+        }
+        if (mentoring.getMentor().equals(leader)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "자신의 멘토링에 신청할 수 없습니다.");
+        }
+    }
+
+    private boolean alreadyApply(Team team, Mentoring mentoring) {
+        return team.getTeamMentoringList().stream().anyMatch(teamMentoring -> teamMentoring.getMentoring().equals(mentoring) && teamMentoring.getStatus() == WAITING);
     }
 
     private void isAdmin(String authorizationHeader) {
@@ -192,7 +266,7 @@ public class MentoringService {
     }
 
     private Mentoring getMentoring(Long mentoringId) {
-        return mentoringRepository.findById(mentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링입니다."));
+        return mentoringRepository.findByIdAndIsDeleted(mentoringId, false).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링입니다."));
     }
 
     private User getUser(String authorizationHeader) {
@@ -206,7 +280,7 @@ public class MentoringService {
     }
 
     private Mentoring loadMentoringAndCheckAvailable(Long mentoringId, User mentor) {
-        Mentoring mentoring = mentoringRepository.findById(mentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "존재하지 않은 멘토링입니다."));
+        Mentoring mentoring = mentoringRepository.findByIdAndIsDeleted(mentoringId, false).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "존재하지 않은 멘토링입니다."));
         if (!mentoring.getMentor().equals(mentor)) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "권한이 없는 유저의 접근입니다.");
         }

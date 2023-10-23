@@ -20,7 +20,7 @@ public class MatchUpBackendApplication {
         User user = User.builder()
                 .nickname("test")
                 .email("test@test.com")
-                .isMentor(false)
+                .isMentor(true)
                 .build();
         userRepository.save(user);
     }

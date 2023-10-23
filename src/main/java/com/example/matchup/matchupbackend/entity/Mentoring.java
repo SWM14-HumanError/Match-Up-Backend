@@ -50,7 +50,7 @@ public class Mentoring {
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
     private List<Likes> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "mentoring")
+    @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
