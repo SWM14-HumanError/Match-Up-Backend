@@ -38,10 +38,4 @@ class UserProfileControllerTest {
         User user = User.createUserForTest();
         userRepository.save(user);
     }
-
-    @DisplayName("요청한 유저 아이디의 프로필을 죄회합니다.")
-    @Disabled
-    @Test
-    void showProfile() throws Exception {
-    }
 }
