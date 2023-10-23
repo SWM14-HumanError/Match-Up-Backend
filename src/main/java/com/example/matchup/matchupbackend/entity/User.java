@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,6 +45,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Column(unique = true)
     private String nickname; // 닉네임
+
     @Column(name = "user_level")
     private Long userLevel;
 
@@ -131,6 +133,12 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "sender")
     private List<InviteTeam> inviteTeamSenders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.REMOVE)
+    private List<Mentoring> mentorings = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private MentorVerify mentorVerify;
+
     /**
      * Deprecated
      */
@@ -141,13 +149,14 @@ public class User extends BaseTimeEntity implements UserDetails {
      * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
      */
     @Builder
-    public User(String email, String name, String pictureUrl, Role role, Long agreeTermOfServiceId, String nickname) {
+    public User(String nickname, String email, String name, String pictureUrl, Role role, Boolean isMentor, Long agreeTermOfServiceId) {
+        this.nickname = nickname;
         this.email = email;
         this.name = name;
         this.pictureUrl = pictureUrl;
         this.role = role;
         this.agreeTermOfServiceId = agreeTermOfServiceId;
-        this.nickname = nickname;
+        this.isMentor = isMentor;
     }
 
     public static User createUserForTest() {
@@ -157,7 +166,6 @@ public class User extends BaseTimeEntity implements UserDetails {
                 .agreeTermOfServiceId(1483L)
                 .role(USER)
                 .build();
-
     }
 
     public void changeFeedbackHide(){
@@ -238,6 +246,14 @@ public class User extends BaseTimeEntity implements UserDetails {
 //        return this;
 //    }
 
+    public void isAdmin() {
+        List<String> admins = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@naver.com", "hyunwoo0081@gmail.com");
+
+        if (!admins.contains(this.getEmail())) {
+            throw new AuthorizeException("관리자가 아닙니다.");
+        }
+    }
+
     public User updateUserLastLogin() {
         this.lastLogin = LocalDateTime.now();
         return this;
@@ -250,6 +266,10 @@ public class User extends BaseTimeEntity implements UserDetails {
                     .mapToLong(ProfileTagPositionRequest::getTypeLevel).max().orElse(0L);
         }
         return this;
+    }
+
+    public void acceptMentor() {
+        this.isMentor = true;
     }
 
     public void addLike(){

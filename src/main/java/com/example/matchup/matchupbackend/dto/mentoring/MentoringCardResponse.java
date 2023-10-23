@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class MentoringCardResponse {
+
     private Long mentoringID;
-    private String thumbnailURL;
     private String title;
     private Position position;
     private String mentorProfileURL;
@@ -19,29 +19,28 @@ public class MentoringCardResponse {
     private Double score;
     private Long like;
 
+    private String thumbnailURL;
+
     @QueryProjection
     @Builder
-    public MentoringCardResponse(Long mentoringID, String thumbnailURL, String title, String positionName, Long positionLevel, String mentorProfileURL, String mentorNickname, Double score, Long like) {
+    public MentoringCardResponse(Long mentoringID, String title, String positionName, Long positionLevel, String mentorProfileURL, String mentorNickname, Double score) {
         this.mentoringID = mentoringID;
-        this.thumbnailURL = thumbnailURL;
         this.title = title;
         this.position = new Position(positionName, positionLevel);
         this.mentorProfileURL = mentorProfileURL;
         this.mentorNickname = mentorNickname;
         this.score = score;
-        this.like = like;
     }
 
     public static MentoringCardResponse fromEntity(Mentoring mentoring) {
         return new MentoringCardResponse(
                 mentoring.getId(),
-                mentoring.getThumbnailURL(),
                 mentoring.getTitle(),
                 mentoring.getMentor().getPosition(),
                 mentoring.getMentor().getPositionLevel(),
                 mentoring.getMentor().getPictureUrl(),
                 mentoring.getMentor().getName(),
-                mentoring.returnMentoringReviewAverage(),
-                mentoring.getLikes());
+                mentoring.returnMentoringReviewAverage()
+        );
     }
 }

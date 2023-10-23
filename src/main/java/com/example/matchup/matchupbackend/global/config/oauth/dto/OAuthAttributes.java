@@ -84,6 +84,7 @@ public record OAuthAttributes(
                 .email(email)
                 .pictureUrl(picture)
                 .role(Role.USER)
+                .isMentor(false)
                 .build();
     }
 }
