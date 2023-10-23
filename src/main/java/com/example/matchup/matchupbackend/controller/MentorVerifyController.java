@@ -3,6 +3,8 @@ package com.example.matchup.matchupbackend.controller;
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
+import com.example.matchup.matchupbackend.error.ErrorCode;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +47,12 @@ public class MentorVerifyController {
     @PostMapping("/mentoring/verify/{verifyId}/refuse")
     @ResponseStatus(HttpStatus.CREATED)
     public void postRefuseVerifyMentors(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                        @PathVariable Long verifyId) {
-        mentoringService.refuseVerifyMentors(authorizationHeader, verifyId);
+                                        @PathVariable Long verifyId,
+                                        @RequestParam String comment) {
+        if (comment.length() > 20) {
+            throw new ResourceNotPermitException(ErrorCode.NOT_PERMITTED, "멘토 인증이 거절되는 사유는 20글자를 넘길 수 없습니다.");
+        }
+        mentoringService.refuseVerifyMentors(authorizationHeader, verifyId, comment);
     }
 
     @GetMapping("/mentoring/verify")

@@ -22,6 +22,6 @@ public class ApplyMentoringRequest {
     private String email;
 
     @NotBlank(message = "멘토링 신청 메세지는 필수 값입니다.")
-    @Size(max = 200, message = "멘토링 신청의 메세지는 200글자를 넘길 수 없습니다.")
+    @Size(max = 20, message = "멘토링 신청의 메세지는 20글자를 넘길 수 없습니다.")
     private String content;
 }

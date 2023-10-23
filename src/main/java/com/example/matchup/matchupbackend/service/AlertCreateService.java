@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.entity.AlertType.MENTORING;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 
 @Slf4j
@@ -318,6 +319,90 @@ public class AlertCreateService {
                 .alertType(team.getType().equals(0L) ? AlertType.PROJECT : AlertType.STUDY)
                 .user(receiver)
                 .build());
+    }
+
+    @Transactional
+    public void refuseMentoringCreateAlert(Mentoring mentoring, String comment, User leader) {
+        Alert alert = Alert.builder()
+                .title("%s 멘토링 신청이 거절되었습니다.".formatted(mentoring.getTitle()))
+                .content(comment)
+                .redirectUrl("/mentor")
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(leader);
+        alertRepository.save(alert);
+    }
+
+    @Transactional
+    public void acceptMentoringCreateAlert(Mentoring mentoring, String comment, User leader) {
+        Alert alert = Alert.builder()
+                .title("%s 멘토링 신청이 수락되었습니다.".formatted(mentoring.getTitle()))
+                .content(comment)
+                .redirectUrl("/mentor")
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(leader);
+        alertRepository.save(alert);
+    }
+
+    @Transactional
+    public void verifyMentorCreateAlert(User mentor) {
+        Alert alert = Alert.builder()
+                .title("멘토 신청이 정상적으로 접수되었습니다.")
+                .content("")
+                .redirectUrl("/mentor")
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(mentor);
+        alertRepository.save(alert);
+    }
+
+    @Transactional
+    public void editVerifyMentorCreateAlert(User mentor) {
+        Alert alert = Alert.builder()
+                .title("멘토 신청이 정상적으로 수정되었습니다.")
+                .content("")
+                .redirectUrl("/mentor")
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(mentor);
+        alertRepository.save(alert);
+    }
+
+    @Transactional
+    public void acceptVerifyMentorCreateAlert(User mentor) {
+        Alert alert = Alert.builder()
+                .title("이제부터 멘토링을 등록할 수 있습니다. 축하합니다.")
+                .content("")
+                .redirectUrl("/mentor")
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(mentor);
+        alertRepository.save(alert);
+    }
+
+    @Transactional
+    public void refuseVerifyMentorCreateAlert(User mentor, String comment) {
+        Alert alert = Alert.builder()
+                .title("멘토 신청이 거절되었습니다.")
+                .content(comment)
+                .redirectUrl("/mentor")
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(mentor);
+        alertRepository.save(alert);
+    }
+
+    @Transactional
+    public void mentoringApplyAlertToMentor(User mentor, Team team) {
+        Alert alert = Alert.builder()
+                .title("%s 팀으로부터 멘토링 신청이 왔습니다.".formatted(team.getTitle()))
+                .content("프로젝트를 확인해주세요.")
+                .redirectUrl("/team/%d".formatted(team.getId()))
+                .alertType(MENTORING)
+                .build();
+        alert.setUser(mentor);
+        alertRepository.save(alert);
     }
 
     private void isAvailableSuggestMyTeam(Team team, User sender, User receiver) {

@@ -41,6 +41,7 @@ import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 @Service
 public class MentoringService {
 
+    private final AlertCreateService alertCreateService;
     private final LikeRepository likeRepository;
     private final MentoringRepository mentoringRepository;
     private final MentoringTagRepository mentoringTagRepository;
@@ -50,19 +51,15 @@ public class MentoringService {
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
 
-    /*
-    로그인한 유저가 멘토링 목록을 조회하면 자신이 누른 좋아요를 확인할 수 있어야하므로 토큰을 받는다.
-     */
-    public MentoringSliceResponse showMentorings(String authorizationHeader, @Valid MentoringSearchParam param, Pageable pageable) {
-        User user = (authorizationHeader != null) ? loadMentor(authorizationHeader) : null;
+    public MentoringSliceResponse showMentoringsInMentoringPage(String authorizationHeader, MentoringSearchParam param, Pageable pageable) {
+        // 로그인한 유저는 좋아요 표시를 위해 token을 받을 수 있다.
+        User user = (authorizationHeader != null) ? getMentor(authorizationHeader) : null;
 
-        // 검색한 결과를 페이징
         Slice<Mentoring> pageOfMentoringSearchSlice = mentoringRepository.findMentoringByMentoringSearchParam(param, pageable);
         List<Mentoring> mentorings = pageOfMentoringSearchSlice.getContent();
-        // 멘토링에서 좋아요 수로 매핑
         Map<Mentoring, Long> mentoringToLikesCountMap = mentorings.stream()
                 .collect(Collectors.toMap(m -> m, likeRepository::countByMentoring));
-        // 멘토링에서 좋아요 눌렀는 지를 매핑
+
         if (user != null) {
             Map<Mentoring, Boolean> mentoringToCheckLikeMap = mentorings.stream()
                     .collect(Collectors.toMap(m -> m, mentoring -> likeRepository.existsByUserAndMentoring(user, mentoring)));
@@ -73,8 +70,8 @@ public class MentoringService {
     }
 
     @Transactional
-    public void createMentoring(String authorizationHeader, CreateOrEditMentoringRequest request) {
-        User mentor = loadMentor(authorizationHeader);
+    public void createMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request) {
+        User mentor = getMentor(authorizationHeader);
         isAvailableCreateMentoring(mentor);
 
         Mentoring mentoring = Mentoring.create(request, mentor);
@@ -82,8 +79,8 @@ public class MentoringService {
     }
 
     @Transactional
-    public void editMentoring(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
-        User mentor = loadMentor(authorizationHeader);
+    public void editMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
+        User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
         mentoringTagRepository.deleteAll(mentoring.getMentoringTags());
@@ -98,8 +95,8 @@ public class MentoringService {
     }
 
     @Transactional
-    public void deleteMentoring(String authorizationHeader, Long mentoringId) {
-        User mentor = loadMentor(authorizationHeader);
+    public void deleteMentoringByMentor(String authorizationHeader, Long mentoringId) {
+        User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
         mentoring.delete();
@@ -140,6 +137,18 @@ public class MentoringService {
         MentorVerify mentorVerify = MentorVerify.create(request, user);
 
         mentorVerifyRepository.save(mentorVerify);
+
+        alertCreateService.verifyMentorCreateAlert(user);
+    }
+
+    @Transactional
+    public void editVerifyMentor(ApplyVerifyMentorRequest request, String authorizationHeader) {
+        User user = getUser(authorizationHeader);
+        MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
+
+        mentorVerify.edit(request);
+
+        alertCreateService.editVerifyMentorCreateAlert(user);
     }
 
     public VerifyMentorsSliceResponse showVerifyMentors(String authorizationHeader, Pageable pageable) {
@@ -158,15 +167,19 @@ public class MentoringService {
         acceptedMentor.acceptMentor();
 
         mentorVerifyRepository.delete(mentorVerify);
+
+        alertCreateService.acceptVerifyMentorCreateAlert(acceptedMentor);
     }
 
     @Transactional
-    public void refuseVerifyMentors(String authorizationHeader, Long verifyId) {
+    public void refuseVerifyMentors(String authorizationHeader, Long verifyId, String comment) {
         isAdmin(authorizationHeader);
 
         MentorVerify mentorVerify = mentorVerifyRepository.findById(verifyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "요청한 멘토 인증이 존재하지 않습니다."));
 
         mentorVerifyRepository.delete(mentorVerify);
+
+        alertCreateService.refuseVerifyMentorCreateAlert(mentorVerify.getUser(), comment);
     }
 
     public VerifyMentorsResponse showVerifyMentorEditForm(String authorizationHeader) {
@@ -176,15 +189,7 @@ public class MentoringService {
         return VerifyMentorsResponse.of(mentorVerify);
     }
 
-    @Transactional
-    public void editVerifyMentor(@Valid ApplyVerifyMentorRequest request, String authorizationHeader) {
-        User user = getUser(authorizationHeader);
-        MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
-
-        mentorVerify.edit(request);
-    }
-
-    public List<TeamInfoResponse> getApplyMentoringForm(String authorizationHeader) {
+    public List<TeamInfoResponse> getApplyMentoringInpuForm(String authorizationHeader) {
         User leader = getUser(authorizationHeader);
         List<Team> teams = teamRepository.findByLeaderIDAndIsDeletedAndType(leader.getId(), 0L, 0L);
 
@@ -192,7 +197,7 @@ public class MentoringService {
     }
 
     @Transactional
-    public void applyMentoring(ApplyMentoringRequest request, Long mentoringId, String authorizationHeader) {
+    public void applyMentoringByLeader(ApplyMentoringRequest request, Long mentoringId, String authorizationHeader) {
         User leader = getUser(authorizationHeader);
         Team team = teamRepository.findTeamByIdAndIsDeleted(request.getTeamId(), 0L).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
         Mentoring mentoring = mentoringRepository.findByIdAndIsDeleted(mentoringId, false).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "존재하지 않는 멘토링입니다."));
@@ -201,30 +206,38 @@ public class MentoringService {
 
         TeamMentoring teamMentoring = TeamMentoring.create(mentoring, team, request);
         teamMentoringRepository.save(teamMentoring);
+
+        alertCreateService.mentoringApplyAlertToMentor(mentoring.getMentor(), team);
     }
 
     @Transactional
-    public void acceptApplyMentoring(Long applyId, String comment, String authorizationHeader) {
-        User mentor = getUser(authorizationHeader);
+    public void acceptApplyMentoringByMentor(Long applyId, String comment, String authorizationHeader) {
+        User mentor = getMentor(authorizationHeader);
         TeamMentoring teamMentoring = teamMentoringRepository.findById(applyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링 신청입니다."));
+        User leader = userRepository.findById(teamMentoring.getTeam().getLeaderID()).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 리더입니다."));
 
         isAvailableAcceptOrRefuseMentoring(mentor, teamMentoring);
 
         teamMentoring.acceptMentoring();
+
+        alertCreateService.acceptMentoringCreateAlert(teamMentoring.getMentoring(), comment, leader);
     }
 
     @Transactional
-    public void refuseApplyMentoring(Long applyId, String comment, String authorizationHeader) {
-        User mentor = getUser(authorizationHeader);
+    public void refuseApplyMentoringByMentor(Long applyId, String comment, String authorizationHeader) {
+        User mentor = getMentor(authorizationHeader);
         TeamMentoring teamMentoring = teamMentoringRepository.findById(applyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링 신청입니다."));
+        User leader = userRepository.findById(teamMentoring.getTeam().getLeaderID()).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 리더입니다."));
 
         isAvailableAcceptOrRefuseMentoring(mentor, teamMentoring);
 
         teamMentoring.refuseMentoring();
+
+        alertCreateService.refuseMentoringCreateAlert(teamMentoring.getMentoring(), comment, leader);
     }
 
     public List<MentoringApplyListResponse> showApplyMentoringList(String authorizationHeader) {
-        User mentor = getUser(authorizationHeader);
+        User mentor = getMentor(authorizationHeader);
         List<Mentoring> mentorings = mentoringRepository.findALlByMentorOrderByIdDesc(mentor);
 
         List<TeamMentoring> teamMentorings = mentorings.stream()
@@ -274,7 +287,7 @@ public class MentoringService {
         return userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 유저입니다."));
     }
 
-    private User loadMentor(String authorizationHeader) {
+    private User getMentor(String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader);
         return userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 멘토입니다."));
     }
