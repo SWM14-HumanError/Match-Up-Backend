@@ -41,13 +41,5 @@ class UserProfileControllerTest {
     @DisplayName("요청한 유저 아이디의 프로필을 죄회합니다.")
     @Test
     void showProfile() throws Exception {
-        //given
-        Long userId = 1L;
-
-        //when
-        when(userProfileService.getUserProfile(userId)).thenReturn()
-        UserProfileDetailResponse userProfile = userProfileService.getUserProfile(userId);
-
-        //then
     }
 }
