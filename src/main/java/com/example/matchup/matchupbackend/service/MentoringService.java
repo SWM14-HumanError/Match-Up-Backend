@@ -4,10 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyMentoringRe
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
-import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsResponse;
-import com.example.matchup.matchupbackend.dto.response.mentoring.VerifyMentorsSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.*;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
@@ -123,10 +120,11 @@ public class MentoringService {
         likeRepository.delete(like);
     }
 
-    public MentoringDetailResponse showMentoringDetail(Long mentoringId) {
+    public MentoringSearchResponse showMentoringDetail(Long mentoringId) {
         Mentoring mentoring = getMentoring(mentoringId);
+        Long likes = likeRepository.countByMentoring(mentoring);
 
-        return MentoringDetailResponse.of(mentoring);
+        return MentoringSearchResponse.ofDetail(mentoring, likes, 0L);
     }
 
     @Transactional

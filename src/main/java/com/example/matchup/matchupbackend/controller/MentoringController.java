@@ -2,13 +2,15 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
-import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +28,7 @@ public class MentoringController {
     @ResponseStatus(HttpStatus.OK)
     public MentoringSliceResponse getMentoring(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                MentoringSearchParam param,
-                                               Pageable pageable) {
+                                               @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return mentoringService.showMentorings(authorizationHeader, param, pageable);
     }
 
@@ -54,7 +56,7 @@ public class MentoringController {
 
     @GetMapping("/mentoring/{mentoringId}")
     @ResponseStatus(HttpStatus.OK)
-    public MentoringDetailResponse getMentoringDetail(@PathVariable Long mentoringId) {
+    public MentoringSearchResponse getMentoringDetail(@PathVariable Long mentoringId) {
         return mentoringService.showMentoringDetail(mentoringId);
     }
 
