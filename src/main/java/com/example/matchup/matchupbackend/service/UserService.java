@@ -71,7 +71,7 @@ public class UserService {
                             .sorted(Comparator.comparing(UserPosition::getTypeLevel).reversed()).collect(Collectors.toList());
 
                     return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
-                            user.getNickname(), Position.from(userPositions.get(0)), user.getFeedbackScore(),
+                            user.getNickname(), getPosition(userPositions), user.getFeedbackScore(),
                             user.getLikes(), user.returnStackList());
                 }
         ).collect(Collectors.toList());
@@ -137,6 +137,7 @@ public class UserService {
 
 
 
+
     // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
     /**
      * 내 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
@@ -159,7 +160,6 @@ public class UserService {
                 .toList();
         return new InviteMyTeamResponse(response);
     }
-
     /**
      * OAuth2SuccessHandler 로그인에 성공하면
      * Refresh 토큰을 User 엔터티에 저장
@@ -208,5 +208,9 @@ public class UserService {
 
     private boolean notDuplicateSuggestTeam(Set<Team> inviteTeamsSet, Team team) {
         return !inviteTeamsSet.contains(team);
+    }
+
+    private Position getPosition(List<UserPosition> userPositions) {
+        return userPositions != null && !userPositions.isEmpty() ? Position.from(userPositions.get(0)) : new Position();
     }
 }

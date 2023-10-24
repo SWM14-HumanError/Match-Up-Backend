@@ -29,14 +29,14 @@ public class MentoringController {
     public MentoringSliceResponse getMentoring(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                MentoringSearchParam param,
                                                @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return mentoringService.showMentorings(authorizationHeader, param, pageable);
+        return mentoringService.showMentoringsInMentoringPage(authorizationHeader, param, pageable);
     }
 
     @PostMapping("/mentoring")
     @ResponseStatus(HttpStatus.CREATED)
     public void postMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                               @Valid @RequestBody CreateOrEditMentoringRequest request) {
-        mentoringService.createMentoring(authorizationHeader, request);
+        mentoringService.createMentoringByMentor(authorizationHeader, request);
     }
 
     @PutMapping("/mentoring/{mentoringId}")
@@ -44,14 +44,14 @@ public class MentoringController {
     public void putMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                              @Valid @RequestBody CreateOrEditMentoringRequest request,
                              @PathVariable Long mentoringId) {
-        mentoringService.editMentoring(authorizationHeader, request, mentoringId);
+        mentoringService.editMentoringByMentor(authorizationHeader, request, mentoringId);
     }
 
     @DeleteMapping("/mentoring/{mentoringId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                 @PathVariable Long mentoringId) {
-        mentoringService.deleteMentoring(authorizationHeader, mentoringId);
+        mentoringService.deleteMentoringByMentor(authorizationHeader, mentoringId);
     }
 
     @GetMapping("/mentoring/{mentoringId}")
