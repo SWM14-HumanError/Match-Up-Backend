@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend;
 
+import com.example.matchup.matchupbackend.entity.Role;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import jakarta.annotation.PostConstruct;
@@ -21,6 +22,7 @@ public class MatchUpBackendApplication {
                 .nickname("test")
                 .email("test@test.com")
                 .isMentor(true)
+                .role(Role.USER)
                 .build();
         userRepository.save(user);
     }

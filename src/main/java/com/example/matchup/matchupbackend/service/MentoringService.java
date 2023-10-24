@@ -71,7 +71,7 @@ public class MentoringService {
     }
 
     @Transactional
-    public void createMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request) {
+    public Long createMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request) {
         User mentor = getMentor(authorizationHeader);
         isAvailableCreateMentoring(mentor);
 
@@ -83,10 +83,11 @@ public class MentoringService {
         }
 
         mentoringRepository.save(mentoring);
+        return mentoring.getId();
     }
 
     @Transactional
-    public void editMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
+    public Long editMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
         User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
@@ -105,14 +106,16 @@ public class MentoringService {
                 .toList();
 
         mentoring.edit(request, mentoringTags);
+        return mentoring.getId();
     }
 
     @Transactional
-    public void deleteMentoringByMentor(String authorizationHeader, Long mentoringId) {
+    public Long deleteMentoringByMentor(String authorizationHeader, Long mentoringId) {
         User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
         mentoring.delete();
+        return mentoring.getId();
     }
 
     @Transactional
@@ -271,6 +274,11 @@ public class MentoringService {
                 .toList();
 
         return teamMentorings.stream().map(MentoringApplyListResponse::of).toList();
+    }
+
+    @Transactional
+    public void reviewMentoringByMentee(String authorizationHeader, Long mentoringId) {
+
     }
 
     private void isAvailableAcceptOrRefuseMentoring(User mentor, TeamMentoring teamMentoring) {

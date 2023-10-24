@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.example.matchup.matchupbackend.entity.Role.MENTOR;
 import static com.example.matchup.matchupbackend.entity.Role.USER;
 
 @Entity
@@ -270,6 +271,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void acceptMentor() {
         this.isMentor = true;
+        this.role = MENTOR;
     }
 
     public void addLike(){

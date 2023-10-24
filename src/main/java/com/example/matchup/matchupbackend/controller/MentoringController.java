@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMent
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
+import com.example.matchup.matchupbackend.entity.Mentoring;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,8 @@ public class MentoringController {
     @ResponseStatus(HttpStatus.CREATED)
     public void postMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                               @Valid @RequestBody CreateOrEditMentoringRequest request) {
-        mentoringService.createMentoringByMentor(authorizationHeader, request);
+        Long createdMentoringId = mentoringService.createMentoringByMentor(authorizationHeader, request);
+        log.info("{} 멘토링이 생성되었습니다.", createdMentoringId);
     }
 
     @PutMapping("/mentoring/{mentoringId}")
@@ -44,14 +46,16 @@ public class MentoringController {
     public void putMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                              @Valid @RequestBody CreateOrEditMentoringRequest request,
                              @PathVariable Long mentoringId) {
-        mentoringService.editMentoringByMentor(authorizationHeader, request, mentoringId);
+        Long editedMentoringId = mentoringService.editMentoringByMentor(authorizationHeader, request, mentoringId);
+        log.info("{} 멘토링이 수정되었습니다.", editedMentoringId);
     }
 
     @DeleteMapping("/mentoring/{mentoringId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                 @PathVariable Long mentoringId) {
-        mentoringService.deleteMentoringByMentor(authorizationHeader, mentoringId);
+        Long deletedMentoringId = mentoringService.deleteMentoringByMentor(authorizationHeader, mentoringId);
+        log.info("{} 멘토링이 삭제되었습니다.", deletedMentoringId);
     }
 
     @GetMapping("/mentoring/{mentoringId}")
@@ -72,5 +76,12 @@ public class MentoringController {
     public void deleteMentoringLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                     @PathVariable Long mentoringId) {
         mentoringService.undoLikeOfMentoring(authorizationHeader, mentoringId);
+    }
+
+    @PostMapping("/mentoring/{mentoringId}/review")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postMentoringReview(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                   @PathVariable Long mentoringId) {
+        mentoringService.reviewMentoringByMentee(authorizationHeader, mentoringId);
     }
 }

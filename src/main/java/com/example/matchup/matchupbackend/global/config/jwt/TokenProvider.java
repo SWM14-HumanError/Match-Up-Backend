@@ -52,6 +52,7 @@ public class TokenProvider {
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
                 .claim("tokenId", user.getTokenId())
+                .claim("role", user.getRole())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
