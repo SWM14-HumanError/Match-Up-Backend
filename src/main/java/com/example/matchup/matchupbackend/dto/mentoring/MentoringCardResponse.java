@@ -40,7 +40,7 @@ public class MentoringCardResponse {
                 mentoring.getMentor().getPositionLevel(),
                 mentoring.getMentor().getPictureUrl(),
                 mentoring.getMentor().getName(),
-                mentoring.returnMentoringReviewAverage()
+                mentoring.getScore()
         );
     }
 }

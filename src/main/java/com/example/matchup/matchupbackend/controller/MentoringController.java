@@ -2,9 +2,9 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
+import com.example.matchup.matchupbackend.dto.request.mentoring.ReviewMentoringRequest;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
-import com.example.matchup.matchupbackend.entity.Mentoring;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,10 +78,14 @@ public class MentoringController {
         mentoringService.undoLikeOfMentoring(authorizationHeader, mentoringId);
     }
 
-    @PostMapping("/mentoring/{mentoringId}/review")
+    @PostMapping("/mentoring/{mentoringId}/review/{teamId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void postMentoringReview(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                   @PathVariable Long mentoringId) {
-        mentoringService.reviewMentoringByMentee(authorizationHeader, mentoringId);
+                                    @PathVariable Long mentoringId,
+                                    @PathVariable Long teamId,
+                                    @Valid @RequestBody ReviewMentoringRequest request) {
+        mentoringService.reviewMentoringByMentee(request, authorizationHeader, mentoringId, teamId);
     }
+
+
 }

@@ -1,6 +1,8 @@
 package com.example.matchup.matchupbackend.repository.teamuser;
 
+import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamUser;
+import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,6 +20,8 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     @Query("select teamuser from TeamUser teamuser LEFT JOIN FETCH teamuser.user WHERE teamuser.team.id=:teamId and teamuser.approve=true")
     List<TeamUser> findAcceptedTeamUserByTeamID(@Param("teamId") Long teamId);
+
+    Boolean existsByTeamAndUserAndApprove(Team team, User user, Boolean approve);
 
     @Query("select teamuser from TeamUser teamuser where teamuser.user.id=:userId and teamuser.team.id=:teamId")
     List<TeamUser> isUserRecruitDuplicated(@Param("userId") Long userId, @Param("teamId") Long teamId);

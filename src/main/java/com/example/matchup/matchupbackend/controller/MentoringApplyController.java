@@ -27,7 +27,7 @@ public class MentoringApplyController {
     @GetMapping("/mentoring/apply")
     @ResponseStatus(HttpStatus.OK)
     public List<TeamInfoResponse> getApplyMentoringInputForm(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
-        return mentoringService.getApplyMentoringInpuForm(authorizationHeader);
+        return mentoringService.getApplyMentoringInputForm(authorizationHeader);
     }
 
     @PostMapping("/mentoring/{mentoringId}/apply")
@@ -64,5 +64,12 @@ public class MentoringApplyController {
     @ResponseStatus(HttpStatus.OK)
     public List<MentoringApplyListResponse> getApplyMentoringList(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         return mentoringService.showApplyMentoringList(authorizationHeader);
+    }
+
+    @PostMapping("/mentoring/{mentoringId}/done")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postEndMentoringByMentor(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                         @PathVariable Long mentoringId) {
+        mentoringService.endMentoringByMentor(authorizationHeader, mentoringId);
     }
 }

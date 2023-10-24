@@ -7,12 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 import static com.example.matchup.matchupbackend.entity.ApplyStatus.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class TeamMentoring {
+public class TeamMentoring extends BaseTimeEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "taem_mentoring_id")
@@ -27,6 +29,8 @@ public class TeamMentoring {
     private String emailOfTeamLeader;
 
     private String messageFromLeader;
+
+    private LocalDate endedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentoring_id", nullable = false)
@@ -64,4 +68,9 @@ public class TeamMentoring {
     public void refuseMentoring() {
         this.status = REFUSED;
     }
+
+    public void endMentoring() {
+        this.status = ENDED;
+    }
+
 }

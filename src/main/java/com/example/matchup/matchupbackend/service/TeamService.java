@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.example.matchup.matchupbackend.entity.ApplyStatus.ACCEPTED;
 import static com.example.matchup.matchupbackend.error.ErrorCode.COMMENT_NOT_FOUND;
 import static com.example.matchup.matchupbackend.global.RoleType.LEADER;
 
@@ -381,9 +380,11 @@ public class TeamService {
     public List<MentoringSearchResponse> showMentorings(String authorizationHeader, Long teamId) {
         User user = getUser(authorizationHeader);
         Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
-        List<TeamMentoring> teamMentorings = teamMentoringRepository.findAllByTeamAndStatus(team, ACCEPTED);
+        List<TeamMentoring> teamMentorings = teamMentoringRepository.findAllByTeam(team);
+        List<TeamMentoring> acceptedOrEndedTeamMentorings = teamMentorings.stream()
+                .filter(teamMentoring -> teamMentoring.getStatus() == ApplyStatus.ACCEPTED || teamMentoring.getStatus() == ApplyStatus.ENDED).toList();
 
-        return teamMentorings.stream()
+        return acceptedOrEndedTeamMentorings.stream()
                 .map(TeamMentoring::getMentoring)
                 .map(getMentoringInTeamPageResponse(user))
                 .toList();
