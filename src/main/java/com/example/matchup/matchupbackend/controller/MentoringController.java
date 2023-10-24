@@ -2,13 +2,15 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
-import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringDetailResponse;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSliceResponse;
 import com.example.matchup.matchupbackend.service.MentoringService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,15 +28,15 @@ public class MentoringController {
     @ResponseStatus(HttpStatus.OK)
     public MentoringSliceResponse getMentoring(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                MentoringSearchParam param,
-                                               Pageable pageable) {
-        return mentoringService.showMentoringsInMentoringPage(authorizationHeader, param, pageable);
+                                               @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return mentoringService.showMentorings(authorizationHeader, param, pageable);
     }
 
     @PostMapping("/mentoring")
     @ResponseStatus(HttpStatus.CREATED)
     public void postMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                               @Valid @RequestBody CreateOrEditMentoringRequest request) {
-        mentoringService.createMentoringByMentor(authorizationHeader, request);
+        mentoringService.createMentoring(authorizationHeader, request);
     }
 
     @PutMapping("/mentoring/{mentoringId}")
@@ -42,19 +44,19 @@ public class MentoringController {
     public void putMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                              @Valid @RequestBody CreateOrEditMentoringRequest request,
                              @PathVariable Long mentoringId) {
-        mentoringService.editMentoringByMentor(authorizationHeader, request, mentoringId);
+        mentoringService.editMentoring(authorizationHeader, request, mentoringId);
     }
 
     @DeleteMapping("/mentoring/{mentoringId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMentoring(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                 @PathVariable Long mentoringId) {
-        mentoringService.deleteMentoringByMentor(authorizationHeader, mentoringId);
+        mentoringService.deleteMentoring(authorizationHeader, mentoringId);
     }
 
     @GetMapping("/mentoring/{mentoringId}")
     @ResponseStatus(HttpStatus.OK)
-    public MentoringDetailResponse getMentoringDetail(@PathVariable Long mentoringId) {
+    public MentoringSearchResponse getMentoringDetail(@PathVariable Long mentoringId) {
         return mentoringService.showMentoringDetail(mentoringId);
     }
 

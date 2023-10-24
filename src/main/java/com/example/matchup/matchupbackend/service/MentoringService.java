@@ -123,10 +123,11 @@ public class MentoringService {
         likeRepository.delete(like);
     }
 
-    public MentoringDetailResponse showMentoringDetail(Long mentoringId) {
+    public MentoringSearchResponse showMentoringDetail(Long mentoringId) {
         Mentoring mentoring = getMentoring(mentoringId);
+        Long likes = likeRepository.countByMentoring(mentoring);
 
-        return MentoringDetailResponse.of(mentoring);
+        return MentoringSearchResponse.ofDetail(mentoring, likes, 0L);
     }
 
     @Transactional

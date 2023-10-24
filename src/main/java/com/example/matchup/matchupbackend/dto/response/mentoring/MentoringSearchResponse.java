@@ -2,11 +2,14 @@ package com.example.matchup.matchupbackend.dto.response.mentoring;
 
 import com.example.matchup.matchupbackend.entity.Career;
 import com.example.matchup.matchupbackend.entity.Mentoring;
+import com.example.matchup.matchupbackend.entity.MentoringTag;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.global.RoleType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -36,8 +39,10 @@ public class MentoringSearchResponse {
 
     private Boolean likeMentoring;
 
+    private List<String> stacks;
+
     @Builder
-    private MentoringSearchResponse(String thumbnailUrl, Long mentoringId, String title, String content, RoleType roleType, Career career, Long likes, Long stars, String nickname, Long userLevel, String userPictureUrl, Boolean likeMentoring) {
+    private MentoringSearchResponse(String thumbnailUrl, Long mentoringId, String title, String content, RoleType roleType, Career career, Long likes, Long stars, String nickname, Long userLevel, String userPictureUrl, Boolean likeMentoring, List<String> stacks) {
         this.thumbnailUrl = thumbnailUrl;
         this.mentoringId = mentoringId;
         this.title = title;
@@ -50,9 +55,28 @@ public class MentoringSearchResponse {
         this.userLevel = userLevel;
         this.userPictureUrl = userPictureUrl;
         this.likeMentoring = likeMentoring;
+        this.stacks = stacks;
     }
 
     public static MentoringSearchResponse ofSearch(Mentoring mentoring, Long likes, Long stars, Boolean likeMentoring) {
+        User mentor = mentoring.getMentor();
+
+        return MentoringSearchResponse.builder()
+                .thumbnailUrl(mentoring.getThumbnailUrl())
+                .mentoringId(mentoring.getId())
+                .title(mentoring.getTitle())
+                .roleType(mentoring.getRoleType())
+                .career(mentoring.getCareer())
+                .likes(likes)
+                .stars(stars)
+                .nickname(mentor.getNickname())
+                .userLevel(mentor.getUserLevel())
+                .userPictureUrl(mentor.getPictureUrl())
+                .likeMentoring(likeMentoring)
+                .build();
+    }
+
+    public static MentoringSearchResponse ofDetail(Mentoring mentoring, Long likes, Long stars) {
         User mentor = mentoring.getMentor();
 
         return MentoringSearchResponse.builder()
@@ -67,7 +91,7 @@ public class MentoringSearchResponse {
                 .nickname(mentor.getNickname())
                 .userLevel(mentor.getUserLevel())
                 .userPictureUrl(mentor.getPictureUrl())
-                .likeMentoring(likeMentoring)
+                .stacks(mentoring.getMentoringTags().stream().map(MentoringTag::getTagName).toList())
                 .build();
     }
 }
