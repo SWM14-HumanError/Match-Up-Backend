@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.team.*;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.DuplicateEx.DuplicateFeedEx.DuplicateLikeException;
@@ -19,6 +20,7 @@ import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.TeamMentoringRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.teamtag.TeamTagRepository;
@@ -36,7 +38,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
+import static com.example.matchup.matchupbackend.entity.ApplyStatus.ACCEPTED;
 import static com.example.matchup.matchupbackend.error.ErrorCode.COMMENT_NOT_FOUND;
 import static com.example.matchup.matchupbackend.global.RoleType.LEADER;
 
@@ -55,6 +59,7 @@ public class TeamService {
     private final AlertCreateService alertCreateService;
     private final TokenProvider tokenProvider;
     private final LikeRepository likeRepository;
+    private final TeamMentoringRepository teamMentoringRepository;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -371,6 +376,34 @@ public class TeamService {
         } else {
             throw new ResourceNotPermitException(COMMENT_NOT_FOUND, "팀의 좋아요를 삭제하는 과정에서 존재하지 않는 댓글에 접근했거나 인가받지 못한 사용자로부터의 요청입니다.");
         }
+    }
+
+    public List<MentoringSearchResponse> showMentorings(String authorizationHeader, Long teamId) {
+        User user = getUser(authorizationHeader);
+        Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
+        List<TeamMentoring> teamMentorings = teamMentoringRepository.findAllByTeamAndStatus(team, ACCEPTED);
+
+        return teamMentorings.stream()
+                .map(TeamMentoring::getMentoring)
+                .map(getMentoringInTeamPageResponse(user))
+                .toList();
+    }
+
+    private Function<Mentoring, MentoringSearchResponse> getMentoringInTeamPageResponse(User user) {
+        return mentoring
+                ->  MentoringSearchResponse.ofMentoringInTeamPage(mentoring, likeRepository.countByMentoring(mentoring),
+                    0L,
+                    false,
+                    likeRepository.existsByUserAndMentoring(user, mentoring));
+    }
+
+    private User getUser(String authorizationHeader) {
+        if (authorizationHeader == null) {
+            return null;
+        }
+
+        Long userId = tokenProvider.getUserId(authorizationHeader);
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
     }
 
     private boolean isUserNotInTeam(User user, Team team) {
