@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
@@ -107,5 +108,10 @@ public class Mentoring {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    public void setUploadFile(UploadFile uploadFile){
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
     }
 }

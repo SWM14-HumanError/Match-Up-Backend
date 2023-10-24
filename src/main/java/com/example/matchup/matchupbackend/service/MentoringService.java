@@ -1,9 +1,10 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyMentoringRequest;
+import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
-import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.dto.response.mentoring.*;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
@@ -18,7 +19,6 @@ import com.example.matchup.matchupbackend.repository.mentoring.MentoringTagRepos
 import com.example.matchup.matchupbackend.repository.mentoring.TeamMentoringRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +43,7 @@ public class MentoringService {
 
     private final AlertCreateService alertCreateService;
     private final LikeRepository likeRepository;
+    private final FileService fileService;
     private final MentoringRepository mentoringRepository;
     private final MentoringTagRepository mentoringTagRepository;
     private final MentorVerifyRepository mentorVerifyRepository;
@@ -75,6 +76,12 @@ public class MentoringService {
         isAvailableCreateMentoring(mentor);
 
         Mentoring mentoring = Mentoring.create(request, mentor);
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentoring.setUploadFile(uploadFile);
+        }
+
         mentoringRepository.save(mentoring);
     }
 
@@ -82,6 +89,12 @@ public class MentoringService {
     public void editMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
         User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
+
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentoring.setUploadFile(uploadFile);
+        }
 
         mentoringTagRepository.deleteAll(mentoring.getMentoringTags());
         List<MentoringTag> mentoringTags = request.getStacks().stream()
@@ -135,10 +148,16 @@ public class MentoringService {
         User user = getUser(authorizationHeader);
         isAvailableMentor(user);
 
+        // MentorVerify 생성
         MentorVerify mentorVerify = MentorVerify.create(request, user);
 
-        mentorVerifyRepository.save(mentorVerify);
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentorVerify.setUploadFile(uploadFile);
+        }
 
+        mentorVerifyRepository.save(mentorVerify);
         alertCreateService.verifyMentorCreateAlert(user);
     }
 
@@ -147,6 +166,11 @@ public class MentoringService {
         User user = getUser(authorizationHeader);
         MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
 
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentorVerify.setUploadFile(uploadFile);
+        }
         mentorVerify.edit(request);
 
         alertCreateService.editVerifyMentorCreateAlert(user);
