@@ -29,6 +29,9 @@ public class MentoringSearchResponse {
     private List<String> stacks;
     private Boolean availableReview;
     private ApplyStatus status;
+    private String teamTitle;
+    private Long teamId;
+    private Long teamMentoringId;
 
     @Builder
     private MentoringSearchResponse(String thumbnailUrl, Long mentoringId, String title, String content, RoleType roleType, Career career, Long likes, Double stars, String nickname, Long userLevel, String userPictureUrl) {
@@ -82,10 +85,13 @@ public class MentoringSearchResponse {
         return response;
     }
 
-    public static MentoringSearchResponse ofMentor(Mentoring mentoring, Long likes, Boolean likeMentoring, ApplyStatus status) {
+    public static MentoringSearchResponse ofMentor(Mentoring mentoring, Long likes, Boolean likeMentoring, ApplyStatus status, Team team, Long teamMentoringId) {
         MentoringSearchResponse response = of(mentoring, likes);
         response.setLikeMentoring(likeMentoring);
         response.setStatus(status);
+        response.setTeamTitle(team.getTitle());
+        response.setTeamId(team.getId());
+        response.setTeamMentoringId(teamMentoringId);
         return response;
     }
 }

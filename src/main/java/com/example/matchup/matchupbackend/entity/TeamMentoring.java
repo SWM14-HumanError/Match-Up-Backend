@@ -71,6 +71,7 @@ public class TeamMentoring extends BaseTimeEntity{
 
     public void endMentoring() {
         this.status = ENDED;
+        this.endedDate = LocalDate.now();
     }
 
 }

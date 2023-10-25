@@ -298,9 +298,12 @@ public class MentoringService {
     }
 
     @Transactional
-    public void endMentoringByMentor(String authorizationHeader, Long mentoringId) {
+    public void endMentoringByMentor(String authorizationHeader, Long teamMentoringId) {
         User mentor = getMentor(authorizationHeader);
-        Mentoring mentoring = getMentoring(mentoringId);
+        TeamMentoring teamMentoring = teamMentoringRepository.findById(teamMentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "존재하지 않는 팀멘토링입니다."));
+        isAvailableEndMentoring(mentor, teamMentoring);
+
+        teamMentoring.endMentoring();
     }
 
     public List<MentoringSearchResponse> showActiveMentoringOnMentorPage(String authorizationHeader) {
@@ -313,7 +316,9 @@ public class MentoringService {
                             teamMentoring.getMentoring(),
                             likeRepository.countByMentoring(teamMentoring.getMentoring()),
                             likeRepository.existsByUserAndMentoring(mentor, teamMentoring.getMentoring()),
-                            teamMentoring.getStatus()
+                            teamMentoring.getStatus(),
+                            teamMentoring.getTeam(),
+                            teamMentoring.getId()
                             )
                     ).toList();
     }
@@ -402,6 +407,21 @@ public class MentoringService {
         }
         if (mentorVerifyRepository.existsByUser(user)) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "관리자의 승인을 기다리는 멘토입니다.");
+        }
+    }
+
+    /**
+     * 멘토가 진행중인 멘토링을 종료합니다.
+     * 멘토링은 ACCEPTED 상태이여야하고
+     * 멘토링의 멘토만이 종료할 수 있습니다.
+     */
+    private void isAvailableEndMentoring(User mentor, TeamMentoring teamMentoring) {
+        if (teamMentoring.getStatus() != ACCEPTED) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링이 진행 중인 상태가 아닙니다.");
+        }
+
+        if (mentor.equals(teamMentoring.getMentoring().getMentor())) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링의 멘토가 아닙니다.");
         }
     }
 

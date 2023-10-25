@@ -66,10 +66,10 @@ public class MentoringApplyController {
         return mentoringService.showApplyMentoringList(authorizationHeader);
     }
 
-    @PostMapping("/mentoring/{mentoringId}/done")
+    @PostMapping("/mentoring/{teamMentoringId}/done")
     @ResponseStatus(HttpStatus.CREATED)
     public void postEndMentoringByMentor(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                         @PathVariable Long mentoringId) {
-        mentoringService.endMentoringByMentor(authorizationHeader, mentoringId);
+                                         @PathVariable Long teamMentoringId) {
+        mentoringService.endMentoringByMentor(authorizationHeader, teamMentoringId);
     }
 }
