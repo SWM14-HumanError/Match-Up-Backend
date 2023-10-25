@@ -36,7 +36,6 @@ public class MentoringSliceResponse {
                         .map(mentoring -> MentoringSearchResponse.ofSearch(
                                 mentoring,
                                 mentoringToLikesCountMap.get(mentoring),
-                                0L,
                                 mentoringToCheckLikeMap.get(mentoring)))
                         .toList())
                 .size(size)

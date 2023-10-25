@@ -52,6 +52,7 @@ public class TokenProvider {
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
                 .claim("tokenId", user.getTokenId())
+                .claim("role", user.getRole())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
@@ -105,8 +106,8 @@ public class TokenProvider {
      * Bearer 토큰을 받아 user를 반환
      */
     public Long getUserId(String authorizationHeader, String callBack) {
-        if ("test".equals(authorizationHeader) && Arrays.asList(environment.getActiveProfiles()).contains("local")) {
-            return userRepository.findUserByNickname("test").orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
+        if (authorizationHeader != null && Arrays.asList(environment.getActiveProfiles()).contains("local") && authorizationHeader.startsWith("test")) {
+            return userRepository.findUserByNickname(authorizationHeader).orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
         }
 
         String token = getAccessToken(authorizationHeader);
@@ -130,8 +131,8 @@ public class TokenProvider {
     }
 
     public Long getUserId(String authorizationHeader) {
-        if (authorizationHeader.equals("test") && Arrays.asList(environment.getActiveProfiles()).contains("local")) {
-            return userRepository.findUserByNickname("test").orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
+        if (authorizationHeader != null && Arrays.asList(environment.getActiveProfiles()).contains("local") && authorizationHeader.startsWith("test")) {
+            return userRepository.findUserByNickname(authorizationHeader).orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
         }
 
         String token = getAccessToken(authorizationHeader);

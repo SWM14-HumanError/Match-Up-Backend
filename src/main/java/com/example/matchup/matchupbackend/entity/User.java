@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.example.matchup.matchupbackend.entity.Role.USER;
+import static com.example.matchup.matchupbackend.entity.Role.*;
 
 @Entity
 @Getter
@@ -61,6 +61,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(length = 500)
     private String refreshToken;
 
     private String thumbnailUploadUrl;
@@ -247,9 +248,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 //    }
 
     public void isAdmin() {
-        List<String> admins = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@naver.com", "hyunwoo0081@gmail.com");
-
-        if (!admins.contains(this.getEmail())) {
+        if (this.role != ADMIN) {
             throw new AuthorizeException("관리자가 아닙니다.");
         }
     }
@@ -270,6 +269,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void acceptMentor() {
         this.isMentor = true;
+        this.role = MENTOR;
     }
 
     public void addLike(){
@@ -329,7 +329,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 /*
 public Double returnUserReviewAverage() {
     Double totalScore = 0.0;
-    for (Review userReview : userReviewList) {
+    for (ReviewMentor userReview : userReviewList) {
         totalScore += userReview.getScore();
     }
     if (userReviewList.size() == 0) return 0.0;

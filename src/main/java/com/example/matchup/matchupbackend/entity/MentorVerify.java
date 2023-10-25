@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
 import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
@@ -61,5 +62,10 @@ public class MentorVerify {
         this.career = request.getCareer();
         this.content = request.getContent();
         this.link = request.getLink();
+    }
+
+    public void setUploadFile(UploadFile uploadFile){
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
     }
 }

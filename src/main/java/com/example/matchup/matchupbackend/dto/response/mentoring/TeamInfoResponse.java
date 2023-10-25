@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 public class TeamInfoResponse {
 
     private Long teamId;
-
     private String title;
 
     @Builder

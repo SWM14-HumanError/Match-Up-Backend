@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public enum ApplyStatus {
 
-    REFUSED, ACCEPTED, WAITING
+    REFUSED, ACCEPTED, WAITING, ENDED
 }

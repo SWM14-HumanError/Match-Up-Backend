@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
+import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
 import com.example.matchup.matchupbackend.global.RoleType;
 import jakarta.persistence.*;
@@ -26,6 +27,9 @@ public class Mentoring {
 
     @Column(length = 700)
     private String content;
+
+    @Column(columnDefinition = "DOUBLE DEFAULT 0.0")
+    private Double score = 0.0;
 
     @Enumerated(EnumType.STRING)
     private RoleType roleType; // 직무
@@ -54,20 +58,10 @@ public class Mentoring {
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
-    private List<Review> mentoringReviewList = new ArrayList<>();
-
-    //== 비즈니스 로직 ==//
-    public Double returnMentoringReviewAverage() {
-        Double totalScore = 0.0;
-        for (Review mentoringReview : mentoringReviewList) {
-            totalScore += mentoringReview.getScore(); //todo 멘토의 score는 일반 유저의 온도와 다름
-        }
-        if (mentoringReviewList.size() == 0) return 0.0;
-        return totalScore / mentoringReviewList.size();
-    }
+    private List<ReviewMentor> mentoringReviewListMentor = new ArrayList<>();
 
     @Builder
-    private Mentoring(String title, String content, RoleType roleType, Career career, User mentor, List<Likes> likes, List<TeamMentoring> teamMentoringList, List<Review> mentoringReviewList, List<MentoringTag> mentoringTags) {
+    private Mentoring(String title, String content, RoleType roleType, Career career, User mentor, List<Likes> likes, List<TeamMentoring> teamMentoringList, List<ReviewMentor> mentoringReviewListMentor, List<MentoringTag> mentoringTags) {
         this.title = title;
         this.content = content;
         this.roleType = roleType;
@@ -75,7 +69,7 @@ public class Mentoring {
         this.mentor = mentor;
         this.likes = likes;
         this.teamMentoringList = teamMentoringList;
-        this.mentoringReviewList = mentoringReviewList;
+        this.mentoringReviewListMentor = mentoringReviewListMentor;
         this.mentoringTags = mentoringTags;
     }
 
@@ -107,5 +101,14 @@ public class Mentoring {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    public void setUploadFile(UploadFile uploadFile){
+        this.thumbnailUploadUrl = uploadFile.getUploadFileName();
+        this.thumbnailUrl = String.valueOf(uploadFile.getS3Url());
+    }
+
+    public void setScoreAfterReviewFromMentee(Double score) {
+        this.score = score;
     }
 }

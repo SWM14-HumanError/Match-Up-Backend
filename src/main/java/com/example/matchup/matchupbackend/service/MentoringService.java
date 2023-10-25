@@ -1,9 +1,7 @@
 package com.example.matchup.matchupbackend.service;
 
-import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyMentoringRequest;
-import com.example.matchup.matchupbackend.dto.request.mentoring.CreateOrEditMentoringRequest;
-import com.example.matchup.matchupbackend.dto.request.mentoring.MentoringSearchParam;
-import com.example.matchup.matchupbackend.dto.request.mentoring.ApplyVerifyMentorRequest;
+import com.example.matchup.matchupbackend.dto.UploadFile;
+import com.example.matchup.matchupbackend.dto.request.mentoring.*;
 import com.example.matchup.matchupbackend.dto.response.mentoring.*;
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
@@ -12,13 +10,10 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Use
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.ResourceNotPermitException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
-import com.example.matchup.matchupbackend.repository.mentoring.MentorVerifyRepository;
-import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
-import com.example.matchup.matchupbackend.repository.mentoring.MentoringTagRepository;
-import com.example.matchup.matchupbackend.repository.mentoring.TeamMentoringRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.*;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
+import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -26,12 +21,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.example.matchup.matchupbackend.entity.ApplyStatus.WAITING;
+import static com.example.matchup.matchupbackend.entity.ApplyStatus.*;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_FOUND;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 
@@ -43,13 +40,16 @@ public class MentoringService {
 
     private final AlertCreateService alertCreateService;
     private final LikeRepository likeRepository;
+    private final FileService fileService;
     private final MentoringRepository mentoringRepository;
     private final MentoringTagRepository mentoringTagRepository;
     private final MentorVerifyRepository mentorVerifyRepository;
     private final TeamRepository teamRepository;
     private final TeamMentoringRepository teamMentoringRepository;
+    private final TeamUserRepository teamUserRepository;
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
+    private final ReviewMentorRepository reviewMentorRepository;
 
     public MentoringSliceResponse showMentoringsInMentoringPage(String authorizationHeader, MentoringSearchParam param, Pageable pageable) {
         // 로그인한 유저는 좋아요 표시를 위해 token을 받을 수 있다.
@@ -70,18 +70,31 @@ public class MentoringService {
     }
 
     @Transactional
-    public void createMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request) {
+    public Long createMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request) {
         User mentor = getMentor(authorizationHeader);
         isAvailableCreateMentoring(mentor);
 
         Mentoring mentoring = Mentoring.create(request, mentor);
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentoring.setUploadFile(uploadFile);
+        }
+
         mentoringRepository.save(mentoring);
+        return mentoring.getId();
     }
 
     @Transactional
-    public void editMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
+    public Long editMentoringByMentor(String authorizationHeader, CreateOrEditMentoringRequest request, Long mentoringId) {
         User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
+
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentoring.setUploadFile(uploadFile);
+        }
 
         mentoringTagRepository.deleteAll(mentoring.getMentoringTags());
         List<MentoringTag> mentoringTags = request.getStacks().stream()
@@ -92,14 +105,16 @@ public class MentoringService {
                 .toList();
 
         mentoring.edit(request, mentoringTags);
+        return mentoring.getId();
     }
 
     @Transactional
-    public void deleteMentoringByMentor(String authorizationHeader, Long mentoringId) {
+    public Long deleteMentoringByMentor(String authorizationHeader, Long mentoringId) {
         User mentor = getMentor(authorizationHeader);
         Mentoring mentoring = loadMentoringAndCheckAvailable(mentoringId, mentor);
 
         mentoring.delete();
+        return mentoring.getId();
     }
 
     @Transactional
@@ -123,10 +138,11 @@ public class MentoringService {
         likeRepository.delete(like);
     }
 
-    public MentoringDetailResponse showMentoringDetail(Long mentoringId) {
+    public MentoringSearchResponse showMentoringDetail(Long mentoringId) {
         Mentoring mentoring = getMentoring(mentoringId);
+        Long likes = likeRepository.countByMentoring(mentoring);
 
-        return MentoringDetailResponse.of(mentoring);
+        return MentoringSearchResponse.ofDetail(mentoring, likes);
     }
 
     @Transactional
@@ -134,10 +150,16 @@ public class MentoringService {
         User user = getUser(authorizationHeader);
         isAvailableMentor(user);
 
+        // MentorVerify 생성
         MentorVerify mentorVerify = MentorVerify.create(request, user);
 
-        mentorVerifyRepository.save(mentorVerify);
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentorVerify.setUploadFile(uploadFile);
+        }
 
+        mentorVerifyRepository.save(mentorVerify);
         alertCreateService.verifyMentorCreateAlert(user);
     }
 
@@ -146,6 +168,11 @@ public class MentoringService {
         User user = getUser(authorizationHeader);
         MentorVerify mentorVerify = mentorVerifyRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "멘토 인증 신청을 하지 않은 사용자입니다."));
 
+        // 사진 저장
+        if (request.getImageBase64() != null) {
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+            mentorVerify.setUploadFile(uploadFile);
+        }
         mentorVerify.edit(request);
 
         alertCreateService.editVerifyMentorCreateAlert(user);
@@ -189,7 +216,7 @@ public class MentoringService {
         return VerifyMentorsResponse.of(mentorVerify);
     }
 
-    public List<TeamInfoResponse> getApplyMentoringInpuForm(String authorizationHeader) {
+    public List<TeamInfoResponse> getApplyMentoringInputForm(String authorizationHeader) {
         User leader = getUser(authorizationHeader);
         List<Team> teams = teamRepository.findByLeaderIDAndIsDeletedAndType(leader.getId(), 0L, 0L);
 
@@ -238,7 +265,7 @@ public class MentoringService {
 
     public List<MentoringApplyListResponse> showApplyMentoringList(String authorizationHeader) {
         User mentor = getMentor(authorizationHeader);
-        List<Mentoring> mentorings = mentoringRepository.findALlByMentorOrderByIdDesc(mentor);
+        List<Mentoring> mentorings = mentoringRepository.findALlByMentorAndIsDeletedOrderByIdDesc(mentor, false);
 
         List<TeamMentoring> teamMentorings = mentorings.stream()
                 .flatMap(mentoring -> mentoring.getTeamMentoringList().stream()
@@ -248,6 +275,91 @@ public class MentoringService {
         return teamMentorings.stream().map(MentoringApplyListResponse::of).toList();
     }
 
+    /**
+     * 멘티가 멘토링에 리뷰를 남긴다.
+     * 멘토링이 종료되면 종료 한 달 후까지 평가할 수 있고, 이후에는 평가할 수 없다.
+     * 3개의 문항의 평균으로 score을 업데이트한다.
+     */
+    @Transactional
+    public void reviewMentoringByMentee(ReviewMentoringRequest request, String authorizationHeader, Long mentoringId, Long teamId) {
+        User user = getUser(authorizationHeader);
+        Mentoring mentoring = getMentoring(mentoringId);
+        Team team = teamRepository.findTeamByIdAndIsDeleted(teamId, 0L).orElseThrow(() -> new TeamNotFoundException("팀을 찾을 수 없습니다."));
+        List<TeamMentoring> teamMentorings = getTeamMentoringsSortByEndedDateDesc(mentoring, team);
+
+        TeamMentoring latestEndedTeamMentoring = teamMentorings.get(0);
+        isAvailableReviewMentorings(user, team, latestEndedTeamMentoring);
+
+        Double score = calculateAverageScore(request, mentoring);
+        mentoring.setScoreAfterReviewFromMentee(score);
+
+        ReviewMentor reviewMentor = ReviewMentor.create(request, mentoring, latestEndedTeamMentoring);
+        reviewMentorRepository.save(reviewMentor);
+    }
+
+    @Transactional
+    public void endMentoringByMentor(String authorizationHeader, Long teamMentoringId) {
+        User mentor = getMentor(authorizationHeader);
+        TeamMentoring teamMentoring = teamMentoringRepository.findById(teamMentoringId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "존재하지 않는 팀멘토링입니다."));
+        isAvailableEndMentoring(mentor, teamMentoring);
+
+        teamMentoring.endMentoring();
+    }
+
+    public List<MentoringSearchResponse> showActiveMentoringOnMentorPage(String authorizationHeader) {
+        User mentor = getMentor(authorizationHeader);
+        List<Mentoring> mentorings = mentoringRepository.findAllByMentorAndIsDeleted(mentor, false);
+        List<TeamMentoring> teamMentorings = teamMentoringRepository.findALlByMentoringIn(mentorings);
+
+        return teamMentorings.stream()
+                    .map(teamMentoring -> MentoringSearchResponse.ofMentor(
+                            teamMentoring.getMentoring(),
+                            likeRepository.countByMentoring(teamMentoring.getMentoring()),
+                            likeRepository.existsByUserAndMentoring(mentor, teamMentoring.getMentoring()),
+                            teamMentoring.getStatus(),
+                            teamMentoring.getTeam(),
+                            teamMentoring.getId()
+                            )
+                    ).toList();
+    }
+
+    /**
+     * 멘토링에 참여한 유저는 리뷰를 남길 수 있다.
+     * 멘토링이 종료되었으며
+     * 유저는 멘토링에 지원한 팀의 팀원이여야 하고
+     * 멘토링이 종료된 시점에서 한 달 내에
+     * 한 번만 리뷰할 수 있다.
+     */
+    private void isAvailableReviewMentorings(User user, Team team, TeamMentoring latestEndedTeamMentoring) {
+        LocalDate endedDate = latestEndedTeamMentoring.getEndedDate();
+
+        if (!teamUserRepository.existsByTeamAndUserAndApprove(team, user, true)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링에 지원한 팀원이 아닙니다.");
+        }
+
+        LocalDate oneMonthLater = endedDate.plus(31, ChronoUnit.DAYS);
+        if (!endedDate.isBefore(oneMonthLater)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "리뷰는 멘토링 종료 후 한 달 내에만 가능합니다.");
+        }
+
+        if (reviewMentorRepository.existsByTeamMentoringAndUser(latestEndedTeamMentoring, user)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "리뷰는 한 번만 가능합니다.");
+        }
+    }
+
+    /**
+     * 한 팀이 한 멘토링을 여러 번 수강할 수도 있으므로
+     * 각 각에 대해서 검증한다.
+     */
+    private void isAvailableReviewMentoring(TeamMentoring teamMentoring) {
+
+    }
+
+    /**
+     * 팀이 멘토링에 신청하면 멘토는 거절하거나 승락할 수 있다.
+     * 해당 멘토링에 멘토이여야 하며,
+     * 신청한 멘토링의 상태가 WAITING 일 때만 처리할 수 있다.
+     */
     private void isAvailableAcceptOrRefuseMentoring(User mentor, TeamMentoring teamMentoring) {
         if (teamMentoring.getStatus() != WAITING) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링이 이미 처리되었습니다.");
@@ -257,11 +369,17 @@ public class MentoringService {
         }
     }
 
+    /**
+     * 멘토링에 신청하려면
+     * 팀의 리더만이 신청할 수 있고
+     * 지원한 멘토링의 상태가 WAITING과 ACCEPTED 가 있다면 처리될 때까지 신청할 수 없다. 종료된 멘토링은 ENDED 로 전환된다.
+     * 멘토는 자신의 멘토링에 신청할 수 없다.
+     */
     private void isAvailableApplyMentoring(User leader, Team team, Mentoring mentoring) {
         if (!team.getLeaderID().equals(leader.getId())) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "리더가 아닌 유저가 멘토링을 신청했습니다.");
         }
-        if (alreadyApply(team, mentoring)) {
+        if (alreadyApplyOrProgressed(team, mentoring)) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "이미 멘토링에 지원했습니다.");
         }
         if (mentoring.getMentor().equals(leader)) {
@@ -269,8 +387,46 @@ public class MentoringService {
         }
     }
 
-    private boolean alreadyApply(Team team, Mentoring mentoring) {
-        return team.getTeamMentoringList().stream().anyMatch(teamMentoring -> teamMentoring.getMentoring().equals(mentoring) && teamMentoring.getStatus() == WAITING);
+    /**
+     * 오직 멘토 인증을 받은 유저만이 멘토링을 만들 수 있다.
+     */
+    private void isAvailableCreateMentoring(User mentor) {
+        if (!mentor.getIsMentor()) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링을 생성할 수 없는 유저입니다.");
+        }
+    }
+
+    /**
+     * 멘토 인증을 받기 위해서는
+     * 멘토 인증이 안된 유저이여야 하고
+     * 멘토 인증이 처리되기 전에 다시 진행할 수 없다.
+     */
+    private void isAvailableMentor(User user) {
+        if (user.getIsMentor()) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "이미 인증된 멘토입니다.");
+        }
+        if (mentorVerifyRepository.existsByUser(user)) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "관리자의 승인을 기다리는 멘토입니다.");
+        }
+    }
+
+    /**
+     * 멘토가 진행중인 멘토링을 종료합니다.
+     * 멘토링은 ACCEPTED 상태이여야하고
+     * 멘토링의 멘토만이 종료할 수 있습니다.
+     */
+    private void isAvailableEndMentoring(User mentor, TeamMentoring teamMentoring) {
+        if (teamMentoring.getStatus() != ACCEPTED) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링이 진행 중인 상태가 아닙니다.");
+        }
+
+        if (mentor.equals(teamMentoring.getMentoring().getMentor())) {
+            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링의 멘토가 아닙니다.");
+        }
+    }
+
+    private boolean alreadyApplyOrProgressed(Team team, Mentoring mentoring) {
+        return team.getTeamMentoringList().stream().anyMatch(teamMentoring -> teamMentoring.getMentoring().equals(mentoring) && (teamMentoring.getStatus() == WAITING || teamMentoring.getStatus() == ACCEPTED));
     }
 
     private void isAdmin(String authorizationHeader) {
@@ -301,18 +457,18 @@ public class MentoringService {
         return mentoring;
     }
 
-    private void isAvailableCreateMentoring(User mentor) {
-        if (!mentor.getIsMentor()) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링을 생성할 수 없는 유저입니다.");
-        }
+    private Double calculateAverageScore(ReviewMentoringRequest request, Mentoring mentoring) {
+        double avgScore = (request.getSatisfaction() + request.getExpertise() + request.getPunctuality()) / 3.0;
+        int reviewCount = reviewMentorRepository.countByMentoring(mentoring);
+
+        return (mentoring.getScore() * reviewCount + avgScore) / (reviewCount + 1);
     }
 
-    private void isAvailableMentor(User user) {
-        if (user.getIsMentor()) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "이미 인증된 멘토입니다.");
+    private List<TeamMentoring> getTeamMentoringsSortByEndedDateDesc(Mentoring mentoring, Team team) {
+        List<TeamMentoring> teamMentorings = teamMentoringRepository.findAllByTeamAndStatusAndMentoringOrderByEndedDateDesc(team, ENDED, mentoring);
+        if (teamMentorings.isEmpty()) {
+            throw new ResourceNotFoundException(NOT_FOUND, "종료된 멘토링이 없습니다.");
         }
-        if (mentorVerifyRepository.existsByUser(user)) {
-            throw new ResourceNotPermitException(NOT_PERMITTED, "관리자의 승인을 기다리는 멘토입니다.");
-        }
+        return teamMentorings;
     }
 }
