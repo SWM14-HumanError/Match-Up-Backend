@@ -12,5 +12,9 @@ public interface TeamMentoringRepository extends JpaRepository<TeamMentoring, Lo
 
     List<TeamMentoring> findAllByTeamAndStatusAndMentoringOrderByEndedDateDesc(Team team, ApplyStatus applyStatus, Mentoring mentoring);
 
-    List<TeamMentoring> findAllByTeam(Team team);
+    TeamMentoring findTopByTeamAndStatusAndMentoringOrderByEndedDateDesc(Team team, ApplyStatus applyStatus, Mentoring mentoring);
+
+    List<TeamMentoring> findALlByMentoringIn(List<Mentoring> mentorings);
+
+    List<TeamMentoring> findAllByTeamAndStatusIn(Team team, List<ApplyStatus> accepted);
 }

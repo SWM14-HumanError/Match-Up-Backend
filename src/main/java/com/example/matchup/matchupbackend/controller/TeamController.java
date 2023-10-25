@@ -147,6 +147,6 @@ public class TeamController {
     @ResponseStatus(HttpStatus.OK)
     public List<MentoringSearchResponse> getMentoringsInTeamPage(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                                  @PathVariable Long teamId) {
-        return teamService.showMentorings(authorizationHeader, teamId);
+        return teamService.showMentoringsInTeamPage(authorizationHeader, teamId);
     }
 }

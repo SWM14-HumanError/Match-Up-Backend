@@ -15,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
 
 @Slf4j
@@ -87,5 +89,9 @@ public class MentoringController {
         mentoringService.reviewMentoringByMentee(request, authorizationHeader, mentoringId, teamId);
     }
 
-
+    @GetMapping("/mentor/active")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MentoringSearchResponse> getMentoringActiveOnMentorPage(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return mentoringService.showActiveMentoringOnMentorPage(authorizationHeader);
+    }
 }

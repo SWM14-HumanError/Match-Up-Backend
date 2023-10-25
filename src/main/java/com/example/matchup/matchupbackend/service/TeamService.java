@@ -20,6 +20,7 @@ import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.TeamPositionRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.ReviewMentorRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.TeamMentoringRepository;
 import com.example.matchup.matchupbackend.repository.tag.TagRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
@@ -34,12 +35,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
+import static com.example.matchup.matchupbackend.entity.ApplyStatus.ACCEPTED;
+import static com.example.matchup.matchupbackend.entity.ApplyStatus.ENDED;
 import static com.example.matchup.matchupbackend.error.ErrorCode.COMMENT_NOT_FOUND;
 import static com.example.matchup.matchupbackend.global.RoleType.LEADER;
 
@@ -59,6 +59,7 @@ public class TeamService {
     private final TokenProvider tokenProvider;
     private final LikeRepository likeRepository;
     private final TeamMentoringRepository teamMentoringRepository;
+    private final ReviewMentorRepository reviewMentorRepository;
 
     public SliceTeamResponse searchSliceTeamResponseList(TeamSearchRequest teamSearchRequest, Pageable pageable) {
         Slice<Team> teamSliceByTeamRequest = teamRepository.findTeamSliceByTeamRequest(teamSearchRequest, pageable);
@@ -377,28 +378,44 @@ public class TeamService {
         }
     }
 
-    public List<MentoringSearchResponse> showMentorings(String authorizationHeader, Long teamId) {
-        User user = getUser(authorizationHeader);
+    public List<MentoringSearchResponse> showMentoringsInTeamPage(String authorizationHeader, Long teamId) {
+        User user = getUserWhenTokenGiven(authorizationHeader);
         Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
-        List<TeamMentoring> teamMentorings = teamMentoringRepository.findAllByTeam(team);
-        List<TeamMentoring> acceptedOrEndedTeamMentorings = teamMentorings.stream()
-                .filter(teamMentoring -> teamMentoring.getStatus() == ApplyStatus.ACCEPTED || teamMentoring.getStatus() == ApplyStatus.ENDED).toList();
-
-        return acceptedOrEndedTeamMentorings.stream()
+        List<TeamMentoring> acceptedOrEndedTeamMentorings = teamMentoringRepository.findAllByTeamAndStatusIn(team, List.of(ACCEPTED, ENDED));
+        List<Mentoring> acceptedOrEndedUniqueMentoring = acceptedOrEndedTeamMentorings.stream()
                 .map(TeamMentoring::getMentoring)
-                .map(getMentoringInTeamPageResponse(user))
+                .distinct()
+                .toList();
+
+        return getMentoringInTeamPageResponse(user, acceptedOrEndedUniqueMentoring, team);
+    }
+
+    private List<MentoringSearchResponse> getMentoringInTeamPageResponse(User user, List<Mentoring> acceptedOrEndedUniqueMentoring, Team team) {
+        return acceptedOrEndedUniqueMentoring.stream()
+                .map(getMentoringInTeamPageResponse(user, team))
                 .toList();
     }
 
-    private Function<Mentoring, MentoringSearchResponse> getMentoringInTeamPageResponse(User user) {
+    private Function<Mentoring, MentoringSearchResponse> getMentoringInTeamPageResponse(User user, Team team) {
         return mentoring
-                ->  MentoringSearchResponse.ofMentoringInTeamPage(mentoring, likeRepository.countByMentoring(mentoring),
-                    0L,
-                    false,
-                    likeRepository.existsByUserAndMentoring(user, mentoring));
+                ->  MentoringSearchResponse.ofMentoringInTeamPage(
+                        mentoring,
+                        likeRepository.countByMentoring(mentoring),
+                        isAvailableReview(team, user, mentoring),
+                        user != null ? likeRepository.existsByUserAndMentoring(user, mentoring) : false
+        );
     }
 
-    private User getUser(String authorizationHeader) {
+    private Boolean isAvailableReview(Team team, User user, Mentoring mentoring) {
+        if (user == null) {
+            return false;
+        }
+
+        TeamMentoring latestEndedTeamMentoring = teamMentoringRepository.findTopByTeamAndStatusAndMentoringOrderByEndedDateDesc(team, ENDED, mentoring);
+        return !reviewMentorRepository.existsByTeamMentoringAndUser(latestEndedTeamMentoring, user);
+    }
+
+    private User getUserWhenTokenGiven(String authorizationHeader) {
         if (authorizationHeader == null) {
             return null;
         }
