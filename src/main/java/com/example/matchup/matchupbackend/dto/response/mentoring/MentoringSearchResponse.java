@@ -32,13 +32,13 @@ public class MentoringSearchResponse {
     private String teamTitle;
     private Long teamId;
     private Long teamMentoringId;
+    private Long mentorId;
 
     @Builder
-    private MentoringSearchResponse(String thumbnailUrl, Long mentoringId, String title, String content, RoleType roleType, Career career, Long likes, Double stars, String nickname, Long userLevel, String userPictureUrl) {
+    private MentoringSearchResponse(String thumbnailUrl, Long mentoringId, String title, RoleType roleType, Career career, Long likes, Double stars, String nickname, Long userLevel, String userPictureUrl, Long mentorId) {
         this.thumbnailUrl = thumbnailUrl;
         this.mentoringId = mentoringId;
         this.title = title;
-        this.content = content;
         this.roleType = roleType;
         this.career = career;
         this.likes = likes;
@@ -46,6 +46,7 @@ public class MentoringSearchResponse {
         this.nickname = nickname;
         this.userLevel = userLevel;
         this.userPictureUrl = userPictureUrl;
+        this.mentorId = mentorId;
     }
 
     private static MentoringSearchResponse of(Mentoring mentoring, Long likes) {
@@ -55,7 +56,6 @@ public class MentoringSearchResponse {
                 .thumbnailUrl(mentoring.getThumbnailUrl())
                 .mentoringId(mentoring.getId())
                 .title(mentoring.getTitle())
-                .content(mentoring.getContent())
                 .roleType(mentoring.getRoleType())
                 .career(mentoring.getCareer())
                 .likes(likes)
@@ -63,6 +63,7 @@ public class MentoringSearchResponse {
                 .nickname(mentor.getNickname())
                 .userLevel(mentor.getUserLevel())
                 .userPictureUrl(mentor.getPictureUrl())
+                .mentorId(mentoring.getMentor().getId())
                 .build();
     }
 
@@ -74,19 +75,23 @@ public class MentoringSearchResponse {
 
     public static MentoringSearchResponse ofDetail(Mentoring mentoring, Long likes) {
         MentoringSearchResponse response = of(mentoring, likes);
+
+        response.setContent(mentoring.getContent());
         response.setStacks(mentoring.getMentoringTags().stream().map(MentoringTag::getTagName).toList());
         return response;
     }
 
     public static MentoringSearchResponse ofMentoringInTeamPage(Mentoring mentoring, Long likes, Boolean availableReview, Boolean likeMentoring) {
         MentoringSearchResponse response = of(mentoring, likes);
+
         response.setLikeMentoring(likeMentoring);
         response.setAvailableReview(availableReview);
         return response;
     }
 
-    public static MentoringSearchResponse ofMentor(Mentoring mentoring, Long likes, Boolean likeMentoring, ApplyStatus status, Team team, Long teamMentoringId) {
+    public static MentoringSearchResponse ofActiveMentoringInMentorPrivatePage(Mentoring mentoring, Long likes, Boolean likeMentoring, ApplyStatus status, Team team, Long teamMentoringId) {
         MentoringSearchResponse response = of(mentoring, likes);
+
         response.setLikeMentoring(likeMentoring);
         response.setStatus(status);
         response.setTeamTitle(team.getTitle());

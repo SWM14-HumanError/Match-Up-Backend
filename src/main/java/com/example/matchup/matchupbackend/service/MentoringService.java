@@ -312,7 +312,7 @@ public class MentoringService {
         List<TeamMentoring> teamMentorings = teamMentoringRepository.findALlByMentoringIn(mentorings);
 
         return teamMentorings.stream()
-                    .map(teamMentoring -> MentoringSearchResponse.ofMentor(
+                    .map(teamMentoring -> MentoringSearchResponse.ofActiveMentoringInMentorPrivatePage(
                             teamMentoring.getMentoring(),
                             likeRepository.countByMentoring(teamMentoring.getMentoring()),
                             likeRepository.existsByUserAndMentoring(mentor, teamMentoring.getMentoring()),
