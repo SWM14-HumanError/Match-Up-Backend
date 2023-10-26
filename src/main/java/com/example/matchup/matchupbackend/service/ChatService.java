@@ -6,6 +6,7 @@ import com.example.matchup.matchupbackend.dynamodb.ChatMessageRepository;
 import com.example.matchup.matchupbackend.entity.ChatRoom;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserChatRoom;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidChatException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.ChatRoomRepository;
@@ -42,6 +43,7 @@ public class ChatService {
     @Transactional
     public Long create1To1Room(String authorizationHeader, Long receiverId) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "createRoom");
+        if (userId == receiverId) throw new InvalidChatException("userID: " + userId, "자기 자신과는 채팅방을 생성할 수 없습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
         User receiver = userRepository.findById(receiverId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
         ChatRoom chatRoom = ChatRoom.make1to1ChatRoom(receiver.getNickname(), user.getNickname());
