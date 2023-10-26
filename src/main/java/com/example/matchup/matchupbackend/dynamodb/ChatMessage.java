@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.example.matchup.matchupbackend.config.DynamoDBConfig;
+import com.example.matchup.matchupbackend.dto.request.chat.ChatMessageRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -11,16 +12,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @DynamoDBTable(tableName = "chatMessageDB")
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 public class ChatMessage {
-
     private String chatId;
     private Long roomId;
     private String message;
-    private Integer readerCount;
+    private Integer isRead;
     @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.S)
     private LocalDateTime sendTime;
     private String messageType;
@@ -45,8 +44,8 @@ public class ChatMessage {
     }
 
     @DynamoDBAttribute
-    public Integer getReaderCount() {
-        return readerCount;
+    public Integer getIsRead() {
+        return isRead;
     }
 
     @DynamoDBAttribute
@@ -87,8 +86,8 @@ public class ChatMessage {
         this.message = message;
     }
 
-    public void setReaderCount(Integer readerCount) {
-        this.readerCount = readerCount;
+    public void setIsRead(Integer isRead) {
+        this.isRead = isRead;
     }
 
     public void setSendTime(LocalDateTime sendTime) {
@@ -110,16 +109,29 @@ public class ChatMessage {
     public void setSenderFace(String senderFace) {
         this.senderFace = senderFace;
     }
-    public ChatMessage(Long roomId, String message, Integer readerCount, LocalDateTime sendTime, String messageType, Long senderID, String senderName, String senderFace) {
+
+    @Builder
+    public ChatMessage(Long roomId, String message, String messageType, Long senderID, String senderName, String senderFace) {
         this.chatId = UUID.randomUUID().toString();
         this.roomId = roomId;
         this.message = message;
-        this.readerCount = readerCount;
-        this.sendTime = sendTime;
+        this.isRead = 0;
+        this.sendTime = LocalDateTime.now();
         this.messageType = messageType;
         this.senderID = senderID;
         this.senderName = senderName;
         this.senderFace = senderFace;
+    }
+
+    public static ChatMessage fromDTO(ChatMessageRequest chatMessageRequest) {
+        return ChatMessage.builder()
+                .roomId(chatMessageRequest.getRoomId())
+                .message(chatMessageRequest.getMessage())
+                .messageType(chatMessageRequest.getType().getDescription())
+                .senderID(chatMessageRequest.getSender().getUserId())
+                .senderName(chatMessageRequest.getSender().getNickname())
+                .senderFace(chatMessageRequest.getSender().getPictureUrl())
+                .build();
     }
 
 }
