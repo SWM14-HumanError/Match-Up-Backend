@@ -226,7 +226,7 @@ public class TeamService {
      * 팀 수정 할때 현재 있는 팀원보다 더 적은 max 팀원을 설정 할 경우 예외
      */
     private void isUpdatableTeam(Long leaderID, Team team, TeamCreateRequest teamCreateRequest) {
-        if (team.getLeaderID().equals(leaderID)) { // 팀 수정 시도 하는 사람이 리더인지 체크
+        if (!team.getLeaderID().equals(leaderID)) { // 팀 수정 시도 하는 사람이 리더인지 체크
             throw new LeaderOnlyPermitException("팀 업데이트 - teamID: " + team.getId());
         }
         if (team.getIsDeleted() == 1L) { // 이미 지워진 팀을 수정 하는지 체크
