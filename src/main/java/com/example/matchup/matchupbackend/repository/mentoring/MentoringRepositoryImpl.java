@@ -27,7 +27,7 @@ public class MentoringRepositoryImpl implements MentoringRepositoryCustom {
     public Slice<Mentoring> findMentoringByMentoringSearchParam(MentoringSearchParam param, Pageable pageable) {
         List<Mentoring> mentorings = queryFactory
                 .selectFrom(mentoring).distinct()
-                .join(mentoring.mentoringTags, mentoringTag)
+                .leftJoin(mentoring.mentoringTags, mentoringTag)
                 .where(
                         mentoring.isDeleted.eq(false),
                         searchTitleContentOrWriterEq(param),
