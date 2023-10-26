@@ -22,9 +22,9 @@ public class StompChatController {
      */
     @MessageMapping("/chat/{roomId}") //"pub/chat/{roomId}"
     @SendToUser("/sub-queue/chat/{roomId}")
-    public String sendMessage(@DestinationVariable Long roomId, ChatMessageRequest message) {
+    public ChatMessageRequest sendMessage(@DestinationVariable Long roomId, ChatMessageRequest message) {
         chatService.saveChatMessage(message);
-        return message.getMessage();
+        return message;
     }
 
     /**
@@ -32,9 +32,9 @@ public class StompChatController {
      */
     @MessageMapping("/chats/{roomId}") //"pub/chats/{roomId}"
     @SendTo("/sub-topic/chat/{roomId}")
-    public String sendMessages(@DestinationVariable Long roomId, ChatMessageRequest message) {
+    public ChatMessageRequest sendMessages(@DestinationVariable Long roomId, ChatMessageRequest message) {
         chatService.saveChatMessage(message);
-        return message.getMessage();
+        return message;
     }
 
 }
