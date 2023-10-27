@@ -77,20 +77,34 @@ public class ChatService {
     public SliceChatMessageResponse showMessages(String token, Long roomId, Pageable pageable) {
         Long myId = tokenProvider.getUserId(token, "showMessages");
         Slice<ChatMessage> chatMessage = pagingChatMessageRepository.findByRoomId(roomId, pageable);
-        Slice<ChatMessage> sortChatMessage = sortChatMessageByCreatedAt(chatMessage);
+        Slice<ChatMessage> sortChatMessage = sortChatMessageByCreatedAt(myId,chatMessage);
         return SliceChatMessageResponse.from(myId, sortChatMessage);
     }
 
-    private Slice<ChatMessage> sortChatMessageByCreatedAt(Slice<ChatMessage> chatMessage) {
+    /**
+     * 채팅 메세지를 보낸 시간 순으로 정렬
+     */
+    private Slice<ChatMessage> sortChatMessageByCreatedAt(Long myId,Slice<ChatMessage> chatMessage) {
         List<ChatMessage> content = chatMessage.stream()
                 .sorted(Comparator.comparing(ChatMessage::getSendTime))
                 .collect(Collectors.toList());
-        makeMessageRead(content);
+        makeMessageRead(myId,content);
         return new SliceImpl<>(content, chatMessage.getPageable(), chatMessage.hasNext());
     }
 
-    private void makeMessageRead(List<ChatMessage> chatMessageList) {
-        chatMessageList.forEach(chatMessage -> chatMessage.readMessage());
+    /**
+     * 상대방에 보낸 메세지만 읽음 처리
+     */
+    private void makeMessageRead(Long myId,List<ChatMessage> chatMessageList) {
+        chatMessageList.forEach(chatMessage -> {
+            if(!chatMessage.getSenderID().equals(myId)){
+                chatMessage.readMessage();
+            }
+        });
         chatMessageRepository.saveAll(chatMessageList);
+    }
+
+    public void getRoomList(String name) {
+        return;
     }
 }
