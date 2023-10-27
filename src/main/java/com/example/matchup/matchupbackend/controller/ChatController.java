@@ -1,9 +1,11 @@
 package com.example.matchup.matchupbackend.controller;
 
+import com.example.matchup.matchupbackend.dto.response.chat.SliceChatMessageResponse;
 import com.example.matchup.matchupbackend.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -20,11 +22,15 @@ public class ChatController {
         return "1대1 채팅방 생성";
     }
 
-    @GetMapping ("/room")  //todo 더 공부해 이거에 대해서
-    @Operation(description = "채팅 메세지 보기")
-    public void showMessage(@RequestParam String name) {
-
+    @GetMapping("/room/{roomID}")
+    @Operation(description = "채팅 메세지 보기") //todo 해당 채팅방 메세지 다 본거로 처리
+    public SliceChatMessageResponse showMessage(@RequestHeader(value = "Authorization") String authorizationHeader, @PathVariable Long roomID, Pageable pageable) {
+        return chatService.showMessages(authorizationHeader, roomID, pageable);
     }
 
-    //todo 채팅방 생성, 채팅 메세지 보기, 채팅방 나가기
+    @GetMapping("/room")
+    @Operation(description = "채팅방 목록 보기")
+    public void getRoomList(@RequestParam String name) {
+        return;
+    }
 }

@@ -1,8 +1,10 @@
 package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.request.chat.ChatMessageRequest;
+import com.example.matchup.matchupbackend.dto.response.chat.SliceChatMessageResponse;
 import com.example.matchup.matchupbackend.dynamodb.ChatMessage;
 import com.example.matchup.matchupbackend.dynamodb.ChatMessageRepository;
+import com.example.matchup.matchupbackend.dynamodb.PagingChatMessageRepository;
 import com.example.matchup.matchupbackend.entity.ChatRoom;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserChatRoom;
@@ -14,8 +16,15 @@ import com.example.matchup.matchupbackend.repository.UserChatRoomRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,6 +36,7 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final PagingChatMessageRepository pagingChatMessageRepository;
 
     /**
      * 채팅 메세지를 DynamoDB에 저장
@@ -59,5 +69,22 @@ public class ChatService {
         UserChatRoom receiverChatRoom = UserChatRoom.createUserChatRoom(receiver, chatRoom);
         userChatRoomRepository.save(userChatRoom);
         userChatRoomRepository.save(receiverChatRoom);
+    }
+
+    /**
+     * 채팅방 최근 메세지 보기
+     */
+    public SliceChatMessageResponse showMessages(String token, Long roomId, Pageable pageable) {
+        Long myId = tokenProvider.getUserId(token, "showMessages");
+        Slice<ChatMessage> chatMessage = pagingChatMessageRepository.findByRoomId(roomId, pageable);
+        Slice<ChatMessage> sortChatMessage = sortChatMessageByCreatedAt(chatMessage);
+        return SliceChatMessageResponse.from(myId, sortChatMessage);
+    }
+
+    public Slice<ChatMessage> sortChatMessageByCreatedAt(Slice<ChatMessage> chatMessage) {
+        List<ChatMessage> content = chatMessage.stream()
+                .sorted(Comparator.comparing(ChatMessage::getSendTime))
+                .collect(Collectors.toList());
+        return new SliceImpl<>(content, chatMessage.getPageable(), chatMessage.hasNext());
     }
 }
