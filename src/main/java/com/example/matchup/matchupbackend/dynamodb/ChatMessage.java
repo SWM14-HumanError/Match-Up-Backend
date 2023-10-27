@@ -134,4 +134,7 @@ public class ChatMessage {
                 .build();
     }
 
+    public void readMessage() {
+        this.isRead = 1;
+    }
 }

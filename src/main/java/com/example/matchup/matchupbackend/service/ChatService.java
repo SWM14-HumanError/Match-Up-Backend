@@ -81,10 +81,16 @@ public class ChatService {
         return SliceChatMessageResponse.from(myId, sortChatMessage);
     }
 
-    public Slice<ChatMessage> sortChatMessageByCreatedAt(Slice<ChatMessage> chatMessage) {
+    private Slice<ChatMessage> sortChatMessageByCreatedAt(Slice<ChatMessage> chatMessage) {
         List<ChatMessage> content = chatMessage.stream()
                 .sorted(Comparator.comparing(ChatMessage::getSendTime))
                 .collect(Collectors.toList());
+        makeMessageRead(content);
         return new SliceImpl<>(content, chatMessage.getPageable(), chatMessage.hasNext());
+    }
+
+    private void makeMessageRead(List<ChatMessage> chatMessageList) {
+        chatMessageList.forEach(chatMessage -> chatMessage.readMessage());
+        chatMessageRepository.saveAll(chatMessageList);
     }
 }
