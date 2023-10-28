@@ -348,7 +348,7 @@ public class AlertCreateService {
     @Transactional
     public void verifyMentorCreateAlert(User mentor) {
         Alert alert = Alert.builder()
-                .title("축하합니다.")
+                .title("멘토 신청 알림")
                 .content("멘토 신청이 정상적으로 접수되었습니다.")
                 .redirectUrl("/mentor")
                 .alertType(MENTORING)
@@ -360,7 +360,7 @@ public class AlertCreateService {
     @Transactional
     public void editVerifyMentorCreateAlert(User mentor) {
         Alert alert = Alert.builder()
-                .title("멘토 인증")
+                .title("관리자 알림")
                 .content("멘토 신청이 정상적으로 수정되었습니다.")
                 .redirectUrl("/mentor")
                 .alertType(MENTORING)

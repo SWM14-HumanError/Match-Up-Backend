@@ -27,7 +27,7 @@ public class MatchUpBackendApplication {
                     .nickname("test")
                     .email("test@test.com")
                     .isMentor(true)
-                    .role(Role.USER)
+                    .role(Role.ADMIN)
                     .build();
             userRepository.save(user);
 
