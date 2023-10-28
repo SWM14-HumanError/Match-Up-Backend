@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.matchup.matchupbackend.entity.Role.ADMIN;
+import static com.example.matchup.matchupbackend.entity.Role.USER;
+
 @Slf4j
 public record OAuthAttributes(
         Map<String, Object> attributes,
@@ -80,14 +83,14 @@ public record OAuthAttributes(
     }
 
     public User toEntity() {
-        Role role = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@naver.com", "hyunwoo0081@gmail.com").contains(email) ? Role.ADMIN : Role.USER;
+        Role role = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@naver.com", "hyunwoo0081@gmail.com").contains(email) ? ADMIN : USER;
 
         return User.builder()
                 .name(name)
                 .email(email)
                 .pictureUrl(picture)
                 .role(role)
-                .isMentor(false)
+                .isMentor(role == ADMIN)
                 .build();
     }
 }
