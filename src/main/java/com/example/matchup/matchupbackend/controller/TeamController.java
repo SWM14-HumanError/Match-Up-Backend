@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
 import com.example.matchup.matchupbackend.dto.response.team.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
@@ -119,26 +120,33 @@ public class TeamController {
         return fileService.storeFile(multipartFile);
     }
 
-    @GetMapping("/team/{team_id}/like")
+    @GetMapping("/team/{teamId}/like")
     @ResponseStatus(HttpStatus.OK)
     public TeamLikeResponse checkTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
-                                          @PathVariable("team_id") Long teamId) {
+                                          @PathVariable Long teamId) {
         return teamService.getTeamLikes(authorizationHeader, teamId);
     }
 
-    @PostMapping("/team/{team_id}/like")
+    @PostMapping("/team/{teamId}/like")
     public ResponseEntity<Void> addTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                            @PathVariable("team_id") Long teamId) {
+                                            @PathVariable Long teamId) {
         Long userId = teamService.likeTeam(authorizationHeader, teamId);
         log.info("user id: {}가 {} 팀의 좋아요를 눌렀습니다.", userId, teamId);
         return ResponseEntity.created(URI.create("/team")).build();
     }
 
-    @DeleteMapping("/team/{team_id}/like")
+    @DeleteMapping("/team/{teamId}/like")
     public ResponseEntity<Void> deleteTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
-                                               @PathVariable("team_id") Long teamId) {
+                                               @PathVariable Long teamId) {
         Long userId = teamService.undoLikeTeam(authorizationHeader, teamId);
         log.info("user id: {}가 {} 팀의 좋아요를 취소했습니다.", userId, teamId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/team/{teamId}/mentorings")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MentoringSearchResponse> getMentoringsInTeamPage(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
+                                                                 @PathVariable Long teamId) {
+        return teamService.showMentoringsInTeamPage(authorizationHeader, teamId);
     }
 }

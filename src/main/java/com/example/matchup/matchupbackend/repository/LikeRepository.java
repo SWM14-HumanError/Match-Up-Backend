@@ -1,9 +1,6 @@
 package com.example.matchup.matchupbackend.repository;
 
-import com.example.matchup.matchupbackend.entity.Feed;
-import com.example.matchup.matchupbackend.entity.Likes;
-import com.example.matchup.matchupbackend.entity.Team;
-import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,4 +34,10 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
     boolean existsByUserIdAndAndLikeReceiverId(Long userId, Long likeReceiverId);
 
     Optional<Likes> findByUserIdAndLikeReceiver(Long userId, User likeReceiver);
+
+    Long countByMentoring(Mentoring mentoring);
+
+    Boolean existsByUserAndMentoring(User user, Mentoring mentoring);
+
+    Likes findByUserAndMentoring(User user, Mentoring mentoring);
 }

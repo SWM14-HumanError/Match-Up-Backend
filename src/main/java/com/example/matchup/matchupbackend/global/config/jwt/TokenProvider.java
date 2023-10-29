@@ -10,12 +10,14 @@ import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -29,6 +31,7 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final OAuth2LoginUrl oAuth2LoginUrl;
     private final UserRepository userRepository;
+    private final Environment environment;
 
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String TOKEN_PRIFIX = "Bearer ";
@@ -49,6 +52,7 @@ public class TokenProvider {
                 .setSubject(user.getEmail())
                 .claim("id", user.getId())
                 .claim("tokenId", user.getTokenId())
+                .claim("role", user.getRole())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
@@ -102,6 +106,10 @@ public class TokenProvider {
      * Bearer 토큰을 받아 user를 반환
      */
     public Long getUserId(String authorizationHeader, String callBack) {
+        if (authorizationHeader != null && Arrays.asList(environment.getActiveProfiles()).contains("local") && authorizationHeader.startsWith("test")) {
+            return userRepository.findUserByNickname(authorizationHeader).orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
+        }
+
         String token = getAccessToken(authorizationHeader);
 
         if (token == null) return null;
@@ -109,6 +117,31 @@ public class TokenProvider {
             throw new AuthorizeException(callBack);
         } else if (validToken(token) == TokenStatus.EXPIRED) {
             throw new ExpiredTokenException(callBack);
+        }
+
+        Claims claims = getClaims(token);
+        Long userId = claims.get("id", Long.class);
+        String tokenId = claims.get("tokenId", String.class);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않은 아이디를 가진 토큰으로 접근했습니다."));
+
+        if (!user.getTokenId().equals(tokenId)) {
+            throw new ExpiredTokenException("관리자에 의해 만료된 토큰입니다.");
+        }
+        return user.getId();
+    }
+
+    public Long getUserId(String authorizationHeader) {
+        if (authorizationHeader != null && Arrays.asList(environment.getActiveProfiles()).contains("local") && authorizationHeader.startsWith("test")) {
+            return userRepository.findUserByNickname(authorizationHeader).orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
+        }
+
+        String token = getAccessToken(authorizationHeader);
+
+        if (token == null) return null;
+        if (validToken(token) == TokenStatus.INVALID_OTHER) {
+            throw new AuthorizeException("");
+        } else if (validToken(token) == TokenStatus.EXPIRED) {
+            throw new ExpiredTokenException("");
         }
 
         Claims claims = getClaims(token);

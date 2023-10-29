@@ -2,7 +2,10 @@ package com.example.matchup.matchupbackend.repository.user;
 
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.entity.*;
-import com.querydsl.core.types.*;
+import com.example.matchup.matchupbackend.global.RoleType;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,8 +17,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.example.matchup.matchupbackend.entity.QUser.*;
-import static com.example.matchup.matchupbackend.entity.QUserTag.*;
+import static com.example.matchup.matchupbackend.entity.QUser.user;
+import static com.example.matchup.matchupbackend.entity.QUserTag.userTag;
 
 @Repository
 @RequiredArgsConstructor
@@ -62,19 +65,20 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     private BooleanExpression searchEq(String search) {
-        return (search != null) ? user.name.contains(search) : null;
+        return (search != null) ? user.nickname.contains(search) : null;
     }
 
     private BooleanExpression placeEq(String place) {
-        return (place != null) ? user.address.contains(place) : null;
+        return (place != null) ? user.userProfile.meetingAddress.contains(place) : null;
     }
 
     private BooleanExpression meetingTypeEq(MeetingType meetingType) {
-        return (meetingType != null) ? user.meetingType.eq(meetingType) : null;
+        return (meetingType != null) ?
+                user.userProfile.meetingType.eq(meetingType) : null;
     }
 
-    private BooleanExpression positionEq(String position) {
-        return (position != null) ? user.position.eq(position) : null;
+    private BooleanExpression positionEq(RoleType position) {
+        return (position != null) ? user.userPositions.any().type.eq(position) : null;
     }
 
     private OrderSpecifier<?> orderByTo(String orderBy) {

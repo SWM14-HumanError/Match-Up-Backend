@@ -21,6 +21,7 @@ public class UserPosition extends BaseEntity{
     @Column(name = "user_position_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private RoleType type;
 
     private Integer typeLevel;

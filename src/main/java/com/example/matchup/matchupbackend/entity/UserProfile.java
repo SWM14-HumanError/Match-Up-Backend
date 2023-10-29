@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -59,5 +61,12 @@ public class UserProfile extends BaseEntity{
         this.meetingNote = request.getMeetingNote();
 
         return this;
+    }
+
+    public Map<String, String> getSnsLinks() {
+        Map<String, String> SnsMap = this.getUserSnsLinks().stream()
+                .collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl));
+        SnsMap.put("email", this.getUser().getEmail());
+        return SnsMap;
     }
 }

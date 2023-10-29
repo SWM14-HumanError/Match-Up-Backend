@@ -47,7 +47,7 @@ public class UserProfileService {
     private final UserSnsLinkRepository userSnsLinkRepository;
     private final FeedbackRepository feedbackRepository;
 
-    public UserProfileDetailResponse showUserProfile(Long userId) {
+    public UserProfileDetailResponse getUserProfile(Long userId) {
         User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("사용자 프로필을 조회하는 과정에서 존재하지 않는 user id로 요청했습니다."));
         UserProfile userProfile = user.getUserProfile();
         if (userProfile == null) throw new UserNotFoundException("회원가입이 완료되지 않은 사용자입니다.");
@@ -74,8 +74,7 @@ public class UserProfileService {
                 .nickname(user.getNickname())
                 .bestPositionLevel(user.getUserLevel())
                 .feedbackScore(user.getFeedbackScore())
-                .snsLinks(userProfile.getUserSnsLinks().stream()
-                            .collect(Collectors.toMap(UserSnsLink::getLinkType, UserSnsLink::getLinkUrl)))
+                .snsLinks(userProfile.getSnsLinks())
                 .isMentor(user.getIsMentor())
                 .isAuth(user.getIsAuth())
                 .lastLogin(ZonedDateTime.of(user.getLastLogin(), ZoneId.of("Asia/Seoul")))
@@ -227,7 +226,13 @@ public class UserProfileService {
                 .toList();
         userPositionRepository.saveAll(newUserPositions);
 
-        //        userPositionRepository.deleteAllByUser(user);
+        // 아예 없어진 기술 스택(UserPosition) 삭제하기
+        List<UserPosition> deletedUserPositions = userPositions.stream()
+                .filter(userPosition -> !userPositionMap.keySet().stream().toList().contains(userPosition.getType()))
+                .toList();
+        userPositionRepository.deleteAll(deletedUserPositions);
+
+//                userPositionRepository.deleteAllByUser(user);
 //        if (request.getProfileTagPositionRequests() != null) {
 //            List<UserPosition> userPositions = request.getProfileTagPositionRequests().stream()
 //                    .map(profileTagPositionRequest -> UserPosition.builder()

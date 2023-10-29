@@ -55,14 +55,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private String getTargetUrl(String token, User user, Long id) {
-        log.info("이미지 주소:  {}", URLEncoder.encode(user.getPictureUrl(), UTF_8));
-
         if (user.getIsUnknown()) {
             return UriComponentsBuilder.fromUriString(
                             tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                     .queryParam("email", user.getEmail())
                     .queryParam("id", id)
-                    .queryParam("image", URLEncoder.encode(user.getPictureUrl(), UTF_8))
+                    .queryParam("image", user.getPictureUrl()!= null ? URLEncoder.encode(user.getPictureUrl(), UTF_8) : "")
                     .build()
                     .toUriString();
 

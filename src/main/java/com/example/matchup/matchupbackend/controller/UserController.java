@@ -78,8 +78,9 @@ public class UserController {
      */
     @GetMapping("/user/invite")
     @ResponseStatus(HttpStatus.OK)
-    public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
-        return userService.getInviteMyTeam(authorizationHeader);
+    public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
+                                                 @RequestParam("receiver") Long receiverId) {
+        return userService.getInviteMyTeam(authorizationHeader, receiverId);
     }
 
     @PostMapping("/user/invite")
