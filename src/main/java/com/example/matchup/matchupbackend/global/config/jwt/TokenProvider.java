@@ -131,44 +131,7 @@ public class TokenProvider {
     }
 
     public Long getUserId(String authorizationHeader) {
-        if (authorizationHeader != null && Arrays.asList(environment.getActiveProfiles()).contains("local") && authorizationHeader.startsWith("test")) {
-            return userRepository.findUserByNickname(authorizationHeader).orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다.")).getId();
-        }
-
-        String token = getAccessToken(authorizationHeader);
-
-        if (token == null) return null;
-        if (validToken(token) == TokenStatus.INVALID_OTHER) {
-            throw new AuthorizeException("");
-        } else if (validToken(token) == TokenStatus.EXPIRED) {
-            throw new ExpiredTokenException("");
-        }
-
-        Claims claims = getClaims(token);
-        Long userId = claims.get("id", Long.class);
-        String tokenId = claims.get("tokenId", String.class);
-        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않은 아이디를 가진 토큰으로 접근했습니다."));
-
-        if (!user.getTokenId().equals(tokenId)) {
-            throw new ExpiredTokenException("관리자에 의해 만료된 토큰입니다.");
-        }
-        return user.getId();
-    }
-
-    private String getUserEmail(String token) {
-        if (token == null) return null;
-
-        Claims claims = getClaims(token);
-        return claims.get("sub", String.class);
-    }
-
-    public Long getUserIdByExpired(String authorizationHeader) {
-        String token = getAccessToken(authorizationHeader);
-
-        if (token == null) return null;
-
-        Claims claims = getClaims(token);
-        return claims.get("id", Long.class);
+        return getUserId(authorizationHeader, "");
     }
 
     private Claims getClaims(String authorizationHeader) {
