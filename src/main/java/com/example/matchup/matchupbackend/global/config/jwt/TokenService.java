@@ -35,6 +35,7 @@ public class TokenService {
 
         User user = userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(TokenRefreshNotPermitException::new);
+
         return tokenProvider.generateToken(user, Duration.ofHours(2));
     }
 }
