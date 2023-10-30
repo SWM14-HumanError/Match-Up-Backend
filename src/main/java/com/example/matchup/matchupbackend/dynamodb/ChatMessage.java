@@ -127,7 +127,7 @@ public class ChatMessage {
         return ChatMessage.builder()
                 .roomId(chatMessageRequest.getRoomId())
                 .message(chatMessageRequest.getMessage())
-                .messageType(chatMessageRequest.getType().getDescription())
+                .messageType(chatMessageRequest.getType().getValue())
                 .senderID(chatMessageRequest.getSender().getUserId())
                 .senderName(chatMessageRequest.getSender().getNickname())
                 .senderFace(chatMessageRequest.getSender().getPictureUrl())

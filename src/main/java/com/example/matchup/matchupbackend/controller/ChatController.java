@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.response.chat.SliceChatMessageResponse;
+import com.example.matchup.matchupbackend.dto.response.chat.SliceChatRoomResponse;
 import com.example.matchup.matchupbackend.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +24,14 @@ public class ChatController {
     }
 
     @GetMapping("/room/{roomID}")
-    @Operation(description = "채팅 메세지 보기") //todo 해당 채팅방 메세지 다 본거로 처리
+    @Operation(description = "채팅 메세지 보기")
     public SliceChatMessageResponse showMessage(@RequestHeader(value = "Authorization") String authorizationHeader, @PathVariable Long roomID, Pageable pageable) {
         return chatService.showMessages(authorizationHeader, roomID, pageable);
     }
 
     @GetMapping("/room")
     @Operation(description = "채팅방 목록 보기")
-    public void getRoomList(@RequestParam String name) {
-        return;
+    public SliceChatRoomResponse getRoomList(@RequestHeader(value = "Authorization") String authorizationHeader, Pageable pageable) {
+        return chatService.getSliceChatRoomResponse(authorizationHeader, pageable);
     }
 }
