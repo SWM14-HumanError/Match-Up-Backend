@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.chat.ChatMessageRequest;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidChatException;
 import com.example.matchup.matchupbackend.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,10 @@ public class StompChatController {
     @MessageMapping("/chat/{roomId}") //"pub/chat/{roomId}"
     @SendToUser("/sub-queue/chat/{roomId}")
     public ChatMessageRequest sendMessage(@DestinationVariable Long roomId, ChatMessageRequest message) {
-        chatService.saveChatMessage(message);
+        if (!roomId.equals(message.getRoomId()))
+            throw new InvalidChatException("잘못된 roomID와 송신하고 있습니다. "
+                    + "pathRoomID: " + roomId + "--" + "DTORoomID: " + message.getRoomId());
+                    chatService.saveChatMessage(message);
         return message;
     }
 
