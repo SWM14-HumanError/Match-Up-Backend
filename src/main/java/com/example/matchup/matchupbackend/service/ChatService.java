@@ -9,6 +9,7 @@ import com.example.matchup.matchupbackend.dynamodb.PagingChatMessageRepository;
 import com.example.matchup.matchupbackend.entity.ChatRoom;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserChatRoom;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidChatException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.ChatRoomRepository;
@@ -53,12 +54,13 @@ public class ChatService {
     @Transactional
     public Long create1To1Room(String authorizationHeader, Long receiverId) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "create1To1Room");
-        //if (userId == receiverId) throw new InvalidChatException("자기 자신과는 채팅방을 생성할 수 없습니다.","userID: " + userId);
+        if (userId == receiverId) throw new InvalidChatException("자기 자신과는 채팅방을 생성할 수 없습니다.","userID: " + userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
         User opponent = userRepository.findById(receiverId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
         ChatRoom chatRoom = ChatRoom.make1to1ChatRoom(user.getNickname());
-        chatRoomRepository.save(chatRoom);
+        ChatRoom save = chatRoomRepository.save(chatRoom);
         link1To1RoomToUser(chatRoom, user, opponent);
+        makeInitialChat(user, save.getId());
         log.info("userID: " + userId + " 님이 " + "userID: " + receiverId + "와 1대1 채팅방을 생성하였습니다.");
         return chatRoom.getId();
     }
@@ -79,6 +81,11 @@ public class ChatService {
         Slice<ChatMessage> chatMessage = pagingChatMessageRepository.findByRoomId(roomId, pageable);
         Slice<ChatMessage> sortChatMessage = sortChatMessageByCreatedAt(myId,chatMessage);
         return SliceChatMessageResponse.from(myId, sortChatMessage);
+    }
+
+    @Transactional
+    public void makeInitialChat(User roomMaker, Long roomId) {
+        chatMessageRepository.save(ChatMessage.initChatRoom(roomMaker, roomId));
     }
 
     /**
@@ -115,6 +122,10 @@ public class ChatService {
         return SliceChatRoomResponse.from(myId, updateRoomList);
     }
 
+    /**
+     * 채팅방 정보 업데이트
+     * 채팅방을 열면 채팅방의 정보를 업데이트 한다.
+     */
     @Transactional
     public Slice<UserChatRoom> updateRoomInfo(Long myId, Slice<UserChatRoom> userChatRoomList){
         userChatRoomList.forEach(userChatRoom -> {

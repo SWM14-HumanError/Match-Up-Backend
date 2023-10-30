@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.dynamodb;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.example.matchup.matchupbackend.config.DynamoDBConfig;
 import com.example.matchup.matchupbackend.dto.request.chat.ChatMessageRequest;
+import com.example.matchup.matchupbackend.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -131,6 +132,17 @@ public class ChatMessage {
                 .senderID(chatMessageRequest.getSender().getUserId())
                 .senderName(chatMessageRequest.getSender().getNickname())
                 .senderFace(chatMessageRequest.getSender().getPictureUrl())
+                .build();
+    }
+
+    public static ChatMessage initChatRoom(User roomMaker, Long roomId) {
+        return ChatMessage.builder()
+                .roomId(roomId)
+                .message(roomMaker.getNickname() + "님이 채팅방을 개설하였습니다.")
+                .messageType("ENTER")
+                .senderID(roomMaker.getId())
+                .senderName(roomMaker.getNickname())
+                .senderFace(roomMaker.getPictureUrl())
                 .build();
     }
 
