@@ -55,8 +55,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "picture_url")
     private String pictureUrl;
 
-    @Enumerated(EnumType.STRING)
-    private MeetingType meetingType;
+
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -89,15 +88,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name ="profileHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean profileHider = false;
 
-    //링크는 조인해서 가져온다
-    private String expertize;
-    private Long expYear;
-    private String certificateURL;
 
-    /**
-     * address(선호하는 장소)를 어떻게 받을지 고민
-     */
-    private String address;
+    private Long expYear;
+
 
     @Column(name = "user_email", unique = true)
     private String email;
@@ -133,6 +126,8 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @OneToMany(mappedBy = "sender")
     private List<InviteTeam> inviteTeamSenders = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<UserChatRoom> userChatRoom = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.REMOVE)
     private List<Mentoring> mentorings = new ArrayList<>();
@@ -145,6 +140,17 @@ public class User extends BaseTimeEntity implements UserDetails {
      */
     private String position;
     private Long positionLevel;
+    /**
+     * address(선호하는 장소)를 어떻게 받을지 고민
+     */
+    private String address;
+    private String certificateURL;
+    //링크는 조인해서 가져온다
+    private String expertize;
+
+    @Enumerated(EnumType.STRING)
+    private MeetingType meetingType;
+
 
     /**
      * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
