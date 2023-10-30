@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.example.matchup.matchupbackend.entity.Role.USER;
+import static com.example.matchup.matchupbackend.entity.Role.*;
 
 @Entity
 @Getter
@@ -44,6 +45,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Column(unique = true)
     private String nickname; // 닉네임
+
     @Column(name = "user_level")
     private Long userLevel;
 
@@ -58,6 +60,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(length = 500)
     private String refreshToken;
 
     private String thumbnailUploadUrl;
@@ -126,6 +129,12 @@ public class User extends BaseTimeEntity implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<UserChatRoom> userChatRoom = new ArrayList<>();
 
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.REMOVE)
+    private List<Mentoring> mentorings = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private MentorVerify mentorVerify;
+
     /**
      * Deprecated
      */
@@ -147,13 +156,14 @@ public class User extends BaseTimeEntity implements UserDetails {
      * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
      */
     @Builder
-    public User(String email, String name, String pictureUrl, Role role, Long agreeTermOfServiceId, String nickname) {
+    public User(String nickname, String email, String name, String pictureUrl, Role role, Boolean isMentor, Long agreeTermOfServiceId) {
+        this.nickname = nickname;
         this.email = email;
         this.name = name;
         this.pictureUrl = pictureUrl;
         this.role = role;
         this.agreeTermOfServiceId = agreeTermOfServiceId;
-        this.nickname = nickname;
+        this.isMentor = isMentor;
     }
 
     public static User createUserForTest() {
@@ -163,7 +173,6 @@ public class User extends BaseTimeEntity implements UserDetails {
                 .agreeTermOfServiceId(1483L)
                 .role(USER)
                 .build();
-
     }
 
     public void changeFeedbackHide(){
@@ -244,6 +253,12 @@ public class User extends BaseTimeEntity implements UserDetails {
 //        return this;
 //    }
 
+    public void isAdmin() {
+        if (this.role != ADMIN) {
+            throw new AuthorizeException("관리자가 아닙니다.");
+        }
+    }
+
     public User updateUserLastLogin() {
         this.lastLogin = LocalDateTime.now();
         return this;
@@ -256,6 +271,11 @@ public class User extends BaseTimeEntity implements UserDetails {
                     .mapToLong(ProfileTagPositionRequest::getTypeLevel).max().orElse(0L);
         }
         return this;
+    }
+
+    public void acceptMentor() {
+        this.isMentor = true;
+        this.role = MENTOR;
     }
 
     public void addLike(){
@@ -315,7 +335,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 /*
 public Double returnUserReviewAverage() {
     Double totalScore = 0.0;
-    for (Review userReview : userReviewList) {
+    for (ReviewMentor userReview : userReviewList) {
         totalScore += userReview.getScore();
     }
     if (userReviewList.size() == 0) return 0.0;

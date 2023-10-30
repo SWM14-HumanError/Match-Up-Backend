@@ -73,6 +73,7 @@ public class UserService {
                     return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
                             user.getNickname(), userPositions.isEmpty() ? Position.of("없음", 0L) : Position.from(userPositions.get(0)),
                             user.getFeedbackScore(), user.getLikes(), user.returnStackList());
+
                 }
         ).collect(Collectors.toList());
     }
@@ -101,12 +102,7 @@ public class UserService {
         return tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
     }
 
-    public User findRefreshToken(String refreshToken) {
-        return userRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("Unexpected refresh token."));
-    }
-
-    public String tokenRefresh(HttpServletRequest request) {
+    public void tokenRefresh(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             String refreshToken = Arrays.stream(cookies)
@@ -121,7 +117,9 @@ public class UserService {
                     .findFirst()
                     .orElse(null);
 
-            return tokenService.createNewAccessToken(refreshToken, accessToken);
+            String newAccessToken = tokenService.createNewAccessToken(refreshToken, accessToken);
+            CookieUtil.deleteCookie(request, response, "token");
+            CookieUtil.addCookie(response, "token", newAccessToken, 2 * 60 * 60);
         } else {
             throw new ExpiredTokenException("만료된 refresh 토큰으로 접근하였거나 토큰이 없습니다.");
         }
@@ -134,6 +132,7 @@ public class UserService {
 
         user.updateUserLastLogin();
     }
+
 
 
 
@@ -159,7 +158,6 @@ public class UserService {
                 .toList();
         return new InviteMyTeamResponse(response);
     }
-
     /**
      * OAuth2SuccessHandler 로그인에 성공하면
      * Refresh 토큰을 User 엔터티에 저장
@@ -208,5 +206,9 @@ public class UserService {
 
     private boolean notDuplicateSuggestTeam(Set<Team> inviteTeamsSet, Team team) {
         return !inviteTeamsSet.contains(team);
+    }
+
+    private Position getPosition(List<UserPosition> userPositions) {
+        return userPositions != null && !userPositions.isEmpty() ? Position.from(userPositions.get(0)) : new Position();
     }
 }

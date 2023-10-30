@@ -18,6 +18,7 @@ public enum ErrorCode {
     EXPIRED_RESOURCE_ACCESS(HttpStatus.UNAUTHORIZED, "G-006", "만료된 토큰입니다."),
     TOKEN_REFRESH_NOT_PERMIT(HttpStatus.NOT_FOUND, "G-007", "갱신되었거나 등록되지 않은 refresh 토큰입니다."),
     NOT_PERMITTED(HttpStatus.BAD_REQUEST, "G-008", "적절하지 않은 접근입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "G-009", "존재하지 않은 자원에 대한 접근입니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T-S-001", "게시글이 존재하지 않습니다."),
     LEADER_ONLY_MODIFY(HttpStatus.UNAUTHORIZED, "T-S-002", "팀장만 접근이 가능 합니다."),
     MAX_MEMBER_ERROR(HttpStatus.BAD_REQUEST, "T-S-003", "현재 팀원보다 최대 팀원 수를 높게 정하세요."),

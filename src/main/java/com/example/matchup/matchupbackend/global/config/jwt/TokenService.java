@@ -29,18 +29,13 @@ public class TokenService {
             throw new AuthorizeException("손상된 refresh 토큰으로 접근하였습니다.");
         }
 
-        if (accessToken == null) {
-            throw new AuthorizeException("액세스 토큰 없이 엑세스 토큰을 갱신하려고 접근했습니다.");
-        } else if (tokenProvider.validToken(accessToken) == INVALID_OTHER) {
-            throw new AuthorizeException("손상된 액세스 토큰으로 접근하였습니다.");
+        if (accessToken == null || tokenProvider.validToken(accessToken) != EXPIRED) {
+            throw new AuthorizeException("만료되지 않은 access 토큰으로 접근하였습니다.");
         }
 
-        if (tokenProvider.getUserIdByExpired(accessToken).equals(tokenProvider.getUserIdByExpired(refreshToken))) {
-            User user = userRepository.findByRefreshToken(refreshToken)
-                    .orElseThrow(TokenRefreshNotPermitException::new);
-            return tokenProvider.generateToken(user, Duration.ofHours(2));
-        }
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(TokenRefreshNotPermitException::new);
 
-        throw new AuthorizeException("액세스 토큰과 리프레쉬 토큰의 사용자 id가 다릅니다.");
+        return tokenProvider.generateToken(user, Duration.ofHours(2));
     }
 }

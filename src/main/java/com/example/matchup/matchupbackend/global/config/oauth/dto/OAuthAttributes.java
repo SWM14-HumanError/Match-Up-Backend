@@ -1,11 +1,15 @@
 package com.example.matchup.matchupbackend.global.config.oauth.dto;
 
 import com.example.matchup.matchupbackend.entity.Role;
+import com.example.matchup.matchupbackend.entity.User;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import com.example.matchup.matchupbackend.entity.User;
 
+import java.util.List;
 import java.util.Map;
+
+import static com.example.matchup.matchupbackend.entity.Role.ADMIN;
+import static com.example.matchup.matchupbackend.entity.Role.USER;
 
 @Slf4j
 public record OAuthAttributes(
@@ -79,11 +83,14 @@ public record OAuthAttributes(
     }
 
     public User toEntity() {
+        Role role = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@naver.com", "hyunwoo0081@gmail.com").contains(email) ? ADMIN : USER;
+
         return User.builder()
                 .name(name)
                 .email(email)
                 .pictureUrl(picture)
-                .role(Role.USER)
+                .role(role)
+                .isMentor(role == ADMIN)
                 .build();
     }
 }

@@ -9,6 +9,7 @@ import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +52,8 @@ public class UserController {
      */
     @GetMapping("/login/token/refresh")
     @ResponseStatus(HttpStatus.OK)
-    public String loginToken(HttpServletRequest request) {
-        return userService.tokenRefresh(request);
+    public void loginToken(HttpServletRequest request, HttpServletResponse response) {
+        userService.tokenRefresh(request, response);
     }
 
     /**
