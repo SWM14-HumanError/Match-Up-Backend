@@ -13,6 +13,7 @@ spring:
         - oauth
         - oauth-dev
         - mysql
+
       test:
         - db
         - oauth
