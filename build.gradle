@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.1'
     id 'io.spring.dependency-management' version '1.1.0'
+    id "io.sentry.jvm.gradle" version "3.14.0"
 }
 
 jar {
@@ -23,6 +24,15 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+sentry {
+
+    includeSourceContext = true
+
+    org = "inha-univ-bf"
+    projectName = "java-spring-boot"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
 dependencies {
@@ -60,6 +70,9 @@ dependencies {
     implementation 'org.webjars:sockjs-client:1.0.2'
     // stomp
     implementation 'org.webjars:stomp-websocket:2.3.3'
+    // sentry
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'io.sentry:sentry-spring-boot-starter:6.26.0'
 
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'

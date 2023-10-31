@@ -2,7 +2,6 @@ spring:
   profiles:
     active:
       - local
-
     group:
       local:
         - db
@@ -19,6 +18,8 @@ spring:
         - oauth
         - h2-in-memory
         - oauth-local
+  config:
+    import: optional:file:.env[.yml]
 
   # 파일업로드 최대 용량 설정
   servlet:
@@ -33,6 +34,10 @@ spring:
 # 클라우드 설정
 cloud:
   aws:
+    #DynamoDB 설정
+    access-key: AKIAUQRV7XQ4Q4EUNLEB
+    secret-key: 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
+
     s3:
       bucket: match-up-142023
     credentials:
@@ -43,3 +48,12 @@ cloud:
       auto: false
     stack:
       auto: false
+
+sentry:
+  dsn: https://a3a01f3fc21322c893e8082cccb738d9@o4505941819457536.ingest.sentry.io/4506139775205376
+  traces-sample-rate: 1.0
+  send-default-pii: true
+  logging:
+    enabled: true
+    minimum-event-level: WARN
+    minimum-breadcrumb-level: WARN
