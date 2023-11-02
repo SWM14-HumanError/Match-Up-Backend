@@ -30,8 +30,8 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp") // 클라이언트에서 웹소캣 연결할때 var sock = new SockJS("/ws-stomp"); 이런식으로 연결
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+                .setAllowedOriginPatterns("*");
+                //.withSockJS();
     }
 
     @Override
