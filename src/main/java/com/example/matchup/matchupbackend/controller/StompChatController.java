@@ -27,7 +27,7 @@ public class StompChatController {
         if (!roomId.equals(message.getRoomId()))
             throw new InvalidChatException("잘못된 roomID와 송신하고 있습니다. "
                     + "pathRoomID: " + roomId + "--" + "DTORoomID: " + message.getRoomId());
-                    chatService.saveChatMessage(message);
+        chatService.saveChatMessage(message);
         return message;
     }
 
