@@ -65,6 +65,9 @@ public class ChatService {
         return chatRoom.getId();
     }
 
+    /**
+     * 1대1 채팅방을 유저에게 연결
+     */
     @Transactional
     public void link1To1RoomToUser(ChatRoom chatRoom, User user, User receiver) {
         UserChatRoom userChatRoom = UserChatRoom.createUserChatRoom(user, receiver, chatRoom);
@@ -74,18 +77,23 @@ public class ChatService {
     }
 
     /**
+     * 채팅방 생성시 초기 메세지 생성
+     */
+    @Transactional
+    public void makeInitialChat(User roomMaker, Long roomId) {
+        chatMessageRepository.save(ChatMessage.initChatRoom(roomMaker, roomId));
+    }
+
+    /**
      * 채팅방 최근 메세지 보기
      */
     public SliceChatMessageResponse showMessages(String token, Long roomId, Pageable pageable) {
         Long myId = tokenProvider.getUserId(token, "showMessages");
         Slice<ChatMessage> chatMessage = pagingChatMessageRepository.findByRoomId(roomId, pageable);
         Slice<ChatMessage> sortChatMessage = sortChatMessageByCreatedAt(myId,chatMessage);
-        return SliceChatMessageResponse.from(myId, sortChatMessage);
-    }
-
-    @Transactional
-    public void makeInitialChat(User roomMaker, Long roomId) {
-        chatMessageRepository.save(ChatMessage.initChatRoom(roomMaker, roomId));
+        UserChatRoom userChatRoom = userChatRoomRepository.findJoinOpponentByChatRoomId(roomId, myId)
+                .orElseThrow(() -> new InvalidChatException("채팅방의 상대 유저가 존재하지 않습니다."));
+        return SliceChatMessageResponse.from(myId, sortChatMessage, userChatRoom.getOpponent());
     }
 
     /**
