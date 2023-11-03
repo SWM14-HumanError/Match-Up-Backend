@@ -27,8 +27,6 @@ public class ChatMessage {
 
     //sender-info
     private Long senderID;
-    private String senderName;
-    private String senderFace;
     @DynamoDBHashKey(attributeName = "chat_id")
     public String getChatId() {
         return chatId;
@@ -65,16 +63,6 @@ public class ChatMessage {
         return senderID;
     }
 
-    @DynamoDBAttribute
-    public String getSenderName() {
-        return senderName;
-    }
-
-    @DynamoDBAttribute
-    public String getSenderFace() {
-        return senderFace;
-    }
-
     public void setChatId(String chat_id) {
         this.chatId = chat_id;
     }
@@ -103,13 +91,6 @@ public class ChatMessage {
         this.senderID = senderID;
     }
 
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
-    }
-
-    public void setSenderFace(String senderFace) {
-        this.senderFace = senderFace;
-    }
 
     @Builder
     public ChatMessage(Long roomId, String message, String messageType, Long senderID, String senderName, String senderFace) {
@@ -120,8 +101,6 @@ public class ChatMessage {
         this.sendTime = LocalDateTime.now();
         this.messageType = messageType;
         this.senderID = senderID;
-        this.senderName = senderName;
-        this.senderFace = senderFace;
     }
 
     public static ChatMessage fromDTO(ChatMessageRequest chatMessageRequest) {
@@ -130,8 +109,6 @@ public class ChatMessage {
                 .message(chatMessageRequest.getMessage())
                 .messageType(chatMessageRequest.getType().getValue())
                 .senderID(chatMessageRequest.getSender().getUserId())
-                .senderName(chatMessageRequest.getSender().getNickname())
-                .senderFace(chatMessageRequest.getSender().getPictureUrl())
                 .build();
     }
 
@@ -141,8 +118,6 @@ public class ChatMessage {
                 .message(roomMaker.getNickname() + "님이 채팅방을 개설하였습니다.")
                 .messageType("ENTER")
                 .senderID(roomMaker.getId())
-                .senderName(roomMaker.getNickname())
-                .senderFace(roomMaker.getPictureUrl())
                 .build();
     }
 
