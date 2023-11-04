@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -82,6 +83,18 @@ public class ChatService {
     @Transactional
     public void makeInitialChat(User roomMaker, Long roomId) {
         chatMessageRepository.save(ChatMessage.initChatRoom(roomMaker, roomId));
+    }
+
+    /**
+     * 이미 유저와 만들어진 채팅방이 있는지 확인
+     */
+    public Long getChatRoomIdIfExist(String myToken, Long opponentId) {
+        Long myId = tokenProvider.getUserId(myToken, "isExistChatRoom");
+        Optional<UserChatRoom> myUserChatRoom = userChatRoomRepository.findUserChatRoomJoinChatRoomBy(myId, opponentId);
+        if(myUserChatRoom.isEmpty()){
+            return 0L;
+        }
+        return myUserChatRoom.get().getChatRoom().getId();
     }
 
     /**
