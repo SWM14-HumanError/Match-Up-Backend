@@ -20,4 +20,9 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
             "join fetch userchatroom.opponent " +
             "where userchatroom.chatRoom.id = :chatRoomId and userchatroom.user.id = :myId")
     Optional<UserChatRoom> findJoinOpponentByChatRoomId(@Param("chatRoomId") Long chatRoomId, @Param("myId") Long myId);
+
+    @Query("select userchatroom from UserChatRoom userchatroom " +
+            "join fetch userchatroom.chatRoom " +
+            "where userchatroom.user.id = :userId and userchatroom.opponent.id = :opponentId")
+    Optional<UserChatRoom> findUserChatRoomJoinChatRoomBy(Long userId, Long opponentId);
 }

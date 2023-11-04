@@ -18,9 +18,8 @@ public class ChatController {
 
     @PostMapping("/room/{receiverId}")
     @Operation(description = "1대1 채팅방 생성")
-    public String createRoom(@RequestHeader(value = "Authorization") String authorizationHeader, @PathVariable Long receiverId) {
-        chatService.create1To1Room(authorizationHeader, receiverId);
-        return "1대1 채팅방 생성";
+    public Long createRoom(@RequestHeader(value = "Authorization") String authorizationHeader, @PathVariable Long receiverId) {
+        return chatService.create1To1Room(authorizationHeader, receiverId);
     }
 
     @GetMapping("/room/{roomID}")
@@ -33,5 +32,11 @@ public class ChatController {
     @Operation(description = "채팅방 목록 보기")
     public SliceChatRoomResponse getRoomList(@RequestHeader(value = "Authorization") String authorizationHeader, Pageable pageable) {
         return chatService.getSliceChatRoomResponse(authorizationHeader, pageable);
+    }
+
+    @GetMapping("/user/{opponentId}")
+    @Operation(description = "유저와 채팅방이 이미 있는지 확인하는 API")
+    public Long checkChatRoom(@RequestHeader(value = "Authorization") String authorizationHeader, @PathVariable Long opponentId) {
+        return chatService.getChatRoomIdIfExist(authorizationHeader, opponentId);
     }
 }
