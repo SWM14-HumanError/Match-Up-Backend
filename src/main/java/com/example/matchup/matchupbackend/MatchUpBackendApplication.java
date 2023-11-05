@@ -10,10 +10,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
-import java.util.Arrays;
 
+import java.util.Arrays;
 @RequiredArgsConstructor
-@SpringBootApplication()
+@SpringBootApplication
 public class MatchUpBackendApplication {
 
     private final Environment environment;

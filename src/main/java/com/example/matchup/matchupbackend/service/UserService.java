@@ -71,8 +71,9 @@ public class UserService {
                             .sorted(Comparator.comparing(UserPosition::getTypeLevel).reversed()).collect(Collectors.toList());
 
                     return UserCardResponse.of(user.getId(), user.getPictureUrl(), user.getUserLevel(),
-                            user.getNickname(), getPosition(userPositions), user.getFeedbackScore(),
-                            user.getLikes(), user.returnStackList());
+                            user.getNickname(), userPositions.isEmpty() ? Position.of("없음", 0L) : Position.from(userPositions.get(0)),
+                            user.getFeedbackScore(), user.getLikes(), user.returnStackList());
+
                 }
         ).collect(Collectors.toList());
     }
