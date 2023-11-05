@@ -110,13 +110,14 @@ public class UserService {
                     .findFirst()
                     .orElse(null);
 
-            String accessToken = Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("token"))
-                    .map(Cookie::getValue)
-                    .findFirst()
-                    .orElse(null);
+//            String accessToken = Arrays.stream(cookies)
+//                    .filter(cookie -> cookie.getName().equals("token"))
+//                    .map(Cookie::getValue)
+//                    .findFirst()
+//                    .orElse(null);
 
-            String newAccessToken = tokenService.createNewAccessToken(refreshToken, accessToken);
+//            String newAccessToken = tokenService.createNewAccessToken(refreshToken, accessToken);
+            String newAccessToken = tokenService.createNewAccessToken(refreshToken);
             CookieUtil.deleteCookie(request, response, "token");
             CookieUtil.addCookie(response, "token", newAccessToken, 2 * 60 * 60);
         } else {
