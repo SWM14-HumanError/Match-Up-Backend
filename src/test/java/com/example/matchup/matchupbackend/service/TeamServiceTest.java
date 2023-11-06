@@ -36,6 +36,7 @@ class TeamServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+
     @Test
     @DisplayName("메인페이지 API에 보여지는 팀 리스트를 조회한다.")
     public void searchSliceTeamResponseList(){
@@ -85,7 +86,7 @@ class TeamServiceTest {
         //given
         Long leaderId = 1L;
         TeamCreateRequest teamCreateRequest = createTeamCreateRequest1();
-
+        createDummyUsers();
         //when
         Long teamID = teamService.makeNewTeam(leaderId, teamCreateRequest);
 
