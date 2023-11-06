@@ -72,8 +72,8 @@ spring:
 
 # oauth2 login url
 oauth2:
-  logout_success_url: https://match-up.xyz/logout/token
-  success_url: https://match-up.xyz/login/token
+  logout_success_url: https://side-match.com/logout/token
+  success_url: https://side-match.com/login/token
 
 --- # local test in docker container
 spring:

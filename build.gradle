@@ -32,7 +32,7 @@ sentry {
 
     org = "inha-univ-bf"
     projectName = "java-spring-boot"
-    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+    authToken = "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"
 }
 
 dependencies {
