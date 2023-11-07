@@ -1,6 +1,5 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -113,13 +111,6 @@ public class TeamController {
         return teamService.getTeamType(teamID);
     }
 
-    @PostMapping("/file/upload")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "파일 저장하는 테스트")
-    public UploadFile uploadFileTest(MultipartFile multipartFile) {
-        return fileService.storeFile(multipartFile);
-    }
-
     @GetMapping("/team/{teamId}/like")
     @ResponseStatus(HttpStatus.OK)
     public TeamLikeResponse checkTeamLike(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
@@ -148,5 +139,12 @@ public class TeamController {
     public List<MentoringSearchResponse> getMentoringsInTeamPage(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                                  @PathVariable Long teamId) {
         return teamService.showMentoringsInTeamPage(authorizationHeader, teamId);
+    }
+
+    @PostMapping("/team/{teamId}/finish")
+    public ResponseEntity<Void> finishTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId) {
+        teamService.finishTeam(authorizationHeader, teamId);
+        log.info("teamId: {} 팀을 종료했습니다.",  teamId);
+        return ResponseEntity.noContent().build();
     }
 }
