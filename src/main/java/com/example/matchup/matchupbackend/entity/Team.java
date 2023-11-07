@@ -47,6 +47,8 @@ public class Team extends BaseEntity {
     private String recruitFinish;
     @Column(name = "is_deleted")
     private Long isDeleted = 0L;
+    @Column(name = "is_finished")
+    private Long isFinished = 0L;
     @Column(name = "leader_id")
     private Long leaderID;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)

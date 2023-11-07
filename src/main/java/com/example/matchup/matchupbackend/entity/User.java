@@ -55,6 +55,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "picture_url")
     private String pictureUrl;
 
+    private String position;
+
+    private Long positionLevel;
+
     @Column(length = 500)
     private String refreshToken;
 
@@ -159,6 +163,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isMentor = isMentor;
     }
 
+    //== 비즈니스 로직 ==//
     public static User createUserForTest() {
         return User.builder()
                 .email("test@test.com")
@@ -175,12 +180,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void changeProfileHide(){
         this.profileHider = !this.profileHider;
     }
-//    public void addTeamUser(TeamUser teamUser) {
-//        teamUserList.add(teamUser);
-//        teamUser.setTag(this);
-//    }
 
-    //== 비즈니스 로직 ==//
     public void updateNewRefreshToken(String newRefreshToken, Long id) {
         this.refreshToken = newRefreshToken;
         this.agreeTermOfServiceId = id;
@@ -199,12 +199,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         }
     }
 
-    public List<String> returnTagList() {
-        return userTagList.stream().map(
-                userTag -> userTag.getTag().getName()
-        ).collect(Collectors.toList());
-    }
-
     public List<TechStack> returnStackList() {
         List<TechStack> techStacks = new ArrayList<>();
         userTagList.stream().forEach(userTag -> {
@@ -220,7 +214,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     public String getRoleKey() {
-
         return this.role.getKey();
     }
 
@@ -237,14 +230,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.userPositions = userPositions;
         this.userLevel = userPositions.stream().mapToLong(UserPosition::getTypeLevel).max().orElse(0L);
         this.isUnknown = false;
-
         return this;
     }
-
-//    public User updateTermService() {
-//        this.agreeTermOfService = true;
-//        return this;
-//    }
 
     public void isAdmin() {
         if (this.role != ADMIN) {
@@ -291,6 +278,8 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void deleteUser(){
         this.isDeleted = true;
+        this.email = null;
+        this.nickname = null;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
