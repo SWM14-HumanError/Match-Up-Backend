@@ -11,7 +11,7 @@ spring:
           naver:
             client-id: 8P36eHkHT1NBb7vuiEf6
             client-secret: IGJt1zPOQ9
-            redirect-uri: http://match-up.xyz/login/oauth2/code/naver
+            redirect-uri: https://side-match.com/login/oauth2/code/naver
             authorization-grant-type: authorization_code
             scope: name, email, profile_image
             client-name: naver
@@ -19,7 +19,7 @@ spring:
           kakao:
             client-id: 31c6580ccbfd7c1b4eb313d5cf759dcc
             client-secret: GKZ6sn8Qtl7sGhlxH2d2BPLXfseu4xN7
-            redirect-uri: http://match-up.xyz/login/oauth2/code/kakao
+            redirect-uri: https://side-match.com/login/oauth2/code/kakao
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image, account_email
@@ -40,7 +40,7 @@ spring:
 
 # JWT config
 jwt:
-  issuer: match-up.xyz
+  issuer: side-match.com
   secret_key: ASAasidufhASKHFUfH234356098273aSDfSEDF
 
 --- # local env: localhost:5173 redirect
@@ -72,8 +72,8 @@ spring:
 
 # oauth2 login url
 oauth2:
-  logout_success_url: https://match-up.xyz/logout/token
-  success_url: https://match-up.xyz/login/token
+  logout_success_url: https://side-match.com/logout/token
+  success_url: https://side-match.com/login/token
 
 --- # local test in docker container
 spring:

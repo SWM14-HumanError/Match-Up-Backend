@@ -23,7 +23,7 @@ import java.net.URI;
 import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider.HEADER_AUTHORIZATION;
 
 @Slf4j
-@RequestMapping("/api/v1")
+@RequestMapping(value = "/api/v1")
 @RequiredArgsConstructor
 @RestController
 public class FeedController {

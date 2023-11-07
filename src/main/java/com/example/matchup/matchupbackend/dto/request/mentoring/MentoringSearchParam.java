@@ -2,8 +2,10 @@ package com.example.matchup.matchupbackend.dto.request.mentoring;
 
 import com.example.matchup.matchupbackend.global.RoleType;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class MentoringSearchParam {
 
     private String searchType;

@@ -10,6 +10,7 @@ import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,5 +161,4 @@ class TeamServiceTest {
                 .detailSpot("강남역")
                 .build();
     }
-
 }
