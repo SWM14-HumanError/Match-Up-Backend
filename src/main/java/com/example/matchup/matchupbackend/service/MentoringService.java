@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.mentoring.*;
 import com.example.matchup.matchupbackend.dto.response.mentoring.*;
 import com.example.matchup.matchupbackend.entity.*;
+import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.TeamNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
@@ -323,6 +324,16 @@ public class MentoringService {
                     ).toList();
     }
 
+    public List<MentoringSearchResponse> showMentoringLiked(String authorizationHeader) {
+        User user = getUser(authorizationHeader);
+        List<Likes> mentoringLikes = likeRepository.findByUserAndMentoringNotNull(user);
+
+        return mentoringLikes.stream()
+                .map(Likes::getMentoring)
+                .map(mentoring -> MentoringSearchResponse.ofSearch(mentoring, likeRepository.countByMentoring(mentoring), true))
+                .toList();
+    }
+
     /**
      * 멘토링에 참여한 유저는 리뷰를 남길 수 있다.
      * 멘토링이 종료되었으며
@@ -420,7 +431,7 @@ public class MentoringService {
             throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링이 진행 중인 상태가 아닙니다.");
         }
 
-        if (mentor.equals(teamMentoring.getMentoring().getMentor())) {
+        if (!mentor.equals(teamMentoring.getMentoring().getMentor())) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "멘토링의 멘토가 아닙니다.");
         }
     }
@@ -445,7 +456,12 @@ public class MentoringService {
 
     private User getMentor(String authorizationHeader) {
         Long userId = tokenProvider.getUserId(authorizationHeader);
-        return userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 멘토입니다."));
+        User mentor = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 멘토입니다."));
+        if (!mentor.getIsMentor()) {
+            throw new AuthorizeException("멘토가 아닙니다.");
+        }
+
+        return mentor;
     }
 
     private Mentoring loadMentoringAndCheckAvailable(Long mentoringId, User mentor) {
