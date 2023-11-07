@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.UserCardResponse;
 import com.example.matchup.matchupbackend.entity.Feedback;
 import com.example.matchup.matchupbackend.entity.TeamRecruit;
 import com.example.matchup.matchupbackend.entity.TeamUser;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.example.matchup.matchupbackend.global.RoleType;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
@@ -36,15 +37,15 @@ public class TeamUserCardResponse extends UserCardResponse {
         this.toFeedbackAt = toFeedbackAt;
     }
 
-    public static TeamUserCardResponse fromEntity(TeamUser teamUser) {
+    public static TeamUserCardResponse fromEntity(TeamUser teamUser, UserPosition userPosition) {
         Optional<TeamRecruit> teamRecruit = Optional.ofNullable(teamUser.getTeamRecruit());
         return new TeamUserCardResponse(
                 teamUser.getUser().getId(),
                 teamUser.getUser().getPictureUrl(),
                 teamUser.getUser().getUserLevel(),
                 teamUser.getUser().getNickname(),
-                teamUser.getUser().getPosition(),
-                teamUser.getUser().getPositionLevel(),
+                userPosition.getType().toString(),
+                Long.valueOf(userPosition.getTypeLevel()),
                 teamUser.getUser().getFeedbackScore(),
                 teamUser.getUser().getLikes(),
                 teamUser.getUser().returnStackList(),

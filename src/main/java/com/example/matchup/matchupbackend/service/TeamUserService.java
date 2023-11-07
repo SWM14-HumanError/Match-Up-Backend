@@ -71,7 +71,11 @@ public class TeamUserService {
     private List<TeamUserCardResponse> getTeamUserCardForGeneral(Long teamID) {
         List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID);
         return acceptedTeamUsers.stream().map(
-                TeamUserCardResponse::fromEntity
+                teamUser -> TeamUserCardResponse.fromEntity(
+                        teamUser,
+                        userPositionRepository.findAllByUser(teamUser.getUser()).stream()
+                                .min(Comparator.comparingInt(UserPosition::getTypeLevel))
+                                .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다.")))
         ).collect(Collectors.toList());
     }
 
@@ -88,7 +92,11 @@ public class TeamUserService {
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
             if (feedback == null) {
-                responses.add(TeamUserCardResponse.fromEntity(teamUser));
+                responses.add(TeamUserCardResponse.fromEntity(
+                        teamUser,
+                        userPositionRepository.findAllByUser(teamUser.getUser()).stream()
+                            .min(Comparator.comparingInt(UserPosition::getTypeLevel))
+                            .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다."))));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
             }
@@ -112,7 +120,10 @@ public class TeamUserService {
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
             if (feedback == null) {
-                responses.add(TeamUserCardResponse.fromEntity(teamUser));
+                responses.add(TeamUserCardResponse.fromEntity(teamUser,
+                        userPositionRepository.findAllByUser(teamUser.getUser()).stream()
+                            .min(Comparator.comparingInt(UserPosition::getTypeLevel))
+                            .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다."))));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
             }

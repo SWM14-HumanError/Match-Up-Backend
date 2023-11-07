@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.dto;
 
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,8 +48,8 @@ public class UserCardResponse{
         return build;
     }
 
-    public static UserCardResponse fromEntity(User user) {
-        Position position = new Position(user.getPosition(), user.getPositionLevel());
+    public static UserCardResponse fromEntity(User user, UserPosition userPosition) {
+        Position position = new Position(userPosition.getType().toString(), Long.valueOf(userPosition.getTypeLevel()));
 
         return UserCardResponse.builder()
                 .userID(user.getId())

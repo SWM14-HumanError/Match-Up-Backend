@@ -8,12 +8,14 @@ import com.example.matchup.matchupbackend.dto.response.user.UserLikeResponse;
 import com.example.matchup.matchupbackend.entity.Likes;
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidLikeException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.LikeNotFoundException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +36,7 @@ public class LikeService {
     private final AlertCreateService alertCreateService;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+    private final UserPositionRepository userPositionRepository;
 
     /**
      * 유저에게 좋아요를 주는 로직
@@ -134,7 +137,11 @@ public class LikeService {
     }
 
     private List<UserCardResponse> userCardResponseList(List<User> userList) {
-        return userList.stream().map(user -> UserCardResponse.fromEntity(user)).collect(Collectors.toList());
+        return userList.stream().map(user -> UserCardResponse.fromEntity(user,
+                        userPositionRepository.findAllByUser(user).stream()
+                            .min(Comparator.comparingInt(UserPosition::getTypeLevel))
+                            .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다."))))
+                        .collect(Collectors.toList());
     }
 
     /**
