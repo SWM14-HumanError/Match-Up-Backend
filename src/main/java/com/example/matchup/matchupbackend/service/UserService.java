@@ -11,11 +11,14 @@ import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardRespons
 import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.error.exception.ExpiredTokenException;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidUserDeleteException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenService;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
 import com.example.matchup.matchupbackend.repository.InviteTeamRepository;
+import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
+import com.example.matchup.matchupbackend.repository.team.TeamRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
@@ -51,6 +54,8 @@ public class UserService {
     private final FileService fileService;
     private final UserProfileService userProfileService;
     private final InviteTeamRepository inviteTeamRepository;
+    private final MentoringRepository mentoringRepository;
+    private final TeamRepository teamRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -202,7 +207,27 @@ public class UserService {
     public void deleteUser(String userToken) {
         Long userId = tokenProvider.getUserId(userToken, "deleteUser");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("회원 탈퇴하는 유저를 찾을수 없습니다."));
+        isDeletableUser(user);
         user.deleteUser();
+    }
+
+    /**
+     * 회원 탈퇴가 가능한 유저인가 검증
+     */
+    private void isDeletableUser(User user) {
+        if (user.getIsDeleted()) {
+            throw new InvalidUserDeleteException("이미 탈퇴된 유저입니다. - userID: " + user.getId());
+        }
+        if (user.getIsMentor()) {
+            boolean mentoringEmpty = mentoringRepository.findAllByMentorAndIsDeleted(user, false).isEmpty();
+            if (!mentoringEmpty) {
+                throw new InvalidUserDeleteException("멘토링을 모두 마무리 하고 탈퇴해주세요:) - userID: " + user.getId());
+            }
+        }
+        boolean teamEmpty = teamRepository.findActiveTeamByLeaderID(user.getId()).isEmpty();
+        if (!teamEmpty) {
+            throw new InvalidUserDeleteException("팀을 모두 마무리 하고 탈퇴해주세요:) - userID: " + user.getId());
+        }
     }
 
     private boolean notDuplicateSuggestTeam(Set<Team> inviteTeamsSet, Team team) {

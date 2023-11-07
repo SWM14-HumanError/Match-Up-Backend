@@ -55,6 +55,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "picture_url")
     private String pictureUrl;
 
+    private String position;
+
+    private Long positionLevel;
+
     @Column(length = 500)
     private String refreshToken;
 
