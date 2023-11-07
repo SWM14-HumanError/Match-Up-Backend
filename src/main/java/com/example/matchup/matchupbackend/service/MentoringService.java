@@ -310,16 +310,17 @@ public class MentoringService {
     public List<MentoringSearchResponse> showActiveMentoringOnMentorPage(String authorizationHeader) {
         User mentor = getMentor(authorizationHeader);
         List<Mentoring> mentorings = mentoringRepository.findAllByMentorAndIsDeleted(mentor, false);
-        List<TeamMentoring> teamMentorings = teamMentoringRepository.findALlByMentoringIn(mentorings);
+        List<TeamMentoring> teamMentorings = teamMentoringRepository.findALlByMentoringInAndStatus(mentorings, ACCEPTED);
 
         return teamMentorings.stream()
                     .map(teamMentoring -> MentoringSearchResponse.ofActiveMentoringInMentorPrivatePage(
-                            teamMentoring.getMentoring(),
-                            likeRepository.countByMentoring(teamMentoring.getMentoring()),
-                            likeRepository.existsByUserAndMentoring(mentor, teamMentoring.getMentoring()),
-                            teamMentoring.getStatus(),
-                            teamMentoring.getTeam(),
-                            teamMentoring.getId()
+                                teamMentoring.getMentoring(),
+                                likeRepository.countByMentoring(teamMentoring.getMentoring()),
+                                likeRepository.existsByUserAndMentoring(mentor, teamMentoring.getMentoring()),
+                                teamMentoring.getStatus(),
+                                teamMentoring.getTeam(),
+                                teamMentoring.getId(),
+                                userRepository.findNameById(teamMentoring.getTeam().getLeaderID())
                             )
                     ).toList();
     }
@@ -331,6 +332,19 @@ public class MentoringService {
         return mentoringLikes.stream()
                 .map(Likes::getMentoring)
                 .map(mentoring -> MentoringSearchResponse.ofSearch(mentoring, likeRepository.countByMentoring(mentoring), true))
+                .toList();
+    }
+
+    public List<MentoringSearchResponse> showMentoringMine(String authorizationHeader) {
+        User mentor = getMentor(authorizationHeader);
+        List<Mentoring> mentorings = mentoringRepository.findAllByMentor(mentor);
+
+        return mentorings.stream()
+                .map(mentoring -> MentoringSearchResponse.ofSearch(
+                        mentoring,
+                        likeRepository.countByMentoring(mentoring),
+                        likeRepository.existsByUserAndMentoring(mentor, mentoring))
+                )
                 .toList();
     }
 

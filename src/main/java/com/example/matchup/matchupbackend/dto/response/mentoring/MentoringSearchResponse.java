@@ -33,6 +33,7 @@ public class MentoringSearchResponse {
     private Long teamId;
     private Long teamMentoringId;
     private Long mentorId;
+    private String leaderName;
 
     @Builder
     private MentoringSearchResponse(String thumbnailUrl, Long mentoringId, String title, RoleType roleType, Career career, Long likes, Double stars, String nickname, Long userLevel, String userPictureUrl, Long mentorId) {
@@ -89,7 +90,7 @@ public class MentoringSearchResponse {
         return response;
     }
 
-    public static MentoringSearchResponse ofActiveMentoringInMentorPrivatePage(Mentoring mentoring, Long likes, Boolean likeMentoring, ApplyStatus status, Team team, Long teamMentoringId) {
+    public static MentoringSearchResponse ofActiveMentoringInMentorPrivatePage(Mentoring mentoring, Long likes, Boolean likeMentoring, ApplyStatus status, Team team, Long teamMentoringId, String leaderName) {
         MentoringSearchResponse response = of(mentoring, likes);
 
         response.setLikeMentoring(likeMentoring);
@@ -97,6 +98,7 @@ public class MentoringSearchResponse {
         response.setTeamTitle(team.getTitle());
         response.setTeamId(team.getId());
         response.setTeamMentoringId(teamMentoringId);
+        response.setLeaderName(leaderName);
         return response;
     }
 }

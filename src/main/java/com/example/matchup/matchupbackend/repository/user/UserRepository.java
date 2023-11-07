@@ -25,4 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
     Optional<User> findUserByNickname(String nickname);
 
     Slice<User> findAllByIdIn(List<Long> userId, Pageable pageable);
+
+    @Query("SELECT user.name from User user where user.id=:leaderID")
+    String findNameById(@Param("leaderID") Long leaderID);
 }

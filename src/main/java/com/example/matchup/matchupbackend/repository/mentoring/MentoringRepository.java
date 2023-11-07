@@ -14,4 +14,6 @@ public interface MentoringRepository extends JpaRepository<Mentoring, Long>, Men
     List<Mentoring> findALlByMentorAndIsDeletedOrderByIdDesc(User mentor, Boolean isDeleted);
 
     List<Mentoring> findAllByMentorAndIsDeleted(User mentor, boolean isDeleted);
+
+    List<Mentoring> findAllByMentor(User mentor);
 }

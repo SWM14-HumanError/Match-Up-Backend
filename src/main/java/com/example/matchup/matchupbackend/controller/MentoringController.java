@@ -94,4 +94,16 @@ public class MentoringController {
     public List<MentoringSearchResponse> getMentoringActiveOnMentorPage(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
         return mentoringService.showActiveMentoringOnMentorPage(authorizationHeader);
     }
+
+    @GetMapping("/mentoring/likes")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MentoringSearchResponse> getMentoringLiked(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return mentoringService.showMentoringLiked(authorizationHeader);
+    }
+
+    @GetMapping("/mentoring/mine")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MentoringSearchResponse> getMentoringMine(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader) {
+        return mentoringService.showMentoringMine(authorizationHeader);
+    }
 }

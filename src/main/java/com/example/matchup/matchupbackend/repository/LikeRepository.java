@@ -40,4 +40,6 @@ public interface LikeRepository extends JpaRepository<Likes, Long> {
     Boolean existsByUserAndMentoring(User user, Mentoring mentoring);
 
     Likes findByUserAndMentoring(User user, Mentoring mentoring);
+
+    List<Likes> findByUserAndMentoringNotNull(User user);
 }
