@@ -40,7 +40,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private String tokenId;
 
-    @Column(name = "user_name") // 실제 이름 (가지고만 있어야 함)
+    @Column(name = "user_name") // 실제 이름
     private String name;
 
     @Column(unique = true)
@@ -55,15 +55,16 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "picture_url")
     private String pictureUrl;
 
+    private String position;
 
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    private Long positionLevel;
 
     @Column(length = 500)
     private String refreshToken;
 
     private String thumbnailUploadUrl;
+
+    private Long agreeTermOfServiceId;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT now()")
     private LocalDateTime lastLogin = LocalDateTime.now();
@@ -74,13 +75,11 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isAuth = false;
 
-//    @Column(columnDefinition = "BOOLEAN DEFAULT false")
-//    private Boolean agreeTermOfService = false;
-
-    private Long agreeTermOfServiceId;
-
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isUnknown = true;
+
+    @Column(name ="isDeleted", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted = false;
 
     @Column(name ="feedbackHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean feedbackHider = false;
@@ -88,36 +87,41 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name ="profileHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean profileHider = false;
 
-
     private Long expYear;
-
 
     @Column(name = "user_email", unique = true)
     private String email;
 
     @Column(name = "likes", columnDefinition = "bigint default 0")
     private Long likes = 0L;
+
     @Column(name = "total_feedbacks", columnDefinition = "integer default 0")
     private Integer totalFeedbacks = 0; // 팀원 상호 평가 갯수
+
     @Column(name = "feedback_score", columnDefinition = "double default 36.5")
     private Double feedbackScore = 36.5; // 팀원 상호 평가 온도
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserTag> userTagList = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<TeamUser> teamUserList = new ArrayList<>();
+
     @OneToMany(mappedBy = "giver", cascade = CascadeType.PERSIST)
     private List<Feedback> giveFeedbackList = new ArrayList<>();
+
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Feedback> recieveFeedbackList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Alert> alertList = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPosition> userPositions = new ArrayList<>();
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private UserProfile userProfile;
+
     @OneToMany(mappedBy = "refusedUser", cascade = CascadeType.REMOVE)
     private List<TeamRefuse> teamRefuses = new ArrayList<>();
+
     @OneToMany(mappedBy = "user")
     private List<ServiceCenter> serviceCenters = new ArrayList<>();
 
@@ -126,31 +130,24 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @OneToMany(mappedBy = "sender")
     private List<InviteTeam> inviteTeamSenders = new ArrayList<>();
+
     @OneToMany(mappedBy = "user")
     private List<UserChatRoom> userChatRoom = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.REMOVE)
     private List<Mentoring> mentorings = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private MentorVerify mentorVerify;
-
-    /**
-     * Deprecated
-     */
-    private String position;
-    private Long positionLevel;
-    /**
-     * address(선호하는 장소)를 어떻게 받을지 고민
-     */
-    private String address;
-    private String certificateURL;
-    //링크는 조인해서 가져온다
-    private String expertize;
 
     @Enumerated(EnumType.STRING)
     private MeetingType meetingType;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     /**
      * OAuth2.0 로그인으로 얻은 최소한의 정보들로 User 객체 생성
@@ -166,6 +163,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.isMentor = isMentor;
     }
 
+    //== 비즈니스 로직 ==//
     public static User createUserForTest() {
         return User.builder()
                 .email("test@test.com")
@@ -182,12 +180,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void changeProfileHide(){
         this.profileHider = !this.profileHider;
     }
-//    public void addTeamUser(TeamUser teamUser) {
-//        teamUserList.add(teamUser);
-//        teamUser.setTag(this);
-//    }
 
-    //== 비즈니스 로직 ==//
     public void updateNewRefreshToken(String newRefreshToken, Long id) {
         this.refreshToken = newRefreshToken;
         this.agreeTermOfServiceId = id;
@@ -206,12 +199,6 @@ public class User extends BaseTimeEntity implements UserDetails {
         }
     }
 
-    public List<String> returnTagList() {
-        return userTagList.stream().map(
-                userTag -> userTag.getTag().getName()
-        ).collect(Collectors.toList());
-    }
-
     public List<TechStack> returnStackList() {
         List<TechStack> techStacks = new ArrayList<>();
         userTagList.stream().forEach(userTag -> {
@@ -227,7 +214,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     public String getRoleKey() {
-
         return this.role.getKey();
     }
 
@@ -244,14 +230,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.userPositions = userPositions;
         this.userLevel = userPositions.stream().mapToLong(UserPosition::getTypeLevel).max().orElse(0L);
         this.isUnknown = false;
-
         return this;
     }
-
-//    public User updateTermService() {
-//        this.agreeTermOfService = true;
-//        return this;
-//    }
 
     public void isAdmin() {
         if (this.role != ADMIN) {
@@ -294,6 +274,12 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void deleteImage(){
         this.thumbnailUploadUrl = null;
         this.pictureUrl = null;
+    }
+
+    public void deleteUser(){
+        this.isDeleted = true;
+        this.email = null;
+        this.nickname = null;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

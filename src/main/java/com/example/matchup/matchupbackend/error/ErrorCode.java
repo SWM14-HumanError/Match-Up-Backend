@@ -29,6 +29,7 @@ public enum ErrorCode {
     TEAM_USER_ACCEPT_ERROR(HttpStatus.BAD_REQUEST, "TU-S-004", "이미 팀원입니다."),
     TEAM_USER_FULL_ERROR(HttpStatus.BAD_REQUEST, "TU-S-005", "이미 팀원이 꽉 찼습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-S-001", "유저 정보가 존재하지 않습니다."),
+    USER_DELETE_ERROR(HttpStatus.BAD_REQUEST, "U-S-002", "유저 탈퇴를 할 수 없습니다."),
     USER_NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "UP-S-001", "유저 닉네임이 중복되거나 제한된 글자 수를 초과했습니다."),
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "F-S-001", "파일을 저장 중 오류가 발생했습니다."),
     FILE_EXTENSION_ERROR(HttpStatus.BAD_REQUEST, "F-S-002", "지원하지 않는 파일 확장자 입니다."),

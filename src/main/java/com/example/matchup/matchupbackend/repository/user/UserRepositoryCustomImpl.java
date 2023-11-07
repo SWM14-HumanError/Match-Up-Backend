@@ -37,7 +37,8 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                         meetingTypeEq(userSearchRequest.getMeetingType()),
                         positionEq(userSearchRequest.getPosition()),
                         notSignUpUserEq(user.nickname),
-                        user.profileHider.eq(false)
+                        user.profileHider.eq(false),
+                        user.isDeleted.eq(false)
                 )
                 .orderBy(orderByTo(userSearchRequest.getOrderBy()))
                 .offset(pageable.getOffset())
