@@ -162,4 +162,8 @@ public class Team extends BaseEntity {
         this.thumbnailUploadUrl = null;
         this.thumbnailUrl = null;
     }
+
+    public void finishTeam(){
+        this.isFinished = 1L;
+    }
 }

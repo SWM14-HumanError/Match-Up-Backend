@@ -187,7 +187,7 @@ public class AlertCreateService {
         Alert toGiver = Alert.builder()
                 .title("피드백이 발송되었습니다")
                 .content(team.getTitle() + " - " + receiver.getNickname() + "님에게 피드백을 전달했습니다.") // 휴먼에러 - 준혁님에게 피드백을 전달했습니다
-                .redirectUrl("")
+                .redirectUrl("/profile/" + receiver.getId() + "#상호 평가")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
                 .build();
         toGiver.setUser(giver);
