@@ -10,4 +10,5 @@ public class TeamDetailResponse {
     private Long leaderID;
     private String thumbnailUrl;
     private String meetingTime;
+    private Long isFinished;
 }

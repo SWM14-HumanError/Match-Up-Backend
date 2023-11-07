@@ -19,8 +19,9 @@ public class TeamSearchResponse {
     private Long leaderID;
     private String leaderNickname;
     private Long leaderLevel;
+    private Long isFinished;
     @Builder
-    public TeamSearchResponse(Long id, String title, String description, String thumbnailUrl, List<TechStack> techStacks, Long leaderID, String leaderNickname, Long leaderLevel) {
+    public TeamSearchResponse(Long id, String title, String description, String thumbnailUrl, List<TechStack> techStacks, Long leaderID, String leaderNickname, Long leaderLevel, Long isFinished) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -29,6 +30,7 @@ public class TeamSearchResponse {
         this.leaderID = leaderID;
         this.leaderNickname = leaderNickname;
         this.leaderLevel = leaderLevel;
+        this.isFinished = isFinished;
     }
 
     public static TeamSearchResponse from(Team team, Map<Long, User> userMap) {
@@ -42,6 +44,7 @@ public class TeamSearchResponse {
                 .leaderID(team.getLeaderID())
                 .leaderNickname(userMap.get(team.getLeaderID()).getNickname())
                 .leaderLevel(userMap.get(team.getLeaderID()).getUserLevel())
+                .isFinished(team.getIsFinished())
                 .build();
         return build;
     }
