@@ -202,7 +202,7 @@ public class UserService {
     public void deleteUser(String userToken) {
         Long userId = tokenProvider.getUserId(userToken, "deleteUser");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("회원 탈퇴하는 유저를 찾을수 없습니다."));
-        userRepository.delete(user);
+        user.deleteUser();
     }
 
     private boolean notDuplicateSuggestTeam(Set<Team> inviteTeamsSet, Team team) {
