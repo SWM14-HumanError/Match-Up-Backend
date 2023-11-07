@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -55,5 +56,16 @@ public class TeamCreateRequest {
             }
         }
         return userStacks.stream().distinct().collect(Collectors.toList());
+    }
+    @Builder
+    public TeamCreateRequest(String imageBase64, String imageName, String name, TeamTypeResponse type, String description, MeetingSpotResponse meetingSpot, String meetingDate, List<Member> memberList) {
+        this.imageBase64 = imageBase64;
+        this.imageName = imageName;
+        this.name = name;
+        this.type = type;
+        this.description = description;
+        this.meetingSpot = meetingSpot;
+        this.meetingDate = meetingDate;
+        this.memberList = memberList;
     }
 }
