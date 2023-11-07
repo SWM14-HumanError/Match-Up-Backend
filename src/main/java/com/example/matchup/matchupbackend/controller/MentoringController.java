@@ -29,8 +29,8 @@ public class MentoringController {
 
     @GetMapping("/mentorings")
     @ResponseStatus(HttpStatus.OK)
-    public MentoringSliceResponse getMentoring(@RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
-                                               MentoringSearchParam param,
+    public MentoringSliceResponse getMentoring(MentoringSearchParam param,
+                                               @RequestHeader(value = HEADER_AUTHORIZATION, required = false) String authorizationHeader,
                                                @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return mentoringService.showMentoringsInMentoringPage(authorizationHeader, param, pageable);
     }
