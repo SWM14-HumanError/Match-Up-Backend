@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class StompChatController {
+    private final SimpMessageSendingOperations messagingTemplate;
 
     private final ChatService chatService;
 
@@ -27,7 +29,8 @@ public class StompChatController {
         if (!roomId.equals(message.getRoomId()))
             throw new InvalidChatException("잘못된 roomID와 송신하고 있습니다. "
                     + "pathRoomID: " + roomId + "--" + "DTORoomID: " + message.getRoomId());
-                    chatService.saveChatMessage(message);
+        chatService.saveChatMessage(message);
+        messagingTemplate.convertAndSend("/sub-queue/chat/" + roomId, message);
         return message;
     }
 

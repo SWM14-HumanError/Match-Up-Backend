@@ -22,15 +22,11 @@ public class TokenService {
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
 
-    public String createNewAccessToken(String refreshToken, String accessToken) {
+    public String createNewAccessToken(String refreshToken) {
         if (refreshToken == null || tokenProvider.validToken(refreshToken) == EXPIRED) {
             throw new ExpiredTokenException("만료된 refresh 토큰으로 접근하였거나 토큰이 없습니다.");
         } else if (tokenProvider.validToken(refreshToken) == INVALID_OTHER) {
             throw new AuthorizeException("손상된 refresh 토큰으로 접근하였습니다.");
-        }
-
-        if (accessToken == null || tokenProvider.validToken(accessToken) != EXPIRED) {
-            throw new AuthorizeException("만료되지 않은 access 토큰으로 접근하였습니다.");
         }
 
         User user = userRepository.findByRefreshToken(refreshToken)

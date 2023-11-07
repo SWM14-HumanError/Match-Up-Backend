@@ -28,18 +28,16 @@ public class UserChatRoom {
 
     private Long unreadChatCount;
 
-    private Long opponentId;
-
-    private String opponentIMG;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User opponent;
 
     @Builder
-    public UserChatRoom(User user, ChatRoom chatRoom, String roomName, Long unreadChatCount, Long opponentId, String opponentIMG) {
+    public UserChatRoom(User user, ChatRoom chatRoom, String roomName, Long unreadChatCount, User opponent) {
         this.user = user;
         this.chatRoom = chatRoom;
         this.roomName = roomName;
         this.unreadChatCount = unreadChatCount;
-        this.opponentId = opponentId;
-        this.opponentIMG = opponentIMG;
+        this.opponent = opponent;
     }
 
     public static UserChatRoom createUserChatRoom(User user, User opponent, ChatRoom chatRoom) {
@@ -48,8 +46,7 @@ public class UserChatRoom {
                 .chatRoom(chatRoom)
                 .roomName(opponent.getNickname())
                 .unreadChatCount(0L)
-                .opponentId(opponent.getId())
-                .opponentIMG(opponent.getPictureUrl())
+                .opponent(opponent)
                 .build();
     }
 

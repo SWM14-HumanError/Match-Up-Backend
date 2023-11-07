@@ -19,9 +19,10 @@ public class ChatRoomResponse {
 
     public static ChatRoomResponse from(UserChatRoom userChatRoom) {
         MessageSender sender = MessageSender.builder()
-                .userId(userChatRoom.getOpponentId())
+                .userId(userChatRoom.getOpponent().getId())
                 .nickname(userChatRoom.getRoomName())
-                .pictureUrl(userChatRoom.getOpponentIMG())
+                .pictureUrl(userChatRoom.getOpponent().getPictureUrl())
+                .level(userChatRoom.getOpponent().getPositionLevel())
                 .build();
 
         return ChatRoomResponse.builder()
