@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.dto.response.team;
 
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ public class MeetingSpotResponse {
     private String city;
     private String detailSpot;
 
+    @Builder
     @QueryProjection
     public MeetingSpotResponse(String onOffline, String city, String detailSpot) {
         this.onOffline = onOffline;
