@@ -82,6 +82,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isUnknown = true;
 
+    @Column(name ="isDeleted", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted = false;
+
     @Column(name ="feedbackHider", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean feedbackHider = false;
 
@@ -294,6 +297,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void deleteImage(){
         this.thumbnailUploadUrl = null;
         this.pictureUrl = null;
+    }
+
+    public void deleteUser(){
+        this.isDeleted = true;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
