@@ -54,7 +54,7 @@ public class MentoringService {
 
     public MentoringSliceResponse showMentoringsInMentoringPage(String authorizationHeader, MentoringSearchParam param, Pageable pageable) {
         // 로그인한 유저는 좋아요 표시를 위해 token을 받을 수 있다.
-        User user = (authorizationHeader != null) ? getMentor(authorizationHeader) : null;
+        User user = (authorizationHeader != null) ? getUser(authorizationHeader) : null;
 
         Slice<Mentoring> pageOfMentoringSearchSlice = mentoringRepository.findMentoringByMentoringSearchParam(param, pageable);
         List<Mentoring> mentorings = pageOfMentoringSearchSlice.getContent();
