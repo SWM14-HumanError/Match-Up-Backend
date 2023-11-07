@@ -142,6 +142,7 @@ public class TeamController {
     }
 
     @PostMapping("/team/{teamId}/finish")
+    @Operation(description = "팀 종료 하는 API")
     public ResponseEntity<Void> finishTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId) {
         teamService.finishTeam(authorizationHeader, teamId);
         log.info("teamId: {} 팀을 종료했습니다.",  teamId);
