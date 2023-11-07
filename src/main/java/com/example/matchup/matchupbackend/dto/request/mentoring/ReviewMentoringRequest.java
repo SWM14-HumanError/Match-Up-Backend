@@ -7,15 +7,15 @@ import lombok.Data;
 public class ReviewMentoringRequest {
 
     @NotNull
-    @Min(10) @Max(50)
+    @Min(1) @Max(5)
     private Integer satisfaction;
 
     @NotNull
-    @Min(10) @Max(50)
+    @Min(1) @Max(5)
     private Integer expertise;
 
     @NotNull
-    @Min(10) @Max(50)
+    @Min(1) @Max(5)
     private Integer punctuality;
 
     @NotBlank(message = "멘토링 리뷰글을 작성해야 합니다.")
@@ -23,14 +23,14 @@ public class ReviewMentoringRequest {
     private String comment;
 
     public Double getSatisfaction() {
-        return (double) satisfaction / 10;
+        return (double) satisfaction;
     }
 
     public Double getExpertise() {
-        return (double) expertise / 10L;
+        return (double) expertise;
     }
 
     public Double getPunctuality() {
-        return (double) punctuality / 10L;
+        return (double) punctuality;
     }
 }
