@@ -428,5 +428,17 @@ public class TeamService {
         return team.getTeamUserList().stream()
                 .noneMatch(teamUser -> teamUser.getUser().equals(user));
     }
+
+    /**
+     * 팀장이 팀을 끝냄
+     */
+    public void finishTeam(String token ,Long teamId) {
+        Long leaderID = tokenProvider.getUserId(token, "finishTeam");
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
+        if(!team.getLeaderID().equals(leaderID)) {
+            throw new LeaderOnlyPermitException("팀 종료는 팀장만 할 수 있습니다 - userID: " + leaderID);
+        }
+        team.finishTeam();
+    }
 }
 
