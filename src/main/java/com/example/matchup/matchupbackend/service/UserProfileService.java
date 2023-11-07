@@ -116,7 +116,7 @@ public class UserProfileService {
         UserProfile userProfile = user.getUserProfile();
 
         updateUserPositions(request, user);
-        updateUserTags(request, user);
+        updateUserTags(request.getProfileTagPositions(), user);
 
 
         userThumbnailUpdate(request, user);
@@ -261,11 +261,11 @@ public class UserProfileService {
         return "프로필 공개 여부가 " + (user.getProfileHider() ? "숨김" : "공개") + " 처리 되었습니다.";
     }
 
-    public void updateUserTags (ProfileRequest request, User user) {
+    public void updateUserTags (List<ProfileTagPositionRequest> request, User user) {
         userTagRepository.deleteAllByUser(user);
 
         List<UserTag> userTags = new ArrayList<>();
-        for (ProfileTagPositionRequest requestTagDetail : request.getProfileTagPositions()) {
+        for (ProfileTagPositionRequest requestTagDetail : request) {
             RoleType type = requestTagDetail.getType();
             for (String tagName: requestTagDetail.getTags()) {
                 Tag tag = tagRepository.findByName(tagName);

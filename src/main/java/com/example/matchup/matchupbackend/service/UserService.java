@@ -3,7 +3,7 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
-import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamInfoResponse;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
@@ -84,7 +84,7 @@ public class UserService {
     }
 
     @Transactional
-    public String saveAdditionalUserInfo(ProfileRequest request) {
+    public String saveAdditionalUserInfo(ProfileCreateRequest request) {
         // 토큰을 발행하는 과정에서 보안을 위한 email과 id 값을 받고 DB와 비교합니다.
         isAuthorized(request);
 
@@ -95,12 +95,12 @@ public class UserService {
         List<UserPosition> userPositions = request.getProfileTagPositions().stream()
                         .map(userPosition -> UserPosition.create(userPosition, user))
                         .toList();
-        if (request.getImageBase64() != null) { //썸네일 사진이 있는 경우
-            UploadFile uploadFile = fileService.storeBase64ToFile(request.getImageBase64(), request.getImageName());
+        if (request.getPictureUrl() != null) { //썸네일 사진이 있는 경우
+            UploadFile uploadFile = fileService.storeBase64ToFile(request.getPictureUrl(), request.getImageName());
             user.setUploadFile(uploadFile);
         }
         User updatedUser = user.updateFirstLogin(request, userPositions);
-        userProfileService.updateUserTags(request, updatedUser);
+        userProfileService.updateUserTags(request.getProfileTagPositions(), updatedUser);
         userPositionRepository.saveAll(userPositions);
         userProfileRepository.save(UserProfile.createSignUp(user));
 
@@ -187,7 +187,7 @@ public class UserService {
         CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieMaxAge);
     }
 
-    private void isAuthorized(ProfileRequest request) {
+    private void isAuthorized(ProfileCreateRequest request) {
         String email = request.getEmail();
         Long id = request.getId();
         if (email == null && id == null) {

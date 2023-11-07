@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UploadFile;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
 import com.example.matchup.matchupbackend.dto.request.user.ProfileTagPositionRequest;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
@@ -223,7 +224,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
-    public User updateFirstLogin(ProfileRequest request, List<UserPosition> userPositions) {
+    public User updateFirstLogin(ProfileCreateRequest request, List<UserPosition> userPositions) {
         this.nickname = request.getNickname();
         this.birthDay = request.getBirthDay();
         this.expYear = request.getExpYear();

@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.controller;
 
-import com.example.matchup.matchupbackend.dto.request.user.ProfileRequest;
+import com.example.matchup.matchupbackend.dto.request.user.ProfileCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
@@ -41,7 +41,7 @@ public class UserController {
      */
     @PutMapping("/login/user/info")
     @ResponseStatus(HttpStatus.CREATED)
-    public String additionalUserInfo(@Valid @RequestBody ProfileRequest request) {
+    public String additionalUserInfo(@Valid @RequestBody ProfileCreateRequest request) {
         return userService.saveAdditionalUserInfo(request);
     }
 
