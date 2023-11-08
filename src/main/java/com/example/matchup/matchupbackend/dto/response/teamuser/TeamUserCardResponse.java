@@ -44,7 +44,7 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamUser.getUser().getPictureUrl(),
                 teamUser.getUser().getUserLevel(),
                 teamUser.getUser().getNickname(),
-                userPosition != null ? userPosition.getType().toString() : RoleType.NA.toString(),
+                userPosition != null ? userPosition.getType().getRole() : RoleType.NA.toString(),
                 userPosition != null ? Long.valueOf(userPosition.getTypeLevel()) : 0,
                 teamUser.getUser().getFeedbackScore(),
                 teamUser.getUser().getLikes(),

@@ -50,7 +50,7 @@ public class UserCardResponse{
     }
 
     public static UserCardResponse fromEntity(User user, UserPosition userPosition) {
-        String type = userPosition != null ? userPosition.getType().toString() : RoleType.NA.toString();
+        String type = userPosition != null ? userPosition.getType().getRole() : RoleType.NA.toString();
         Long typeLevel = userPosition != null ? Long.valueOf(userPosition.getTypeLevel()) : 0L;
         Position position = new Position(type, typeLevel);
 
