@@ -283,18 +283,18 @@ public class MentoringService {
      */
     @Transactional
     public void reviewMentoringByMentee(ReviewMentoringRequest request, String authorizationHeader, Long mentoringId, Long teamId) {
-        User user = getUser(authorizationHeader);
+        User mentee = getUser(authorizationHeader);
         Mentoring mentoring = getMentoring(mentoringId);
         Team team = teamRepository.findTeamByIdAndIsDeleted(teamId, 0L).orElseThrow(() -> new TeamNotFoundException("팀을 찾을 수 없습니다."));
         List<TeamMentoring> teamMentorings = getTeamMentoringsSortByEndedDateDesc(mentoring, team);
 
         TeamMentoring latestEndedTeamMentoring = teamMentorings.get(0);
-        isAvailableReviewMentorings(user, team, latestEndedTeamMentoring);
+        isAvailableReviewMentorings(mentee, team, latestEndedTeamMentoring);
 
         Double score = calculateAverageScore(request, mentoring);
         mentoring.setScoreAfterReviewFromMentee(score);
 
-        ReviewMentor reviewMentor = ReviewMentor.create(request, mentoring, latestEndedTeamMentoring);
+        ReviewMentor reviewMentor = ReviewMentor.create(request, mentoring, latestEndedTeamMentoring, mentee);
         reviewMentorRepository.save(reviewMentor);
     }
 
@@ -320,7 +320,7 @@ public class MentoringService {
                                 teamMentoring.getStatus(),
                                 teamMentoring.getTeam(),
                                 teamMentoring.getId(),
-                                userRepository.findNameById(teamMentoring.getTeam().getLeaderID())
+                                userRepository.findNicknameById(teamMentoring.getTeam().getLeaderID())
                             )
                     ).toList();
     }

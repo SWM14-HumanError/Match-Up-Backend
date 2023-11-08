@@ -26,7 +26,7 @@ public class ReviewMentor {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User mentee;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentoring_id", nullable = false)
@@ -37,22 +37,23 @@ public class ReviewMentor {
     private TeamMentoring teamMentoring;
 
     @Builder
-    public ReviewMentor(String comment, Double satisfaction, Double expertise, Double punctuality, User user, Mentoring mentoring, TeamMentoring teamMentoring) {
+    public ReviewMentor(String comment, Double satisfaction, Double expertise, Double punctuality, User mentee, Mentoring mentoring, TeamMentoring teamMentoring) {
         this.comment = comment;
         this.satisfaction = satisfaction;
         this.expertise = expertise;
         this.punctuality = punctuality;
-        this.user = user;
+        this.mentee = mentee;
         this.mentoring = mentoring;
         this.teamMentoring = teamMentoring;
     }
 
-    public static ReviewMentor create(ReviewMentoringRequest request, Mentoring mentoring, TeamMentoring teamMentoring) {
+    public static ReviewMentor create(ReviewMentoringRequest request, Mentoring mentoring, TeamMentoring teamMentoring, User mentee) {
         return ReviewMentor.builder()
                 .satisfaction(request.getSatisfaction())
                 .expertise(request.getExpertise())
                 .punctuality(request.getPunctuality())
                 .comment(request.getComment())
+                .mentee(mentee)
                 .mentoring(mentoring)
                 .teamMentoring(teamMentoring)
                 .build();
