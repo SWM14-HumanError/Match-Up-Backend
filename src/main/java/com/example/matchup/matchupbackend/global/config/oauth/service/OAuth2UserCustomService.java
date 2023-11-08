@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,6 +36,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
     private final FileService fileService;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -52,7 +54,8 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                 user.getEmail());
     }
 
-    private void whenKakaoLoginProfileImageSave(String registrationId, User user) {
+    @Transactional
+    public void whenKakaoLoginProfileImageSave(String registrationId, User user) {
         if (registrationId.equals("kakao")) {
             try {
                 String pictureUrl = user.getPictureUrl();
@@ -64,7 +67,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                 log.info("이거임 {}", imageBase64);
 
                 if (imageBase64 != null) { //썸네일 사진이 있는 경우
-                    UploadFile uploadFile = fileService.storeBase64ToFile(imageBase64, "%s_image.jpg".formatted(user.getNickname()));
+                    UploadFile uploadFile = fileService.storeBase64ToFile(imageBase64, "%s_image.jpg".formatted(user.getId()));
                     user.setUploadFile(uploadFile);
                 }
             } catch (IOException e) {
