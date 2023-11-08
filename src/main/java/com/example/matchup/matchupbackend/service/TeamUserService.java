@@ -74,8 +74,8 @@ public class TeamUserService {
                 teamUser -> TeamUserCardResponse.fromEntity(
                         teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
-                                .min(Comparator.comparingInt(UserPosition::getTypeLevel))
-                                .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다.")))
+                                .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
+                                .orElse(null))
         ).collect(Collectors.toList());
     }
 
@@ -95,8 +95,8 @@ public class TeamUserService {
                 responses.add(TeamUserCardResponse.fromEntity(
                         teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
-                            .min(Comparator.comparingInt(UserPosition::getTypeLevel))
-                            .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다."))));
+                                .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
+                            .orElse(null)));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
             }
@@ -122,8 +122,8 @@ public class TeamUserService {
             if (feedback == null) {
                 responses.add(TeamUserCardResponse.fromEntity(teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
-                            .min(Comparator.comparingInt(UserPosition::getTypeLevel))
-                            .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다."))));
+                                .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
+                            .orElse(null)));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
             }

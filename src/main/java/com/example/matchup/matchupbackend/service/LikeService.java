@@ -139,8 +139,8 @@ public class LikeService {
     private List<UserCardResponse> userCardResponseList(List<User> userList) {
         return userList.stream().map(user -> UserCardResponse.fromEntity(user,
                         userPositionRepository.findAllByUser(user).stream()
-                            .min(Comparator.comparingInt(UserPosition::getTypeLevel))
-                            .orElseThrow(() -> new UserNotFoundException("유저 포지션이 없습니다."))))
+                                .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
+                                .orElse(null)))
                         .collect(Collectors.toList());
     }
 
