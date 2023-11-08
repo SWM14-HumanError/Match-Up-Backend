@@ -96,7 +96,8 @@ public class TeamUserService {
                         teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
                                 .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
-                            .orElse(null)));
+                                .orElse(null),
+                        feedbackRepository.findFeedbackBy(teamID, userID)));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
             }
@@ -123,7 +124,8 @@ public class TeamUserService {
                 responses.add(TeamUserCardResponse.fromEntity(teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
                                 .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
-                            .orElse(null)));
+                                .orElse(null),
+                        feedbackRepository.findFeedbackBy(teamID, userID)));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
             }
