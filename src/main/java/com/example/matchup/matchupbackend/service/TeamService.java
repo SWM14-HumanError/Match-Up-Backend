@@ -412,7 +412,7 @@ public class TeamService {
         }
 
         TeamMentoring latestEndedTeamMentoring = teamMentoringRepository.findTopByTeamAndStatusAndMentoringOrderByEndedDateDesc(team, ENDED, mentoring);
-        return !reviewMentorRepository.existsByTeamMentoringAndUser(latestEndedTeamMentoring, user);
+        return !reviewMentorRepository.existsByTeamMentoringAndMentee(latestEndedTeamMentoring, user);
     }
 
     private User getUserWhenTokenGiven(String authorizationHeader) {

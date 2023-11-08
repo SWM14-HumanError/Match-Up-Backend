@@ -367,7 +367,7 @@ public class MentoringService {
             throw new ResourceNotPermitException(NOT_PERMITTED, "리뷰는 멘토링 종료 후 한 달 내에만 가능합니다.");
         }
 
-        if (reviewMentorRepository.existsByTeamMentoringAndUser(latestEndedTeamMentoring, user)) {
+        if (reviewMentorRepository.existsByTeamMentoringAndMentee(latestEndedTeamMentoring, user)) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "리뷰는 한 번만 가능합니다.");
         }
     }

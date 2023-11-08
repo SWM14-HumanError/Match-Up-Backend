@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewMentorRepository extends JpaRepository<ReviewMentor, Long> {
 
-    boolean existsByTeamMentoringAndUser(TeamMentoring latestEndedTeamMentoring, User user);
+    boolean existsByTeamMentoringAndMentee(TeamMentoring latestEndedTeamMentoring, User mentee);
 
     int countByMentoring(Mentoring mentoring);
 }
