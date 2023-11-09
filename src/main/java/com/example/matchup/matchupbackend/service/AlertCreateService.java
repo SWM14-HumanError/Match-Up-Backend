@@ -337,7 +337,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title("멘토링 신청 수락")
                 .content("%s 멘토링이 수락되었습니다.".formatted(mentoring.getTitle()))
-                .redirectUrl("/mentor/%d".formatted(mentoring.getId()))
+                .redirectUrl("/mentor/?mentoringId=%d".formatted(mentoring.getId()))
                 .alertType(MENTORING)
                 .build();
         alert.setUser(leader);
