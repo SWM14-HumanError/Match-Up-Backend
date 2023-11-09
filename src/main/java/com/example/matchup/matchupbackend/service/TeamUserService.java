@@ -298,9 +298,7 @@ public class TeamUserService {
 
         List<Feedback> kickedUserFeedBacks = feedbackRepository.findByTeamUser(kickedUser);
         if (!kickedUserFeedBacks.isEmpty()) {
-            kickedUserFeedBacks.forEach(feedback -> {
-                feedback.updateByKickUserToTeam();
-            });
+            feedbackRepository.updateFeedbacksByDeleteUser(kickedUserFeedBacks);
         }
         teamUserRepository.deleteTeamUserByTeamIdAndUserId(teamID, kickForm.getKickUserID());
         log.info("userID:" + kickForm.getKickUserID().toString() + " 강퇴 완료");

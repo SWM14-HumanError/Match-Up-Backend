@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.repository.feedback;
 import com.example.matchup.matchupbackend.entity.Feedback;
 import com.example.matchup.matchupbackend.entity.TeamUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -25,4 +26,8 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, Feedb
     Optional<Feedback> findFeedbackBy(@Param("teamId") Long teamId, @Param("giverId") Long giverId);
 
     List<Feedback> findByTeamUser(TeamUser teamUser);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Feedback feedback SET feedback.teamUser = null WHERE feedback IN :feedbacks")
+    void updateFeedbacksByDeleteUser(@Param("feedbacks") List<Feedback> feedbacks);
 }

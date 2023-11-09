@@ -157,8 +157,4 @@ public class Feedback extends BaseTimeEntity{
         build.totalScore = build.calculateTotalScore(feedback.getGrade());
         return build;
     }
-
-    public void updateByKickUserToTeam(){
-        this.teamUser = null;
-    }
 }
