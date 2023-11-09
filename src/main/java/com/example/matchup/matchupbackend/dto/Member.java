@@ -28,7 +28,7 @@ public class Member {
     private Long maxCount;
 
     public Member(RoleType role, List<String> stacks, Long maxCount) {
-        this.role = role.getRole();
+        this.role = role.toString();
         this.stacks = stacks;
         this.maxCount = maxCount;
     }
