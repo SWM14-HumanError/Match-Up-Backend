@@ -214,7 +214,6 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(commenter.getNickname() + " 님이 댓글을 작성했습니다.")
                 .content(comment.getContent())
-//                .redirectUrl("/feed/" + feed.getId()) todo: 피드 상세페이지 추가되면 수정
                 .redirectUrl("/feed")
                 .alertType(AlertType.FEED)
                 .build();
@@ -325,7 +324,7 @@ public class AlertCreateService {
     public void refuseMentoringCreateAlert(Mentoring mentoring, String comment, User leader) {
         Alert alert = Alert.builder()
                 .title("멘토링 신청 거절")
-                .content("%s 멘토링이 거절되었습니다. %s".formatted(mentoring.getTitle(), comment))
+                .content("%s 멘토링이 거절되었습니다. \n (거절 사유 : %s)".formatted(mentoring.getTitle(), comment))
                 .redirectUrl("/mentor")
                 .alertType(MENTORING)
                 .build();
@@ -337,8 +336,8 @@ public class AlertCreateService {
     public void acceptMentoringCreateAlert(Mentoring mentoring, String comment, User leader) {
         Alert alert = Alert.builder()
                 .title("멘토링 신청 수락")
-                .content("%s 멘토링이 수락되었습니다. %s".formatted(mentoring.getTitle(), comment))
-                .redirectUrl("/mentor")
+                .content("%s 멘토링이 수락되었습니다.".formatted(mentoring.getTitle()))
+                .redirectUrl("/mentor/%d".formatted(mentoring.getId()))
                 .alertType(MENTORING)
                 .build();
         alert.setUser(leader);
