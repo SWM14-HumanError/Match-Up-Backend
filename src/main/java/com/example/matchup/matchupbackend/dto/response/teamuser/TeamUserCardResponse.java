@@ -69,7 +69,7 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamUser.getApprove(),
                 teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
                 feedback.isPresent() ? feedback.get().getCreateTime() : LocalDateTime.now(),
-                feedback.isPresent() ? feedback.get().timeToFeedback() : LocalDateTime.now());
+                feedback.isPresent() ? feedback.get().timeToFeedback() : LocalDateTime.of(1900, 12, 31, 23, 59, 59));
     }
 
     public static TeamUserCardResponse fromMap(TeamUser teamUser, Feedback feedback) {
