@@ -68,7 +68,7 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamUser.getRole(),
                 teamUser.getApprove(),
                 teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
-                feedback.isPresent() ? feedback.get().getCreateTime() : LocalDateTime.now(),
+                feedback.isPresent() ? feedback.get().getCreateTime() : null,
                 feedback.isPresent() ? feedback.get().timeToFeedback() : LocalDateTime.of(1900, 12, 31, 23, 59, 59));
     }
 
