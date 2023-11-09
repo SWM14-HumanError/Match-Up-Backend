@@ -221,6 +221,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     public void addFeedback(Feedback feedback) {
         this.totalFeedbacks++; // 피드백 갯수 1 증가
         this.feedbackScore += feedback.getTotalScore(); // 피드백에 따른 개인 점수 증가
+        this.feedbackScore = Math.round(this.feedbackScore * 10) / 10.0; // 소수점 1자리까지 표현
         this.recieveFeedbackList.add(feedback); // 피드백 리스트 추가
     }
 
