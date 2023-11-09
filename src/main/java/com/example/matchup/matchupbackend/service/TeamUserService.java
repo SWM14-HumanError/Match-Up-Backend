@@ -296,7 +296,7 @@ public class TeamUserService {
         // 알림 저장 로직
         alertCreateService.saveUserKickedToTeamAlert(kickedUser, teamRefuse.getId());
 
-        List<Feedback> kickedUserFeedBacks = feedbackRepository.findByTeamUser(kickedUser.getId());
+        List<Feedback> kickedUserFeedBacks = feedbackRepository.findByTeamUser(kickedUser);
         if (!kickedUserFeedBacks.isEmpty()) {
             kickedUserFeedBacks.forEach(feedback -> {
                 feedback.updateByKickUserToTeam();
