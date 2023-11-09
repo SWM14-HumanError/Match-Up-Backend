@@ -322,8 +322,9 @@ public class TeamUserService {
         if (receiver.getTeam().getIsDeleted() == 1L) {
             throw new InvalidFeedbackException("teamID: " + teamID, "이미 종료된 팀에는 유저에게 피드백을 보낼 수 없습니다");
         }
-        List<TeamUser> twoUserByTeamIdAndUserId = teamUserRepository.findTwoUserByTeamIdAndUserIds(teamID, giverID, feedbackRequest.getReceiverID());// 같은 팀에 속한 유저인지 검증
-        if (twoUserByTeamIdAndUserId.size() != 2) { // 같은 팀에 속한 유저끼리 한 피드백인지 검증
+        Optional<TeamUser> giverTeamUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, giverID);
+        Optional<TeamUser> receiverTeamUser = teamUserRepository.findTeamUserByTeamIdAndUserId(teamID, feedbackRequest.getReceiverID());
+        if (giverTeamUser.isEmpty() || receiverTeamUser.isEmpty()) { // 같은 팀에 속한 유저끼리 한 피드백인지 검증
             throw new InvalidFeedbackException("giverID: " + giverID + "  receiverID: " + feedbackRequest.getReceiverID(), "같은 팀끼리만 피드백을 보낼수 있습니다.");
         }
         isPossibleFeedback(giverID, feedbackRequest.getReceiverID(), teamID); // 검증
