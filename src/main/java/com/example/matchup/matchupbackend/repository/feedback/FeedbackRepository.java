@@ -22,4 +22,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long>, Feedb
             "order by feedback.createTime desc " +
             "limit 1")
     Optional<Feedback> findFeedbackBy(@Param("teamId") Long teamId, @Param("giverId") Long giverId);
+
+    List<Feedback> findByTeamUser(Long teamUserId);
 }

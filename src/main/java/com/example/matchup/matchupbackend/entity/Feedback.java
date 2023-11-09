@@ -158,7 +158,7 @@ public class Feedback extends BaseTimeEntity{
         return build;
     }
 
+    public void updateByKickUserToTeam(){
+        this.teamUser = null;
+    }
 }
-/**
- * teamuser를 안넣는 이유는 리뷰는 팀원으로써 보다 한 유저의 리뷰이기 때문에
- */
