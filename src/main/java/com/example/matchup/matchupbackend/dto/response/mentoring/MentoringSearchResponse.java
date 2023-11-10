@@ -48,6 +48,8 @@ public class MentoringSearchResponse {
         this.userLevel = userLevel;
         this.userPictureUrl = userPictureUrl;
         this.mentorId = mentorId;
+        this.availableReview = false;
+        this.likeMentoring = false;
     }
 
     private static MentoringSearchResponse of(Mentoring mentoring, Long likes) {

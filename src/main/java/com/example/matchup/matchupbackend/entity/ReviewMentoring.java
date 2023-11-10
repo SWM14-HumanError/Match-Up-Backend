@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class ReviewMentor {
+public class ReviewMentoring {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_mentor_id")
@@ -37,7 +37,7 @@ public class ReviewMentor {
     private TeamMentoring teamMentoring;
 
     @Builder
-    public ReviewMentor(String comment, Double satisfaction, Double expertise, Double punctuality, User mentee, Mentoring mentoring, TeamMentoring teamMentoring) {
+    public ReviewMentoring(String comment, Double satisfaction, Double expertise, Double punctuality, User mentee, Mentoring mentoring, TeamMentoring teamMentoring) {
         this.comment = comment;
         this.satisfaction = satisfaction;
         this.expertise = expertise;
@@ -47,8 +47,8 @@ public class ReviewMentor {
         this.teamMentoring = teamMentoring;
     }
 
-    public static ReviewMentor create(ReviewMentoringRequest request, Mentoring mentoring, TeamMentoring teamMentoring, User mentee) {
-        return ReviewMentor.builder()
+    public static ReviewMentoring create(ReviewMentoringRequest request, Mentoring mentoring, TeamMentoring teamMentoring, User mentee) {
+        return ReviewMentoring.builder()
                 .satisfaction(request.getSatisfaction())
                 .expertise(request.getExpertise())
                 .punctuality(request.getPunctuality())
