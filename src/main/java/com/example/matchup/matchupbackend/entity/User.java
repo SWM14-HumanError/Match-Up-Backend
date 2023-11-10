@@ -323,7 +323,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 /*
 public Double returnUserReviewAverage() {
     Double totalScore = 0.0;
-    for (ReviewMentor userReview : userReviewList) {
+    for (ReviewMentoring userReview : userReviewList) {
         totalScore += userReview.getScore();
     }
     if (userReviewList.size() == 0) return 0.0;

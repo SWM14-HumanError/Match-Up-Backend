@@ -58,7 +58,7 @@ public class Mentoring {
     private List<TeamMentoring> teamMentoringList = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentoring", cascade = CascadeType.ALL)
-    private List<ReviewMentor> mentoringReviewListMentor = new ArrayList<>();
+    private List<ReviewMentoring> mentoringReviewListMentor = new ArrayList<>();
 
     @Builder
     private Mentoring(String title, String content, RoleType roleType, Career career, User mentor) {

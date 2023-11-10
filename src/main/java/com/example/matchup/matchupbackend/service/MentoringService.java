@@ -50,7 +50,7 @@ public class MentoringService {
     private final TeamUserRepository teamUserRepository;
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
-    private final ReviewMentorRepository reviewMentorRepository;
+    private final ReviewMentoringRepository reviewMentoringRepository;
 
     public MentoringSliceResponse showMentoringsInMentoringPage(String authorizationHeader, MentoringSearchParam param, Pageable pageable) {
         // 로그인한 유저는 좋아요 표시를 위해 token을 받을 수 있다.
@@ -294,8 +294,8 @@ public class MentoringService {
         Double score = calculateAverageScore(request, mentoring);
         mentoring.setScoreAfterReviewFromMentee(score);
 
-        ReviewMentor reviewMentor = ReviewMentor.create(request, mentoring, latestEndedTeamMentoring, mentee);
-        reviewMentorRepository.save(reviewMentor);
+        ReviewMentoring reviewMentoring = ReviewMentoring.create(request, mentoring, latestEndedTeamMentoring, mentee);
+        reviewMentoringRepository.save(reviewMentoring);
     }
 
     @Transactional
@@ -367,17 +367,9 @@ public class MentoringService {
             throw new ResourceNotPermitException(NOT_PERMITTED, "리뷰는 멘토링 종료 후 한 달 내에만 가능합니다.");
         }
 
-        if (reviewMentorRepository.existsByTeamMentoringAndMentee(latestEndedTeamMentoring, user)) {
+        if (reviewMentoringRepository.existsByTeamMentoringAndMentee(latestEndedTeamMentoring, user)) {
             throw new ResourceNotPermitException(NOT_PERMITTED, "리뷰는 한 번만 가능합니다.");
         }
-    }
-
-    /**
-     * 한 팀이 한 멘토링을 여러 번 수강할 수도 있으므로
-     * 각 각에 대해서 검증한다.
-     */
-    private void isAvailableReviewMentoring(TeamMentoring teamMentoring) {
-
     }
 
     /**
@@ -489,7 +481,7 @@ public class MentoringService {
 
     private Double calculateAverageScore(ReviewMentoringRequest request, Mentoring mentoring) {
         double avgScore = (request.getSatisfaction() + request.getExpertise() + request.getPunctuality()) / 3.0;
-        int reviewCount = reviewMentorRepository.countByMentoring(mentoring);
+        int reviewCount = reviewMentoringRepository.countByMentoring(mentoring);
 
         return (mentoring.getScore() * reviewCount + avgScore) / (reviewCount + 1);
     }
