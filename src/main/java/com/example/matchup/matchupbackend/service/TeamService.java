@@ -383,7 +383,8 @@ public class TeamService {
     public List<MentoringSearchResponse> showMentoringsInTeamPage(String authorizationHeader, Long teamId) {
         User user = getUserWhenTokenGiven(authorizationHeader);
         Team team = teamRepository.findTeamById(teamId).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
-        List<Mentoring> acceptedOrEndedUniqueMentoring = mentoringRepository.findAllDistinctByTeamAndTeamMentoringStatusIn(team, List.of(ACCEPTED, ENDED));
+        List<Mentoring> acceptedOrEndedUniqueMentoring = teamMentoringRepository.findAllDistinctByTeamAndTeamMentoringStatusIn(team, List.of(ACCEPTED, ENDED)).stream()
+                .map(TeamMentoring::getMentoring).toList();
         return getMentoringInTeamPageResponse(user, acceptedOrEndedUniqueMentoring, team);
     }
 
