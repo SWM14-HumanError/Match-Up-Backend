@@ -231,7 +231,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title(liker.getNickname() + " 님이 " + feed.getTitle() + " 에 좋아요를 눌렀습니다.")
                 .content("누적 좋아요 갯수 : " + likes)
-                .redirectUrl("/feed/" + feed.getId())
+                .redirectUrl("/feed")
                 .alertType(AlertType.FEED)
                 .build();
         alert.setUser(feed.getUser());
