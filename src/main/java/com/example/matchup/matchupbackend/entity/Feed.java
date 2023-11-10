@@ -23,7 +23,7 @@ public class Feed extends BaseEntity{
     @Column(name = "feed_title")
     private String title;
 
-    @Column(name = "feed_content")
+    @Column(name = "feed_content", length = 700)
     private String content;
     private Long type; // 0 -> project, 1 ->  study
 
