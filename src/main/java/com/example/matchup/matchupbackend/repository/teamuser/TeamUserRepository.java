@@ -44,8 +44,9 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     @Query("DELETE from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId")
     void deleteTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
 
-    @Query("select teamuser from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId1 OR teamuser.user.id=:userId2")
-    List<TeamUser> findTwoUserByTeamIdAndUserIds(@Param("teamId") Long teamId, @Param("userId1") Long userId1, @Param("userId2")Long userId2);
+    @Query("select teamuser from TeamUser teamuser where teamuser.team.id=:teamId AND teamuser.user.id=:userId AND teamuser.approve=true")
+    Optional<TeamUser> findTeamUserByTeamIdAndUserId(@Param("teamId") Long teamId, @Param("userId") Long userId);
+
     @Query("select teamuser from TeamUser teamuser " +
             "left join fetch teamuser.user " +
             "WHERE teamuser.team.id=:teamId and teamuser.approve=true")

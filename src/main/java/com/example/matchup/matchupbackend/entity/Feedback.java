@@ -157,8 +157,4 @@ public class Feedback extends BaseTimeEntity{
         build.totalScore = build.calculateTotalScore(feedback.getGrade());
         return build;
     }
-
 }
-/**
- * teamuser를 안넣는 이유는 리뷰는 팀원으로써 보다 한 유저의 리뷰이기 때문에
- */

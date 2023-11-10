@@ -2,10 +2,7 @@ package com.example.matchup.matchupbackend.dto.response.teamuser;
 
 import com.example.matchup.matchupbackend.dto.TechStack;
 import com.example.matchup.matchupbackend.dto.UserCardResponse;
-import com.example.matchup.matchupbackend.entity.Feedback;
-import com.example.matchup.matchupbackend.entity.TeamRecruit;
-import com.example.matchup.matchupbackend.entity.TeamUser;
-import com.example.matchup.matchupbackend.entity.UserPosition;
+import com.example.matchup.matchupbackend.entity.*;
 import com.example.matchup.matchupbackend.global.RoleType;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
@@ -54,6 +51,25 @@ public class TeamUserCardResponse extends UserCardResponse {
                 teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
                 null,
                 null);
+    }
+
+    public static TeamUserCardResponse fromEntity(TeamUser teamUser, UserPosition userPosition, Optional<Feedback> feedback) {
+        Optional<TeamRecruit> teamRecruit = Optional.ofNullable(teamUser.getTeamRecruit());
+        return new TeamUserCardResponse(
+                teamUser.getUser().getId(),
+                teamUser.getUser().getPictureUrl(),
+                teamUser.getUser().getUserLevel(),
+                teamUser.getUser().getNickname(),
+                userPosition != null ? userPosition.getType().getRole() : RoleType.NA.toString(),
+                userPosition != null ? Long.valueOf(userPosition.getTypeLevel()) : 0,
+                teamUser.getUser().getFeedbackScore(),
+                teamUser.getUser().getLikes(),
+                teamUser.getUser().returnStackList(),
+                teamUser.getRole(),
+                teamUser.getApprove(),
+                teamRecruit.orElse(null) == null ? null : teamRecruit.get().getId(),
+                feedback.isPresent() ? feedback.get().getCreateTime() : null,
+                feedback.isPresent() ? feedback.get().timeToFeedback() : LocalDateTime.of(1900, 12, 31, 23, 59, 59));
     }
 
     public static TeamUserCardResponse fromMap(TeamUser teamUser, Feedback feedback) {

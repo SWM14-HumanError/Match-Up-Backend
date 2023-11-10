@@ -21,7 +21,7 @@ public class TeamUserFeedbackRequest {
     private Boolean isFast; //빠르게 개발 하시는지
     private Boolean isActively; //프로젝트에 적극적으로 임하는지
     @NotBlank(message = "피드백 내용은 필수입니다.")
-    @Size(max = 20, message = "최대 20자까지 입력 가능합니다.")
+    @Size(max = 100, message = "최대 100자까지 입력 가능합니다.")
     private String commentToUser;
     @Size(max = 250, message = "최대 250자까지 입력 가능합니다.")
     private String commentToAdmin;
