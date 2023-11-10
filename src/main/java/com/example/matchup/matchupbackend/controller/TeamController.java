@@ -7,7 +7,6 @@ import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearch
 import com.example.matchup.matchupbackend.dto.response.team.*;
 import com.example.matchup.matchupbackend.error.exception.AuthorizeException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.service.FileService;
 import com.example.matchup.matchupbackend.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -30,7 +29,6 @@ import static com.example.matchup.matchupbackend.global.config.jwt.TokenProvider
 public class TeamController {
     private final TeamService teamService;
     private final TokenProvider tokenProvider;
-    private final FileService fileService;
 
     @GetMapping("/list/team")
     @ResponseStatus(HttpStatus.OK)
