@@ -307,9 +307,9 @@ public class TeamService {
 
     public List<String> getTeamTagStringList(Long teamID) {
         List<TeamTag> teamTags = teamRepository.findTeamTagByTeamId(teamID);
-        if (teamTags.isEmpty()) {
-            throw new TeamDetailNotFoundException("팀 태그가 없습니다");
-        }
+//        if (teamTags.isEmpty()) {
+//            throw new TeamDetailNotFoundException("팀 태그가 없습니다");
+//        }
         List<String> teamTagNames = new ArrayList<>();
         teamTags.stream().forEach(teamTag -> {
             teamTagNames.add(teamTag.getTag().getName());
