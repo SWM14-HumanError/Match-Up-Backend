@@ -27,8 +27,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
-            if (!isSocketRequest(request)) {
-                filterChain.doFilter(request, response);
+            if (isSocketRequest(request)) {
                 return;
             }
             if (tokenProvider.validTokenInFilter(authorizationHeader)) {
@@ -44,6 +43,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isSocketRequest(HttpServletRequest request) {
-        return !request.getRequestURI().endsWith("/ws-stomp");
+        return request.getRequestURI().endsWith("/ws-stomp");
     }
 }

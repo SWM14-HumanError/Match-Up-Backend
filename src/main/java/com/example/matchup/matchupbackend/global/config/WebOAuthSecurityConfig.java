@@ -42,7 +42,7 @@ public class WebOAuthSecurityConfig {
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("local")) {
             return (web) -> web.ignoring()
-                    .requestMatchers(toH2Console());
+                    .requestMatchers(toH2Console(), new AntPathRequestMatcher("/ws-stomp/**"));
         } return (web) -> {};
     }
 
@@ -105,6 +105,7 @@ public class WebOAuthSecurityConfig {
 //    public TokenAuthenticationFilter tokenAuthenticationFilter() {
 //        return new TokenAuthenticationFilter(tokenProvider);
 //    }
+
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
