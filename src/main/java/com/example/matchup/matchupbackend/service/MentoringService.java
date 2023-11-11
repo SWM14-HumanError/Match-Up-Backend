@@ -266,14 +266,8 @@ public class MentoringService {
 
     public List<MentoringApplyListResponse> showApplyMentoringList(String authorizationHeader) {
         User mentor = getMentor(authorizationHeader);
-        List<Mentoring> mentorings = mentoringRepository.findALlByMentorAndIsDeletedOrderByIdDesc(mentor, false);
-
-        List<TeamMentoring> teamMentorings = mentorings.stream()
-                .flatMap(mentoring -> mentoring.getTeamMentoringList().stream()
-                        .filter(teamMentoring -> teamMentoring.getStatus() == WAITING))
-                .toList();
-
-        return teamMentorings.stream().map(MentoringApplyListResponse::of).toList();
+        List<TeamMentoring> teamMentorings = teamMentoringRepository.findWaitMentoringJoinTeamAndMentoringByMentor(mentor);
+        return teamMentorings.stream().map(teamMentoring -> MentoringApplyListResponse.of(teamMentoring)).toList();
     }
 
     /**

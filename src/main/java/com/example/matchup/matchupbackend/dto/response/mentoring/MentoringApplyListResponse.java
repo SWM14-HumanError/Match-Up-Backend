@@ -9,27 +9,30 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MentoringApplyListResponse {
 
-    private Long applyId;
     private Long teamId;
+    private String teamName;
+    private String teamImageUrl;
+    private Long leaderId;
     private String phoneNumber;
-    private String email;
     private String content;
 
     @Builder
-    private MentoringApplyListResponse(Long applyId, Long teamId, String phoneNumber, String email, String content) {
-        this.applyId = applyId;
+    private MentoringApplyListResponse(Long teamId, String teamName, String teamImageUrl, Long leaderId, String phoneNumber, String content) {
         this.teamId = teamId;
+        this.teamName = teamName;
+        this.teamImageUrl = teamImageUrl;
+        this.leaderId = leaderId;
         this.phoneNumber = phoneNumber;
-        this.email = email;
         this.content = content;
     }
 
     public static MentoringApplyListResponse of(TeamMentoring teamMentoring) {
         return MentoringApplyListResponse.builder()
-                .applyId(teamMentoring.getId())
                 .teamId(teamMentoring.getTeam().getId())
+                .teamName(teamMentoring.getTeam().getTitle())
+                .teamImageUrl(teamMentoring.getTeam().getThumbnailUrl())
+                .leaderId(teamMentoring.getTeam().getLeaderID())
                 .phoneNumber(teamMentoring.getPhoneNumber())
-                .email(teamMentoring.getEmailOfTeamLeader())
                 .content(teamMentoring.getMessageFromLeader())
                 .build();
     }
