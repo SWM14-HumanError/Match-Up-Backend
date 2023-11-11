@@ -5,7 +5,6 @@ import com.example.matchup.matchupbackend.dto.response.chat.SliceChatMessageResp
 import com.example.matchup.matchupbackend.dto.response.chat.SliceChatRoomResponse;
 import com.example.matchup.matchupbackend.dynamodb.ChatMessage;
 import com.example.matchup.matchupbackend.dynamodb.ChatMessageRepository;
-import com.example.matchup.matchupbackend.dynamodb.PagingChatMessageRepository;
 import com.example.matchup.matchupbackend.entity.ChatRoom;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserChatRoom;
@@ -23,10 +22,13 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.math.NumberUtils.min;
 
 @Slf4j
 @Service
@@ -38,13 +40,12 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
-    private final PagingChatMessageRepository pagingChatMessageRepository;
 
     /**
      * 채팅 메세지를 DynamoDB에 저장
      */
     @Transactional
-    public void saveChatMessage(ChatMessageRequest chatMessageRequest){
+    public void saveChatMessage(ChatMessageRequest chatMessageRequest) {
         ChatMessage chatMessage = ChatMessage.fromDTO(chatMessageRequest);
         chatMessageRepository.save(chatMessage);
     }
@@ -55,7 +56,7 @@ public class ChatService {
     @Transactional
     public Long create1To1Room(String authorizationHeader, Long receiverId) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "create1To1Room");
-        if (userId == receiverId) throw new InvalidChatException("자기 자신과는 채팅방을 생성할 수 없습니다.","userID: " + userId);
+        if (userId == receiverId) throw new InvalidChatException("자기 자신과는 채팅방을 생성할 수 없습니다.", "userID: " + userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
         User opponent = userRepository.findById(receiverId).orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
         ChatRoom chatRoom = ChatRoom.make1to1ChatRoom(user.getNickname());
@@ -91,7 +92,7 @@ public class ChatService {
     public Long getChatRoomIdIfExist(String myToken, Long opponentId) {
         Long myId = tokenProvider.getUserId(myToken, "isExistChatRoom");
         Optional<UserChatRoom> myUserChatRoom = userChatRoomRepository.findUserChatRoomJoinChatRoomBy(myId, opponentId);
-        if(myUserChatRoom.isEmpty()){
+        if (myUserChatRoom.isEmpty()) {
             return 0L;
         }
         return myUserChatRoom.get().getChatRoom().getId();
@@ -102,22 +103,27 @@ public class ChatService {
      */
     public SliceChatMessageResponse showMessages(String token, Long roomId, Pageable pageable) {
         Long myId = tokenProvider.getUserId(token, "showMessages");
-        Slice<ChatMessage> chatMessage = pagingChatMessageRepository.findByRoomId(roomId, pageable);
-        Slice<ChatMessage> sortChatMessage = sortChatMessageByCreatedAt(myId,chatMessage);
+        List<ChatMessage> chatMessage = chatMessageRepository.findByRoomId(roomId);
+        Slice<ChatMessage> sortChatMessageByCreatedAt = sortChatMessageByCreatedAt(myId, chatMessage, pageable);
         UserChatRoom userChatRoom = userChatRoomRepository.findJoinOpponentByChatRoomId(roomId, myId)
                 .orElseThrow(() -> new InvalidChatException("채팅방의 상대 유저가 존재하지 않습니다."));
-        return SliceChatMessageResponse.from(myId, sortChatMessage, userChatRoom.getOpponent());
+        return SliceChatMessageResponse.from(myId, sortChatMessageByCreatedAt, userChatRoom.getOpponent());
     }
 
     /**
      * 채팅 메세지를 보낸 시간 순으로 정렬
      */
-    private Slice<ChatMessage> sortChatMessageByCreatedAt(Long myId, Slice<ChatMessage> chatMessage) {
+    private Slice<ChatMessage> sortChatMessageByCreatedAt(Long myId, List<ChatMessage> chatMessage, Pageable pageable) {
+        int pageFirstNumber = pageable.getPageNumber() * pageable.getPageSize();
+        int pageLastNumber = pageable.getPageNumber() * pageable.getPageSize() + pageable.getPageSize();
+        int sliceLastIndex = min(pageLastNumber, chatMessage.size());
+        if (sliceLastIndex < pageFirstNumber) return new SliceImpl<>(Collections.emptyList(), pageable, false);
         List<ChatMessage> content = chatMessage.stream()
-                .sorted(Comparator.comparing(ChatMessage::getSendTime))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(ChatMessage::getSendTime).reversed())
+                .collect(Collectors.toList()).subList(pageFirstNumber, sliceLastIndex);
         makeMessageRead(myId, content);
-        return new SliceImpl<>(content, chatMessage.getPageable(), chatMessage.hasNext());
+
+        return new SliceImpl<>(content, pageable, chatMessage.size() > pageLastNumber);
     }
 
     /**
@@ -136,7 +142,7 @@ public class ChatService {
     /**
      * 채팅방 목록 보기
      */
-    public SliceChatRoomResponse getSliceChatRoomResponse(String authorizationHeader, Pageable pageable){
+    public SliceChatRoomResponse getSliceChatRoomResponse(String authorizationHeader, Pageable pageable) {
         Long myId = tokenProvider.getUserId(authorizationHeader, "getSliceChatRoomResponse");
         Slice<UserChatRoom> userChatRoomList = userChatRoomRepository.findJoinChatRoomAndUserByUserId(myId, pageable);
         Slice<UserChatRoom> updateRoomList = updateRoomInfo(myId, userChatRoomList);
@@ -148,7 +154,7 @@ public class ChatService {
      * 채팅방을 열면 채팅방의 정보를 업데이트 한다.
      */
     @Transactional
-    public Slice<UserChatRoom> updateRoomInfo(Long myId, Slice<UserChatRoom> userChatRoomList){
+    public Slice<UserChatRoom> updateRoomInfo(Long myId, Slice<UserChatRoom> userChatRoomList) {
         userChatRoomList.forEach(userChatRoom -> {
             ChatRoom chatRoom = userChatRoom.getChatRoom();
             List<ChatMessage> chatMessageList = chatMessageRepository.findByRoomId(userChatRoom.getChatRoom().getId());
