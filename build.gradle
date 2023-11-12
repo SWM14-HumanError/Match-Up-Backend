@@ -30,9 +30,9 @@ sentry {
 
     includeSourceContext = true
 
-    org = "inha-univ-bf"
+    org = "humanerror"
     projectName = "java-spring-boot"
-    authToken = "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"
+    authToken = "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"
 }
 
 dependencies {

@@ -22,7 +22,7 @@ public class UserLoginController {
     @GetMapping("/login")
     public String login(HttpServletRequest request, HttpServletResponse response) {
         CookieUtil.deleteCookie(request, response, "token");
-        CookieUtil.deleteCookie(request, response, "tokenExpire");
+        CookieUtil.deleteCookie(request, response, "expires");
         return "login_form";
     }
 

@@ -27,16 +27,22 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String authorizationHeader = request.getHeader(TokenProvider.HEADER_AUTHORIZATION);
+            if (isSocketRequest(request)) {
+                return;
+            }
             if (tokenProvider.validTokenInFilter(authorizationHeader)) {
                 Authentication authentication = tokenProvider.getAuthentication(authorizationHeader);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ExpiredJwtException ex) {
             CookieUtil.deleteCookie(request, response, "token");
-            CookieUtil.deleteCookie(request, response, "tokenExpire");
+            CookieUtil.deleteCookie(request, response, "expires");
         } finally {
             filterChain.doFilter(request, response);
         }
+    }
 
+    private boolean isSocketRequest(HttpServletRequest request) {
+        return request.getRequestURI().endsWith("/ws-stomp");
     }
 }
