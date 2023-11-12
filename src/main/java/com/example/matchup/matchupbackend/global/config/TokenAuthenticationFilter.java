@@ -36,7 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (ExpiredJwtException ex) {
             CookieUtil.deleteCookie(request, response, "token");
-            CookieUtil.deleteCookie(request, response, "tokenExpire");
+            CookieUtil.deleteCookie(request, response, "expires");
         } finally {
             filterChain.doFilter(request, response);
         }
