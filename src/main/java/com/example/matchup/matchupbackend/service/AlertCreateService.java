@@ -397,7 +397,7 @@ public class AlertCreateService {
         Alert alert = Alert.builder()
                 .title("멘토링 제안 알림")
                 .content("%s 팀으로부터 멘토링 신청이 왔습니다.".formatted(team.getTitle()))
-                .redirectUrl("/team/%d".formatted(team.getId()))
+                .redirectUrl("/mypage/mentor")
                 .alertType(MENTORING)
                 .build();
         alert.setUser(mentor);
