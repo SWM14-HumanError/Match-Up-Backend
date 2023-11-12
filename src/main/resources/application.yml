@@ -51,7 +51,7 @@ cloud:
       auto: false
 
 sentry:
-  dsn: https://a3a01f3fc21322c893e8082cccb738d9@o4505941819457536.ingest.sentry.io/4506139775205376
+  dsn: https://13f7b7402d176d856e4ea628df788a4a@o4506213122965504.ingest.sentry.io/4506213124145152
   traces-sample-rate: 1.0
   send-default-pii: true
   logging:
