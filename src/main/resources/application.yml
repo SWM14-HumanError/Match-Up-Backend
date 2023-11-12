@@ -58,5 +58,5 @@ sentry:
     enabled: true
     minimum-event-level: WARN
     minimum-breadcrumb-level: WARN
-  environment: production
+  environment: jujemu
 
