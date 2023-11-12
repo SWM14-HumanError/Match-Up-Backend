@@ -90,8 +90,6 @@ public class UserService {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException("회원가입을 진행하면서 존재하지 않는 이메일"));
 
-        // todo: 여기서 UnsupportedOperationException 에러 발생: 현재는 immutable list라는 것으로 이해하고 있지만 왜 인지는 모르겟음
-        //  List<UserPosition> userPositions = request.getUserPositionLevels().entrySet().stream().map(positionName -> UserPosition.builder().positionName(positionName.getKey()).positionLevel(positionName.getValue()).user(user).build()).toList();
         List<UserPosition> userPositions = request.getProfileTagPositions().stream()
                         .map(userPosition -> UserPosition.create(userPosition, user))
                         .toList();
@@ -139,9 +137,6 @@ public class UserService {
         user.updateUserLastLogin();
     }
 
-
-
-
     // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
     /**
      * 내 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
@@ -170,11 +165,11 @@ public class UserService {
      * 그리고 RefreshToken 쿠키에 저장
      */
     @Transactional
-    public User saveRefreshToken(HttpServletRequest request, HttpServletResponse response, String email, Long id) {
+    public User saveRefreshToken(HttpServletRequest request, HttpServletResponse response, String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("로그인에 성공하면서 Authorization 서버로부터 받은 이메일과 다른 이메일로 요청했습니다."));
         String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
 
-        user.updateNewRefreshToken(refreshToken, id);
+        user.updateNewRefreshToken(refreshToken);
         addRefreshTokenToCookie(request, response, refreshToken);
 
         return user;

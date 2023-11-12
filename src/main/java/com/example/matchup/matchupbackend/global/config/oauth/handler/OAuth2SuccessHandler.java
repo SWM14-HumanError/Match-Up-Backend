@@ -38,11 +38,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
         // 이메일만으로 토큰을 받을 수 없도록 방지하기 위해서 랜덤으로 생성한 아이디 값이 일치 했을 때만 토큰 발행
-        Long id = (long) ((Math.random() * 899999999999L) + 100000000000L);
-        User user = userService.saveRefreshToken(request, response, oAuth2User.getEmail(), id);
+        User user = userService.saveRefreshToken(request, response, oAuth2User.getEmail());
 
         String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
-        String targetUrl = getTargetUrl(accessToken, user, id);
+        String targetUrl = getTargetUrl(accessToken, user);
 
         clearAuthenticationAttributes(request, response);
 
@@ -54,12 +53,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
     }
 
-    private String getTargetUrl(String token, User user, Long id) {
+    private String getTargetUrl(String token, User user) {
         if (user.getIsUnknown()) {
             return UriComponentsBuilder.fromUriString(
                             tokenProvider.getOAuth2LoginUrl().getSuccessUrl())
                     .queryParam("email", user.getEmail())
-                    .queryParam("id", id)
+                    .queryParam("id", user.getAgreeTermOfServiceId())
                     .queryParam("image", user.getPictureUrl()!= null ? URLEncoder.encode(user.getPictureUrl(), UTF_8) : "")
                     .build()
                     .toUriString();

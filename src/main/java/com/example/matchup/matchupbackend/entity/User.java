@@ -162,6 +162,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.role = role;
         this.agreeTermOfServiceId = agreeTermOfServiceId;
         this.isMentor = isMentor;
+        this.isUnknown = true;
+        this.agreeTermOfServiceId = (long) ((Math.random() * 899999999999L) + 100000000000L);
     }
 
     //== 비즈니스 로직 ==//
@@ -182,9 +184,8 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.profileHider = !this.profileHider;
     }
 
-    public void updateNewRefreshToken(String newRefreshToken, Long id) {
+    public void updateNewRefreshToken(String newRefreshToken) {
         this.refreshToken = newRefreshToken;
-        this.agreeTermOfServiceId = id;
         if (this.tokenId == null) {
             String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -198,6 +199,10 @@ public class User extends BaseTimeEntity implements UserDetails {
                     .collect(Collectors.joining());
             this.tokenId = randomString + randomNumber;
         }
+    }
+
+    public void updateAgreeTermOfServiceIdWhenSignUp(Long id) {
+        this.agreeTermOfServiceId = id;
     }
 
     public List<TechStack> returnStackList() {
