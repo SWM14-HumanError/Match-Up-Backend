@@ -72,15 +72,15 @@ public class TeamUserCardResponse extends UserCardResponse {
                 feedback.isPresent() ? feedback.get().timeToFeedback() : LocalDateTime.of(1900, 12, 31, 23, 59, 59));
     }
 
-    public static TeamUserCardResponse fromMap(TeamUser teamUser, Feedback feedback) {
+    public static TeamUserCardResponse fromMap(TeamUser teamUser, Feedback feedback, UserPosition userPosition) {
         Optional<TeamRecruit> teamRecruit = Optional.ofNullable(teamUser.getTeamRecruit());
         return new TeamUserCardResponse(
                 teamUser.getUser().getId(),
                 teamUser.getUser().getPictureUrl(),
                 teamUser.getUser().getUserLevel(),
                 teamUser.getUser().getNickname(),
-                teamUser.getUser().getPosition(),
-                teamUser.getUser().getPositionLevel(),
+                userPosition != null ? userPosition.getType().getRole() : RoleType.NA.toString(),
+                userPosition != null ? Long.valueOf(userPosition.getTypeLevel()) : 0,
                 teamUser.getUser().getFeedbackScore(),
                 teamUser.getUser().getLikes(),
                 teamUser.getUser().returnStackList(),

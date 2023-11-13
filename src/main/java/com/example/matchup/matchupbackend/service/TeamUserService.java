@@ -99,7 +99,7 @@ public class TeamUserService {
                                 .orElse(null),
                         feedbackRepository.findFeedbackBy(teamID, userID)));
             } else {
-                responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
+                responses.add(TeamUserCardResponse.fromMap(teamUser, feedback, userPositionRepository.findAllByUser(teamUser.getUser()).stream().max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder())).orElse(null)));
             }
         });
         return responses;
@@ -121,13 +121,22 @@ public class TeamUserService {
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
             if (feedback == null) {
-                responses.add(TeamUserCardResponse.fromEntity(teamUser,
+                responses.add(TeamUserCardResponse.fromEntity(
+                        teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
                                 .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
                                 .orElse(null),
-                        feedbackRepository.findFeedbackBy(teamID, userID)));
+                        feedbackRepository.findFeedbackBy(teamID, userID)
+                ));
             } else {
-                responses.add(TeamUserCardResponse.fromMap(teamUser, feedback));
+                responses.add(TeamUserCardResponse.fromMap(
+                        teamUser,
+                        feedback,
+                        userPositionRepository.findAllByUser(teamUser.getUser()).stream()
+                                .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
+                                .orElse(null)
+                        )
+                );
             }
         });
         return responses;
