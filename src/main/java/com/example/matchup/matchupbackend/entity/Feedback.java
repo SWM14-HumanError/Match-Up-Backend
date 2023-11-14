@@ -94,6 +94,7 @@ public class Feedback extends BaseTimeEntity{
     }
 
     private void setTeamUser(TeamUser teamUser) {
+        if(teamUser == null) throw new InvalidFeedbackException("teamUser가 null입니다.");
         this.teamUser = teamUser;
         teamUser.getFeedback().add(this);
     }
