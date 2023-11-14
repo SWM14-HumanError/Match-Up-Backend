@@ -71,7 +71,7 @@ public class TeamUserService {
     private List<TeamUserCardResponse> getTeamUserCardForGeneral(Long teamID) {
         List<TeamUser> acceptedTeamUsers = teamUserRepository.findAcceptedTeamUserByTeamID(teamID);
         return acceptedTeamUsers.stream().map(
-                teamUser -> TeamUserCardResponse.fromEntity(
+                teamUser -> TeamUserCardResponse.from(
                         teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
                                 .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
@@ -92,12 +92,12 @@ public class TeamUserService {
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
             if (feedback == null) {
-                responses.add(TeamUserCardResponse.fromEntity(
+                responses.add(TeamUserCardResponse.from(
                         teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
                                 .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
                                 .orElse(null),
-                        feedbackRepository.findFeedbackBy(teamID, userID)));
+                        null));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(teamUser, feedback, userPositionRepository.findAllByUser(teamUser.getUser()).stream().max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder())).orElse(null)));
             }
@@ -121,13 +121,12 @@ public class TeamUserService {
         List<TeamUserCardResponse> responses = new ArrayList<>();
         latestFeedbackMap.forEach((teamUser, feedback) -> {
             if (feedback == null) {
-                responses.add(TeamUserCardResponse.fromEntity(
+                responses.add(TeamUserCardResponse.from(
                         teamUser,
                         userPositionRepository.findAllByUser(teamUser.getUser()).stream()
                                 .max(Comparator.comparingInt(UserPosition::getTypeLevel).thenComparing(UserPosition::getId, Comparator.reverseOrder()))
                                 .orElse(null),
-                        feedbackRepository.findFeedbackBy(teamID, userID)
-                ));
+                        null));
             } else {
                 responses.add(TeamUserCardResponse.fromMap(
                         teamUser,
