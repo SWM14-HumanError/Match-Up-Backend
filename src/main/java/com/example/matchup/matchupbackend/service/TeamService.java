@@ -38,6 +38,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.example.matchup.matchupbackend.entity.ApplyStatus.ACCEPTED;
 import static com.example.matchup.matchupbackend.entity.ApplyStatus.ENDED;
@@ -211,7 +212,8 @@ public class TeamService {
 
         for (Member member : teamCreateRequest.getMemberList()) {
             if (teamPositionMappedRole.containsKey(member.getRole())) { // 이미 있는 포지션인 경우
-                teamPositionMappedRole.get(member.getRole()).updateTeamPosition(member);
+                TeamPosition teamPosition = teamPositionMappedRole.get(member.getRole()).updateTeamPosition(member);
+                teamPositionRepository.save(teamPosition);
             } else { // 새로 추가한 포지션인 경우
                 TeamPosition newTeamPosition = TeamPosition.of(member.getRole(), 0L, member.getMaxCount(), team);
                 teamPositionRepository.save(newTeamPosition);
@@ -236,12 +238,14 @@ public class TeamService {
         }
 
         for (TeamUser teamUser : team.getTeamUserList()) { // 현재 팀원보다 max 인원을 적게 설정했는지 체크
+            if(teamCreateRequest.getMemberList(). contains(teamUser.getRole()))
             for (Member member : teamCreateRequest.getMemberList()) {
+                List<RoleType> roleTypes = team.getTeamUserList().stream().map(teamuser -> teamuser.getRole()).collect(Collectors.toList());
                 if (teamUser.getRole().equals(member.getRole())
                         && teamUser.getCount() > member.getMaxCount()) {
                     throw new InvalidMemberValueException(member.getMaxCount().toString());
                 }
-                if (teamUser.getRole() == member.getRole() && teamUser.getRole() != LEADER && teamUser.getCount() >= 1) { // FE(1/4) 상황에서 FE 역할을 삭제 한 경우
+                if (roleTypes.contains(member.getRole())) { // FE(1/4) 상황에서 FE 역할을 삭제 한 경우
                     throw new InvalidMemberValueException(teamUser.getRole() + " - 팀원이 있을땐 역할을 삭제 할수 없습니다.");
                 }
             }
