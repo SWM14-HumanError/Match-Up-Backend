@@ -34,7 +34,7 @@ public class TeamUserCardResponse extends UserCardResponse {
         this.toFeedbackAt = toFeedbackAt;
     }
 
-    public static TeamUserCardResponse fromEntity(TeamUser teamUser, UserPosition userPosition) {
+    public static TeamUserCardResponse from(TeamUser teamUser, UserPosition userPosition) {
         Optional<TeamRecruit> teamRecruit = Optional.ofNullable(teamUser.getTeamRecruit());
         return new TeamUserCardResponse(
                 teamUser.getUser().getId(),
@@ -53,7 +53,7 @@ public class TeamUserCardResponse extends UserCardResponse {
                 null);
     }
 
-    public static TeamUserCardResponse fromEntity(TeamUser teamUser, UserPosition userPosition, Optional<Feedback> feedback) {
+    public static TeamUserCardResponse from(TeamUser teamUser, UserPosition userPosition, Optional<Feedback> feedback) {
         Optional<TeamRecruit> teamRecruit = Optional.ofNullable(teamUser.getTeamRecruit());
         return new TeamUserCardResponse(
                 teamUser.getUser().getId(),
