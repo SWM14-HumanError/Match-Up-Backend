@@ -52,7 +52,7 @@ spring:
       mode: never
 
   datasource:
-    url: jdbc:mysql://matchup.cnaaj7y3vcgh.ap-northeast-2.rds.amazonaws.com:3306/matchup?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+    url: jdbc:mysql://matchup.cnaaj7y3vcgh.ap-northeast-2.rds.amazonaws.com:3306/matchup?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&character_set_server=utf8mb4
     username: matchup_admin
     password: matchup!
     driver-class-name: com.mysql.cj.jdbc.Driver
