@@ -36,14 +36,14 @@ spring:
 cloud:
   aws:
     #DynamoDB 설정
-    access-key: AKIAUQRV7XQ4Q4EUNLEB
-    secret-key: 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
+    access-key: AKIAUQRV7XQ4V2BJ5M4Q
+    secret-key: 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
 
     s3:
       bucket: match-up-142023
     credentials:
-      access-key: AKIAUQRV7XQ4426BN742
-      secret-key: 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
+      access-key: AKIAUQRV7XQ4YJHCRANF
+      secret-key: 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
     region:
       static: ap-northeast-2
       auto: false
