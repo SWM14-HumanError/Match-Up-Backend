@@ -54,8 +54,7 @@ public record OAuthAttributes(
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account"); // 검토 type cast check
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-        String email = ((boolean) kakaoAccount.get("is_email_valid")
-                && (boolean) kakaoAccount.get("is_email_verified"))
+        String email = kakaoAccount.containsKey("email")
                 ? (String) kakaoAccount.get("email")
                 : null;
 
