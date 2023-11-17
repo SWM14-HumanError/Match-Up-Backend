@@ -19,4 +19,7 @@ public interface UserPositionRepository extends JpaRepository<UserPosition, Long
 
     @Query("select up from UserPosition up join fetch up.user where up.user in :userList")
     List<UserPosition> findAllJoinUserBy(@Param(value = "userList") List<User> userList);
+
+    @Query("select up from UserPosition up join fetch up.user where up.user in :userList")
+    List<UserPosition> findAllJoinUserByUserList(@Param("userList") List<User> userList);
 }

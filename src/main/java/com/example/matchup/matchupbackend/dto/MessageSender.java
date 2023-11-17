@@ -10,10 +10,10 @@ public class MessageSender {
     private Long userId;
     private String nickname;
     private String pictureUrl;
-    private Long level;
+    private Integer level;
 
     @Builder
-    private MessageSender(Long userId, String nickname, String pictureUrl, Long level) {
+    private MessageSender(Long userId, String nickname, String pictureUrl, Integer level) {
         this.userId = userId;
         this.nickname = nickname;
         this.pictureUrl = pictureUrl;

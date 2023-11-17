@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.dto.response.chat;
 
 import com.example.matchup.matchupbackend.dynamodb.ChatMessage;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Slice;
@@ -17,11 +18,11 @@ public class SliceChatMessageResponse {
     private Boolean hasNextSlice;
     private Long myId;
 
-    public static SliceChatMessageResponse from(Long myId, Slice<ChatMessage> slice, User opponent) {
+    public static SliceChatMessageResponse from(Long myId, Slice<ChatMessage> slice, User opponent, UserPosition userPosition) {
         List<ChatMessageResponse> content = new ArrayList<>();
 
         slice.getContent().forEach(chatMessage -> {
-            content.add(ChatMessageResponse.from(chatMessage, opponent));
+            content.add(ChatMessageResponse.from(chatMessage, opponent, userPosition));
         });
         return SliceChatMessageResponse.builder()
                 .chatMessageResponseList(content)

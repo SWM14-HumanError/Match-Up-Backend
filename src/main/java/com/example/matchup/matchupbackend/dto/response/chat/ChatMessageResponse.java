@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.dto.response.chat;
 import com.example.matchup.matchupbackend.dto.MessageSender;
 import com.example.matchup.matchupbackend.dynamodb.ChatMessage;
 import com.example.matchup.matchupbackend.entity.User;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,12 +18,12 @@ public class ChatMessageResponse {
     private Integer isRead;
     private LocalDateTime sendTime;
 
-    public static ChatMessageResponse from(ChatMessage chatMessage, User sendUser){
+    public static ChatMessageResponse from(ChatMessage chatMessage, User sendUser, UserPosition senderPosition) {
         MessageSender sender = MessageSender.builder()
                 .userId(chatMessage.getSenderID())
                 .nickname(sendUser.getNickname())
                 .pictureUrl(sendUser.getPictureUrl())
-                .level(sendUser.getPositionLevel())
+                .level(senderPosition.getTypeLevel())
                 .build();
         return ChatMessageResponse.builder()
                 .sender(sender)

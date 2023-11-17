@@ -8,12 +8,14 @@ import com.example.matchup.matchupbackend.dynamodb.ChatMessageRepository;
 import com.example.matchup.matchupbackend.entity.ChatRoom;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserChatRoom;
+import com.example.matchup.matchupbackend.entity.UserPosition;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidChatException;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.ChatRoomRepository;
 import com.example.matchup.matchupbackend.repository.UserChatRoomRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
+import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +24,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.math.NumberUtils.min;
@@ -40,6 +39,7 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final UserPositionRepository userPositionRepository;
 
     /**
      * 채팅 메세지를 DynamoDB에 저장
@@ -107,7 +107,17 @@ public class ChatService {
         Slice<ChatMessage> sortChatMessageByCreatedAt = sortChatMessageByCreatedAt(myId, chatMessage, pageable);
         UserChatRoom userChatRoom = userChatRoomRepository.findJoinOpponentByChatRoomId(roomId, myId)
                 .orElseThrow(() -> new InvalidChatException("채팅방의 상대 유저가 존재하지 않습니다."));
-        return SliceChatMessageResponse.from(myId, sortChatMessageByCreatedAt, userChatRoom.getOpponent());
+        List<UserPosition> userPosition = userPositionRepository.findAllByUser(userChatRoom.getOpponent());
+        return SliceChatMessageResponse.from(myId, sortChatMessageByCreatedAt, userChatRoom.getOpponent(), getMaxLevel(userPosition));
+    }
+
+    private UserPosition getMaxLevel(List<UserPosition> userPosition) {
+        if(userPosition.isEmpty()) {
+            return UserPosition.builder().typeLevel(0).build();
+        }
+        return userPosition.stream()
+                .max(Comparator.comparing(UserPosition::getTypeLevel))
+                .orElseThrow(() -> new InvalidChatException("getMaxLevel"));
     }
 
     /**
@@ -146,7 +156,17 @@ public class ChatService {
         Long myId = tokenProvider.getUserId(authorizationHeader, "getSliceChatRoomResponse");
         Slice<UserChatRoom> userChatRoomList = userChatRoomRepository.findJoinChatRoomAndUserByUserId(myId, pageable);
         Slice<UserChatRoom> updateRoomList = updateRoomInfo(myId, userChatRoomList);
-        return SliceChatRoomResponse.from(myId, updateRoomList);
+        List<User> opponentList = updateRoomList.getContent().stream().map(UserChatRoom::getUser).collect(Collectors.toList());
+        List<UserPosition> userPositionList = userPositionRepository.findAllJoinUserByUserList(opponentList);
+        return SliceChatRoomResponse.from(myId, updateRoomList, mapUserPositionToUser(userPositionList));
+    }
+
+    private Map<User, Optional<UserPosition>> mapUserPositionToUser(List<UserPosition> userPositionList) {
+        Map<User, Optional<UserPosition>> userPositionMap = new HashMap<>();
+        userPositionList.forEach(userPosition -> {
+            userPositionMap.put(userPosition.getUser(), Optional.ofNullable(userPosition));
+        });
+        return userPositionMap;
     }
 
     /**
