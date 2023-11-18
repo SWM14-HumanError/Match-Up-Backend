@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.global.config;
 
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.global.util.CookieUtil;
+import com.example.matchup.matchupbackend.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,6 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
+    private final UserService userService;
     private final TokenProvider  tokenProvider;
 
     @Override
@@ -31,6 +33,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             if (tokenProvider.validTokenInFilter(authorizationHeader)) {
+                userService.updateUserLastLogin(authorizationHeader);
                 Authentication authentication = tokenProvider.getAuthentication(authorizationHeader);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

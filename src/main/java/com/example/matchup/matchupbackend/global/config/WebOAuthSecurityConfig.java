@@ -56,7 +56,7 @@ public class WebOAuthSecurityConfig {
         http.sessionManagement((sessionManagement) ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new TokenAuthenticationFilter(userService, tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
