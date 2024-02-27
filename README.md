@@ -98,6 +98,20 @@ Side Match는 검증된 팀원과 프로젝트, 스터디를 매칭하고 멘토
 
 ## 📚 ERD
 
+### 유저
+
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/84bf847b-62a8-42d3-820e-64f2800ca527)
+
+
+### 팀
+
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/5edf5f17-aef5-429c-bddc-33a4f0f7d59d)
+
+### 피드
+
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/a8f237d0-017e-488a-950f-4f18ec40f22b)
+
+
 ## 🔑 인증/인가 프로세스
 
 ### 인증 서버로부터 사용자 정보 응답 받기
