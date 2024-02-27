@@ -96,6 +96,15 @@ Side Match는 검증된 팀원과 프로젝트, 스터디를 매칭하고 멘토
 - 테스트가 성공하면 docker hub로 image push
 - Jenkins 서버에서 비즈니스 서버 private ip로 접근하여 script 실행
 
-
 ## 📚 ERD
+
+## 🔑 인증/인가 프로세스
+
+### 인증 서버로부터 사용자 정보 응답 받기
+
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/99345a24-be19-4053-ac5d-a06987ab7844)
+
+### 무상태로 인증/인가 구현
+
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/9a9b2448-be7e-4ea8-9db2-eb9579ff66b7)
 
