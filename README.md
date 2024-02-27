@@ -107,10 +107,13 @@ Side Match는 검증된 팀원과 프로젝트, 스터디를 매칭하고 멘토
 
 ![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/5edf5f17-aef5-429c-bddc-33a4f0f7d59d)
 
+### 멘토링
+
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/57d15563-fbc4-46da-814a-c13503dff46f)
+
 ### 피드
 
-![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/a8f237d0-017e-488a-950f-4f18ec40f22b)
-
+![image](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/c8db3289-c5ed-496f-a7dd-e7c1352d53ff)
 
 ## 🔑 인증/인가 프로세스
 
