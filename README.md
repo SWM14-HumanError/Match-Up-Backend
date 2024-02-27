@@ -88,9 +88,7 @@ Side Match는 검증된 팀원과 프로젝트, 스터디를 매칭하고 멘토
 
 ![Screenshot 2024-02-27 at 6 41 40 PM](https://github.com/SWM14-HumanError/Match-Up-Backend/assets/103489171/3d7a1e1e-5007-4e83-b63d-b493bbb615a3)
 
-- 프론트 레포지토리의 push를 webhook으로 전달
-- 백엔드는 직접 브라우저로 빌드 트리거
-	- 백엔드 담당이 2명이기 때문에 충돌방지를 위한 수동 트리거 설정
+- 레포지토리의 push를 Github webhook으로 전달
 - 분리된 Jenkins 서버에서 빌드를 시작
 - Gradle과 nodejs plugin 빌드가 끝나면 테스트 진행
 - 테스트가 성공하면 docker hub로 image push
