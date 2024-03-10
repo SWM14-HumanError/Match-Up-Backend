@@ -75,8 +75,6 @@ Side Match는 검증된 팀원과 프로젝트, 스터디를 매칭하고 멘토
   * AWS S3
   * Sentry
   * Swagger 3.0
-* CI/CD
-  * (추가 작성부탁드립니다!)
  
 <br> <br>
 
