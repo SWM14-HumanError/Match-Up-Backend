@@ -6,6 +6,16 @@
 Side Match는 검증된 팀원과 프로젝트, 스터디를 매칭하고 멘토링을 통해 본인의 코드를 리뷰 받을 수 있는 서비스입니다. 
 <br> <br>
 
+### 구체화 과정
+
+<a href="https://www.figma.com/file/DKG04lkMFONBF22oF0zvgC/minisoma?type=design&node-id=0%3A1&mode=design&t=SKHlA5zluCUyWoLm-1">
+피그마 링크
+</a>
+
+### 최종 페이지
+
+<a href="https://www.figma.com/file/PSbPOcHh8gClOYGuLZGZot/Basket's-team-library-(Copy)?type=design&node-id=0%3A1&mode=design&t=5Zib6z4lqWchq6DO-1"> 피그마 링크 </a>
+
 ## ⚡️ 주요 기능
 ### ✅ 메인페이지
 ![](images/mainpage.png)
