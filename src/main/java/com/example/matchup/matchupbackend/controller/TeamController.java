@@ -104,7 +104,7 @@ public class TeamController {
 
     @GetMapping("/team/{teamID}/type")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "팀 상세페이지의 모임 타입 ex) 프로젝트 - 웹프로젝트")
+    @Operation(description = "팀 상세페이지의 모임 타입 ex) 기업 프로젝트 - 웹프로젝트")
     public TeamTypeResponse showTeamType(@PathVariable Long teamID) {
         return teamService.getTeamType(teamID);
     }

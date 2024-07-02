@@ -42,7 +42,7 @@ public class AlertCreateService {
      */
     public void saveTeamCreateAlert(Long teamID, User sendTo, TeamCreateRequest teamCreateRequest) {
         Alert alert = Alert.builder()
-                .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 생성" : "스터디 생성")
+                .title(teamCreateRequest.getType().getTeamType() == 0L ? "기업 프로젝트 생성" : "개인 프로젝트 생성")
                 .content(teamCreateRequest.getName() + " - 생성되었습니다.")
                 .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
@@ -59,7 +59,7 @@ public class AlertCreateService {
      */
     public void saveTeamUpdateAlert(Long teamID, List<User> sendTo, TeamCreateRequest teamCreateRequest) {
         Alert alert = Alert.builder()
-                .title(teamCreateRequest.getType().getTeamType() == 0L ? "프로젝트 업데이트" : "스터디 업데이트")
+                .title(teamCreateRequest.getType().getTeamType() == 0L ? "기업 프로젝트 업데이트" : "개인 프로젝트 업데이트")
                 .content(teamCreateRequest.getName() + " - 정보가 업데이트 되었습니다.")
                 .redirectUrl("/team/" + teamID)
                 .alertType(teamCreateRequest.getType().getTeamType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
@@ -74,7 +74,7 @@ public class AlertCreateService {
      */
     public void saveTeamDeleteAlert(List<User> sendTo, Team team) {
         Alert alert = Alert.builder()
-                .title(team.getType() == 0L ? "프로젝트 삭제" : "스터디 삭제")
+                .title(team.getType() == 0L ? "기업 프로젝트 삭제" : "개인 프로젝트 삭제")
                 .content(team.getTitle() + " - 팀장에 의해서 삭제되었습니다.")
                 .redirectUrl("/")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
@@ -91,7 +91,7 @@ public class AlertCreateService {
     public void saveTeamUserRecruitAlert(User leader, User volunteer, Team team, Long recruitID) {
         // 팀장에게 보낼 지원 알림
         Alert toLeader = Alert.builder()
-                .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
+                .title(team.getType() == 0L ? "기업 프로젝트 지원" : "개인 프로젝트 지원")
                 .content(volunteer.getNickname() + " 님이 " + team.getTitle() + " 에 함께 하고 싶어 합니다.")
                 .redirectUrl("/team/" + team.getId() + "#팀원")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
@@ -101,7 +101,7 @@ public class AlertCreateService {
 
         // 지원자에게 보낼 지원 알림
         Alert toVolunteer = Alert.builder()
-                .title(team.getType() == 0L ? "프로젝트 지원" : "스터디 지원")
+                .title(team.getType() == 0L ? "기업 프로젝트 지원" : "개인 프로젝트 지원")
                 .content(team.getTitle() + " - 지원하였습니다.")
                 .redirectUrl("/team/" + team.getId() + "#팀원")
                 .alertType(team.getType() == 0L ? AlertType.PROJECT : AlertType.STUDY)
@@ -299,10 +299,10 @@ public class AlertCreateService {
      */
     @Transactional
     public void postInviteMyTeam(String authorizationHeader, SuggestInviteMyTeamRequest request) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 지원하고 있습니다.");
-        User sender = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 제안 유저 id를 요청했습니다."));
-        User receiver = userRepository.findUserById(request.getReceiverId()).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 제안 유저 id를 요청했습니다."));
-        Team team = teamRepository.findTeamById(request.getTeamId()).orElseThrow(() -> new TeamNotFoundException("내 프로젝트에 초대하기를 지원하는 과정에서 존재하지 않는 팀 id로 요청했습니다."));
+        Long userId = tokenProvider.getUserId(authorizationHeader, "postInviteMyTeam - userId");
+        User sender = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("postInviteMyTeam - sender"));
+        User receiver = userRepository.findUserById(request.getReceiverId()).orElseThrow(() -> new UserNotFoundException("postInviteMyTeam - receiver"));
+        Team team = teamRepository.findTeamById(request.getTeamId()).orElseThrow(() -> new TeamNotFoundException("postInviteMyTeam - team"));
 
         isAvailableSuggestMyTeam(team, sender, receiver);
         inviteTeamRepository.save(InviteTeam.builder()
@@ -312,7 +312,7 @@ public class AlertCreateService {
                 .build());
 
         alertRepository.save(Alert.builder()
-                .title(team.getType().equals(0L) ? "프로젝트에 초대받았습니다. 프로젝트가 마음에 든다면 지원해주세요." : "스터디에 초대받았습니다. 스터디가 마음에 든다면 지원해주세요.")
+                .title(team.getType().equals(0L) ? "기업 프로젝트에 초대받았습니다. 프로젝트가 마음에 든다면 지원해주세요." : "개인 프로젝트에 초대받았습니다. 프로젝트가 마음에 든다면 지원해주세요.")
                 .redirectUrl("/team/" + request.getTeamId())
                 .content(request.getContent())
                 .alertType(team.getType().equals(0L) ? AlertType.PROJECT : AlertType.STUDY)

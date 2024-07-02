@@ -9,8 +9,8 @@ import org.hibernate.validator.constraints.Range;
 @Data
 @NoArgsConstructor
 public class TeamSearchRequest {
-    @NotNull(message = "null이 반환 되었습니다 -> 프로젝트 = 0, 스터디 = 1 둘중 하나를 선택하세요")
-    @Range(max = 1L, message = "0, 1 외에 다른 값이 오면 안됩니다 (0 = 프로젝트, 1 = 스터디)")
+    @NotNull(message = "null이 반환 되었습니다 -> 기업 프로젝트 = 0, 개인 프로젝트 = 1 둘중 하나를 선택하세요")
+    @Range(max = 1L, message = "0, 1 외에 다른 값이 오면 안됩니다 (0 = 기업 프로젝트, 1 = 개인 프로젝트)")
     private Long type;
     private String category;
     private String search;

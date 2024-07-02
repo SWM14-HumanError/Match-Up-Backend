@@ -38,7 +38,7 @@ public class Likes extends BaseEntity{
 
     /**
      * 피드 좋아요
-     * 혹은 프로젝트, 스터디 좋아요
+     * 혹은 기업/개인 프로젝트 좋아요
      */
     @Builder
     private Likes(User user, User likeReceiver, Feed feed, Team team, Mentoring mentoring) {

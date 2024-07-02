@@ -144,12 +144,12 @@ public class UserService {
 
     // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
     /**
-     * 내 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
+     * 기업 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
      */
     public InviteMyTeamResponse getInviteMyTeam(String authorizationHeader, Long receiverId) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "내 프로젝트에 초대하기를 조회하고 있습니다.");
-        User sender = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
-        User receiver = userRepository.findUserById(receiverId).orElseThrow(() -> new UserNotFoundException("내 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+        Long userId = tokenProvider.getUserId(authorizationHeader, "기업 프로젝트에 초대하기를 조회하고 있습니다.");
+        User sender = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("기업 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
+        User receiver = userRepository.findUserById(receiverId).orElseThrow(() -> new UserNotFoundException("기업 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
         List<TeamUser> teamUsers = sender.getTeamUserList().stream().filter(teamUser -> (teamUser != null && teamUser.getApprove() != null && teamUser.getApprove())).toList();
 
         List<InviteTeam> inviteTeams = inviteTeamRepository.findAllByReceiverAndSender(receiver, sender);
