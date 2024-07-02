@@ -20,17 +20,17 @@ public class EnterpriseVerify {
 
     private String enterpriseEmail;
 
-    private String userNickname;
+    private String userEmail;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @Builder
-    public EnterpriseVerify(String content, String enterpriseEmail, String userNickname, User user) {
+    public EnterpriseVerify(String content, String enterpriseEmail, String userEmail, User user) {
         this.content = content;
         this.enterpriseEmail = enterpriseEmail;
-        this.userNickname = userNickname;
+        this.userEmail = userEmail;
         this.user = user;
     }
 
@@ -40,7 +40,7 @@ public class EnterpriseVerify {
         return EnterpriseVerify.builder()
                 .content(verifyFormRequest.getContent())
                 .enterpriseEmail(verifyFormRequest.getEnterpriseEmail())
-                .userNickname(user.getNickname())
+                .userEmail(user.getEmail())
                 .user(user)
                 .build();
     }
