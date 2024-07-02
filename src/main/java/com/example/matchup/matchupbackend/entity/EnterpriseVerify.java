@@ -20,22 +20,27 @@ public class EnterpriseVerify {
 
     private String enterpriseEmail;
 
+    private String userNickname;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @Builder
-    public EnterpriseVerify(String content, String enterpriseEmail, String thumbnailUploadUrl, String thumbnailUrl, User user) {
+    public EnterpriseVerify(String content, String enterpriseEmail, String userNickname, User user) {
         this.content = content;
         this.enterpriseEmail = enterpriseEmail;
+        this.userNickname = userNickname;
         this.user = user;
     }
+
 
     //== 비즈니스 로직 ==//
     public static EnterpriseVerify from(EnterpriseVerifyFormRequest verifyFormRequest, User user) {
         return EnterpriseVerify.builder()
                 .content(verifyFormRequest.getContent())
                 .enterpriseEmail(verifyFormRequest.getEnterpriseEmail())
+                .userNickname(user.getNickname())
                 .user(user)
                 .build();
     }
