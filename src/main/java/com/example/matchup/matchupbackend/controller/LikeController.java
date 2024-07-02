@@ -53,7 +53,7 @@ public class LikeController {
 
     @GetMapping("/mylike/project")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "내가 좋아요 누른 프로젝트를 보는 API")
+    @Operation(description = "내가 좋아요 누른 기업 프로젝트를 보는 API")
     public SliceTeamResponse getLikedProjectTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, Pageable pageable) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "getLikedProjectTeam");
         return likeService.getLikedSliceProjectTeamResponse(userId, pageable);
@@ -61,7 +61,7 @@ public class LikeController {
 
     @GetMapping("/mylike/study")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(description = "내가 좋아요 누른 스터디를 보는 API")
+    @Operation(description = "내가 좋아요 누른 개인 프로젝트를 보는 API")
     public SliceTeamResponse getLikedStudyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader, Pageable pageable) {
         Long userId = tokenProvider.getUserId(authorizationHeader, "getLikedStudyTeam");
         return likeService.getLikedSliceStudyTeamResponse(userId, pageable);

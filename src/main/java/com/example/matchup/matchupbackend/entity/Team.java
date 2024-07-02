@@ -28,7 +28,7 @@ public class Team extends BaseEntity {
     @Column(name = "description", length = 5000)
     private String description;
     @Column(name = "type")
-    private Long type; //스터디인지 프로젝트 모임인지
+    private Long type; //기업 프로젝트 or 개인 프로젝트 구분
     @Column(name = "detail_type")
     private String detailType;
     @Column(name = "thumbnail_upload_url")

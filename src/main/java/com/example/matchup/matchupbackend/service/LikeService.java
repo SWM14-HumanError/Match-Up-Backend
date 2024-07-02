@@ -90,7 +90,7 @@ public class LikeService {
     }
 
     /**
-     * 유저가 좋아요 누른 스터디를 반환하는 매서드
+     * 유저가 좋아요 누른 개인 프로젝트를 반환하는 매서드
      */
     public SliceTeamResponse getLikedSliceStudyTeamResponse(Long userId, Pageable pageable) {
         List<Likes> entireLikes = likeRepository.findLikesJoinStudyByUserId(userId);
