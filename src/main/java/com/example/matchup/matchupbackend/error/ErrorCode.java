@@ -45,7 +45,8 @@ public enum ErrorCode {
     REFUSE_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "TU-S-006", "거절 정보가 존재하지 않습니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "L-S-001", "좋아요를 누른 기록이 없습니다."),
     INVALID_LIKE(HttpStatus.BAD_REQUEST, "L-S-002", "잘못된 좋아요입니다."),
-    INVALID_CHATTING_ROOM(HttpStatus.BAD_REQUEST, "CHAT-001", "잘못된 채팅방입니다.");
+    INVALID_CHATTING_ROOM(HttpStatus.BAD_REQUEST, "CHAT-001", "잘못된 채팅방입니다."),
+    ADMIN_ONLY(HttpStatus.UNAUTHORIZED, "ADMIN-001", "ADMIN 만 가능 합니다."),;
 
 
     private HttpStatus status;
