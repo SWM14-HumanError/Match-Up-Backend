@@ -1,5 +1,6 @@
 package com.example.matchup.matchupbackend.service;
 
+import com.example.matchup.matchupbackend.dto.request.enterprise.EnterpriseStateRequest;
 import com.example.matchup.matchupbackend.dto.request.enterprise.EnterpriseVerifyFormRequest;
 import com.example.matchup.matchupbackend.dto.response.enterprise.EnterpriseApply;
 import com.example.matchup.matchupbackend.dto.response.enterprise.SliceEnterpriseApply;
@@ -42,10 +43,8 @@ public class EnterpriseService {
     /**
      * 기업 인증 신청 목록 조회
      */
-    public SliceEnterpriseApply showEnterpriseVerifyList(Long userId, Pageable pageable) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("userId: " + userId + "에 해당하는 사용자가 없습니다."));
-        if (!isAdminUser(user)) {
+    public SliceEnterpriseApply showEnterpriseVerifyList(Long adminId, Pageable pageable) {
+        if (!isAdminUser(adminId)) {
             throw new AdminOnlyPermitException("기업 인증 신청 목록 조회는 Admin 만 가능 합니다.");
         }
         Slice<EnterpriseVerify> enterpriseApplySlice = enterpriseVerifyRepository.findAll(pageable);
@@ -53,7 +52,29 @@ public class EnterpriseService {
         return new SliceEnterpriseApply(enterpriseApplyList, enterpriseApplySlice.getSize(), enterpriseApplySlice.hasNext());
     }
 
-    private boolean isAdminUser(User user) {
-        return user.getRole().equals(Role.ADMIN);
+    /**
+     * 기업 인증 상태 변경
+     */
+    @Transactional
+    public User changeEnterpriseVerifyState(Long adminId, EnterpriseStateRequest enterpriseStateRequest) {
+        if (!isAdminUser(adminId)) {
+            throw new AdminOnlyPermitException("기업 인증 상태 변경은 Admin 만 가능 합니다.");
+        }
+        EnterpriseVerify enterpriseVerify = enterpriseVerifyRepository.findByIdJoinUser(enterpriseStateRequest.getEnterpriseApplyId())
+                .orElseThrow(() -> new UserNotFoundException("enterpriseApplyId: " + enterpriseStateRequest.getEnterpriseApplyId() + "에 해당하는 기업 인증 신청이 없습니다."));
+        enterpriseVerify.changeState(enterpriseStateRequest.getIsAccepted());
+        User user = enterpriseVerify.getUser();
+        if (enterpriseStateRequest.getIsAccepted()) {
+            user.changeRoleToUser();
+        } else {
+            user.changeRoleToEnterprise();
+        }
+        return user;
+    }
+
+    private boolean isAdminUser(Long adminId) {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new UserNotFoundException("adminId: " + adminId + "에 해당하는 사용자가 없습니다."));
+        return admin.getRole().equals(Role.ADMIN);
     }
 }

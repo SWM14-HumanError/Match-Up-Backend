@@ -260,6 +260,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.role = MENTOR;
     }
 
+    public void changeRoleToEnterprise() {
+        this.role = ENTERPRISE;
+    }
+
+    public void changeRoleToUser() {
+        this.role = USER;
+    }
+
     public void addLike(){
         this.likes++;
     }

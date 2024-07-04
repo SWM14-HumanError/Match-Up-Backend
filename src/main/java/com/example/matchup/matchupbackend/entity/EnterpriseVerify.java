@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dto.request.enterprise.EnterpriseVerifyFormRequest;
+import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidEnterpriseVerify;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -46,5 +47,12 @@ public class EnterpriseVerify {
                 .isVerified(false)
                 .user(user)
                 .build();
+    }
+
+    public void changeState(boolean isAccepted) {
+        if (isAccepted != this.isVerified) {
+            throw new InvalidEnterpriseVerify("요청: " + isAccepted + " 현재 상태: " + this.isVerified);
+        }
+        this.isVerified = !this.isVerified;
     }
 }
