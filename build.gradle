@@ -2,6 +2,11 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.1'
     id 'io.spring.dependency-management' version '1.1.0'
+    id "io.sentry.jvm.gradle" version "3.14.0"
+}
+
+jar {
+    enabled = false
 }
 
 group = 'com.example.matchup'
@@ -21,21 +26,56 @@ repositories {
     mavenCentral()
 }
 
+sentry {
+
+    includeSourceContext = true
+
+    org = "humanerror"
+    projectName = "java-spring-boot"
+    authToken = "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"
+}
+
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-mustache'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
     runtimeOnly 'com.h2database:h2'
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
     //queryDSL 설정
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    //Amazon 서비스
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation "com.amazonaws:aws-java-sdk-dynamodb"
+    implementation 'com.github.derjust:spring-data-dynamodb:5.1.0'
+
+    //웹 소캣
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // sockjs
+    implementation 'org.webjars:sockjs-client:1.0.2'
+    // stomp
+    implementation 'org.webjars:stomp-websocket:2.3.3'
+    // sentry
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'io.sentry:sentry-spring-boot-starter:6.26.0'
+
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
 }
 
 tasks.named('test') {
