@@ -52,5 +52,5 @@ jobs:
             mv /home/ubuntu/Match-Up-Backend/tobe/sidematch.jar /home/ubuntu/Match-Up-Backend/current/sidematch.jar
             cd /home/ubuntu/instagram-server/current
             sudo fuser -k -n tcp 8080 || true
-            nohup java -jar project.jar > ./output.log 2>&1 & 
+            nohup java -jar sidematch.jar > ./output.log 2>&1 & 
             rm -rf /home/ubuntu/instagram-server/tobe
