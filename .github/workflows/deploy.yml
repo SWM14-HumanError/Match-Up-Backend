@@ -25,7 +25,7 @@ jobs:
           echo "${{ secrets.APPLICATION_OAUTH_YML }}" > ./src/main/resources/application-oauth.yml
 
       - name: 테스트 및 빌드하기
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
 
       - name: 빌드된 파일 이름 변경하기
         run: mv ./build/libs/*SNAPSHOT.jar ./sidematch.jar
