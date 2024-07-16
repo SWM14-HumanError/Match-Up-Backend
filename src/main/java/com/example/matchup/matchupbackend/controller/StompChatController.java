@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.chat.ChatMessageRequest;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidChatException;
-import com.example.matchup.matchupbackend.service.ChatService;
+import com.example.matchup.matchupbackend.service.ChatServiceV2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StompChatController {
     private final SimpMessageSendingOperations messagingTemplate;
 
-    private final ChatService chatService;
+    private final ChatServiceV2 chatService;
 
     /**
      * 1대1 채팅 보내기
