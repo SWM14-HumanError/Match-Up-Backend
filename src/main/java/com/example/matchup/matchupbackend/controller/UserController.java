@@ -5,6 +5,7 @@ import com.example.matchup.matchupbackend.dto.request.user.UserSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.user.InviteMyTeamResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SliceUserCardResponse;
 import com.example.matchup.matchupbackend.dto.response.user.SuggestInviteMyTeamRequest;
+import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.service.AlertCreateService;
 import com.example.matchup.matchupbackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final AlertCreateService alertCreateService;
+    private final TokenProvider tokenProvider;
 
     @GetMapping("/list/user")
     @ResponseStatus(HttpStatus.OK)
@@ -81,7 +83,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public InviteMyTeamResponse showInviteMyTeam(@RequestHeader(value = HEADER_AUTHORIZATION) String authorizationHeader,
                                                  @RequestParam("receiver") Long receiverId) {
-        return userService.getInviteMyTeam(authorizationHeader, receiverId);
+        Long userId = tokenProvider.getUserId(authorizationHeader, "getInviteMyTeam");
+        return userService.getInviteMyTeam(userId, receiverId);
     }
 
     @PostMapping("/user/invite")
