@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dynamodb.ChatMessage;
 import com.example.matchup.matchupbackend.error.exception.InvalidValueEx.InvalidChatException;
+import com.example.matchup.matchupbackend.mongodb.ChatMessageV2;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -55,5 +56,22 @@ public class ChatRoom extends BaseEntity{
 
     private ChatMessage findLastChatMessage(List<ChatMessage> chatMessageList) {
         return chatMessageList.stream().max(Comparator.comparing(ChatMessage::getSendTime)).orElseThrow(() -> new InvalidChatException("채팅방에 메세지가 없습니다."));
+    }
+
+    /**
+     * MongoDB로 마이그레이션 - V2
+     */
+
+    public void updateRoomInfoV2(List<ChatMessageV2> chatMessageList) {
+        updateLastChatInfoV2(findLastChatMessageV2(chatMessageList));
+    }
+
+    private void updateLastChatInfoV2(ChatMessageV2 chatMessage) {
+        this.lastChat = chatMessage.getMessage();
+        this.lastChatTime = chatMessage.getSendTime();
+    }
+
+    private ChatMessageV2 findLastChatMessageV2(List<ChatMessageV2> chatMessageList) {
+        return chatMessageList.stream().max(Comparator.comparing(ChatMessageV2::getSendTime)).orElseThrow(() -> new InvalidChatException("채팅방에 메세지가 없습니다."));
     }
 }

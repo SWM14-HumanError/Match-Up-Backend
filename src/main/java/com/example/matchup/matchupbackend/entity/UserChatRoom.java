@@ -1,6 +1,7 @@
 package com.example.matchup.matchupbackend.entity;
 
 import com.example.matchup.matchupbackend.dynamodb.ChatMessage;
+import com.example.matchup.matchupbackend.mongodb.ChatMessageV2;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -51,6 +52,10 @@ public class UserChatRoom {
     }
 
     public void updateRoomInfo(Long myId, List<ChatMessage> chatMessageList){
+        this.unreadChatCount = chatMessageList.stream().filter(chatMessage -> chatMessage.getIsRead() == 0 && !chatMessage.getSenderID().equals(myId)).count();
+    }
+
+    public void updateRoomInfoV2(Long myId, List<ChatMessageV2> chatMessageList){
         this.unreadChatCount = chatMessageList.stream().filter(chatMessage -> chatMessage.getIsRead() == 0 && !chatMessage.getSenderID().equals(myId)).count();
     }
 }
