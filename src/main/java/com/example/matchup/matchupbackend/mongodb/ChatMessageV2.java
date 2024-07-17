@@ -40,6 +40,8 @@ public class ChatMessageV2 {
         return ChatMessageV2.builder()
                 .roomId(chatMessageRequest.getRoomId())
                 .message(chatMessageRequest.getMessage())
+                .isRead(0)
+                .sendTime(LocalDateTime.now())
                 .messageType(chatMessageRequest.getType().getValue())
                 .senderID(chatMessageRequest.getSender().getUserId())
                 .build();
@@ -49,6 +51,8 @@ public class ChatMessageV2 {
         return ChatMessageV2.builder()
                 .roomId(roomId)
                 .message(roomMaker.getNickname() + "님이 채팅방을 개설하였습니다.")
+                .isRead(0)
+                .sendTime(LocalDateTime.now())
                 .messageType("ENTER")
                 .senderID(roomMaker.getId())
                 .build();
