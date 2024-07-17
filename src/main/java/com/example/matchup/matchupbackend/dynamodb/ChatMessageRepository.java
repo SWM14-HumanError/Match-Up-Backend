@@ -1,7 +1,6 @@
 package com.example.matchup.matchupbackend.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Repository
 public class ChatMessageRepository {
@@ -40,8 +42,8 @@ public class ChatMessageRepository {
     }
 
     public void deleteById(String id) {
-        ChatMessage chatMessage = dynamoDBMapper.load(ChatMessage.class, id);
-        if (chatMessage != null) {
+        Optional<ChatMessage> chatMessage = ofNullable(dynamoDBMapper.load(ChatMessage.class, id));
+        if (chatMessage.isPresent()) {
             dynamoDBMapper.delete(chatMessage);
         }
     }
@@ -50,12 +52,10 @@ public class ChatMessageRepository {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":roomId", new AttributeValue().withN(roomId.toString()));
 
-        DynamoDBQueryExpression<ChatMessage> queryExpression = new DynamoDBQueryExpression<ChatMessage>()
-                .withIndexName("RoomId-index") // 인덱스가 존재한다는 가정
-                .withConsistentRead(false)
-                .withKeyConditionExpression("roomId = :roomId")
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                .withFilterExpression("roomId = :roomId")
                 .withExpressionAttributeValues(eav);
 
-        return dynamoDBMapper.query(ChatMessage.class, queryExpression);
+        return dynamoDBMapper.scan(ChatMessage.class, scanExpression);
     }
 }
