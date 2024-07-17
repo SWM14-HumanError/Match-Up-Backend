@@ -25,4 +25,10 @@ public interface TeamMentoringRepository extends JpaRepository<TeamMentoring, Lo
             "where tm.mentoring.mentor= :mentor and tm.status = com.example.matchup.matchupbackend.entity.ApplyStatus.WAITING and tm.mentoring.isDeleted=false " +
             "order by tm.mentoring.id desc")
     List<TeamMentoring> findWaitMentoringJoinTeamAndMentoringByMentor(@Param("mentor") User mentor);
+
+    @Query("select tm from TeamMentoring tm " +
+            "join fetch tm.team " +
+            "join fetch tm.mentoring " +
+            "where tm.id=:id")
+    Optional<TeamMentoring> findTeamMentoringJoinTeamAndMentoringById(@Param("id") Long id);
 }

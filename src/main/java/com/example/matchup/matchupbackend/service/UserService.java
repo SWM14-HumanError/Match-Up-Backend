@@ -19,6 +19,7 @@ import com.example.matchup.matchupbackend.global.util.CookieUtil;
 import com.example.matchup.matchupbackend.repository.InviteTeamRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.MentoringRepository;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
+import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
 import com.example.matchup.matchupbackend.repository.userprofile.UserProfileRepository;
@@ -56,6 +57,7 @@ public class UserService {
     private final InviteTeamRepository inviteTeamRepository;
     private final MentoringRepository mentoringRepository;
     private final TeamRepository teamRepository;
+    private final TeamUserRepository teamUserRepository;
 
     public SliceUserCardResponse searchSliceUserCard(UserSearchRequest userSearchRequest, Pageable pageable) {
         Slice<User> userListByUserRequest = userRepository.findUserListByUserRequest(userSearchRequest, pageable);
@@ -139,31 +141,27 @@ public class UserService {
         user.updateUserLastLogin();
     }
 
-
-
-
-    // todo 쿼리문으로 UserProfile도 조회하는 문제가 있다.
     /**
      * 기업 프로젝트에 초대하기에 필요한 프로젝트 목록을 조회합니다.
      */
-    public InviteMyTeamResponse getInviteMyTeam(String authorizationHeader, Long receiverId) {
-        Long userId = tokenProvider.getUserId(authorizationHeader, "기업 프로젝트에 초대하기를 조회하고 있습니다.");
-        User sender = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("기업 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
-        User receiver = userRepository.findUserById(receiverId).orElseThrow(() -> new UserNotFoundException("기업 프로젝트에 초대하기를 조회하는 과정에서 존재하지 않는 유저 id를 요청했습니다."));
-        List<TeamUser> teamUsers = sender.getTeamUserList().stream().filter(teamUser -> (teamUser != null && teamUser.getApprove() != null && teamUser.getApprove())).toList();
+    public InviteMyTeamResponse getInviteMyTeam(Long senderId, Long receiverId) {
+        User sender = userRepository.findUserById(receiverId).orElseThrow(() -> new UserNotFoundException("초대 하는 사람이 없습니다."));
+        User receiver = userRepository.findUserById(receiverId).orElseThrow(() -> new UserNotFoundException("초대 받는 사람이 없습니다."));
+        List<TeamUser> senderTeamList = teamUserRepository.findAcceptedTeamUserByUserId(senderId);
 
-        List<InviteTeam> inviteTeams = inviteTeamRepository.findAllByReceiverAndSender(receiver, sender);
+        List<InviteTeam> inviteTeams = inviteTeamRepository.findAllBySenderAndReceiver(sender, receiver);
         Set<Team> inviteTeamsSet = inviteTeams.stream()
                 .map(InviteTeam::getTeam)
                 .collect(Collectors.toSet());
 
-        List<InviteMyTeamInfoResponse> response = teamUsers.stream()
+        List<InviteMyTeamInfoResponse> response = senderTeamList.stream()
                 .map(TeamUser::getTeam)
                 .filter(team -> team.getIsDeleted().equals(0L) && notDuplicateSuggestTeam(inviteTeamsSet, team))
                 .map(team -> InviteMyTeamInfoResponse.builder().team(team).build())
                 .toList();
         return new InviteMyTeamResponse(response);
     }
+
     /**
      * OAuth2SuccessHandler 로그인에 성공하면
      * Refresh 토큰을 User 엔터티에 저장

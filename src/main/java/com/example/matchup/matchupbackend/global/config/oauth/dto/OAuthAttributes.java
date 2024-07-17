@@ -82,7 +82,7 @@ public record OAuthAttributes(
     }
 
     public User toEntity() {
-        Role role = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@naver.com", "hyunwoo0081@gmail.com").contains(email) ? ADMIN : USER;
+        Role role = List.of("test@test.com", "jujemu@naver.com", "ericyoo0107@gmail.com", "hyunwoo0081@gmail.com").contains(email) ? ADMIN : USER;
 
         return User.builder()
                 .name(name)

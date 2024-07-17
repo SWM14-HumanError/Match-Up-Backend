@@ -43,7 +43,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2User.getAttributes());
         User user = saveOrUpdate(attributes);
-        whenKakaoLoginProfileImageSave(registrationId, user);
+        //whenKakaoLoginProfileImageSave(registrationId, user);
 
         return new CustomOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
