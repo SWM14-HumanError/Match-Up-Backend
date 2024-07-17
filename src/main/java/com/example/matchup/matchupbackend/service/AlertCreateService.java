@@ -333,11 +333,11 @@ public class AlertCreateService {
     }
 
     @Transactional
-    public void acceptMentoringCreateAlert(Mentoring mentoring, String comment, User leader) {
+    public void acceptMentoringCreateAlert(Mentoring mentoring, Team team, User leader) {
         Alert alert = Alert.builder()
                 .title("멘토링 신청 수락")
                 .content("%s 멘토링이 수락되었습니다.".formatted(mentoring.getTitle()))
-                .redirectUrl("/mentor/?mentoringId=%d".formatted(mentoring.getId()))
+                .redirectUrl("/team/%d".formatted(team.getId()))
                 .alertType(MENTORING)
                 .build();
         alert.setUser(leader);

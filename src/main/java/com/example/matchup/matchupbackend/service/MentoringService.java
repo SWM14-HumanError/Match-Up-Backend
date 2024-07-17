@@ -241,14 +241,16 @@ public class MentoringService {
     @Transactional
     public void acceptApplyMentoringByMentor(Long applyId, String comment, String authorizationHeader) {
         User mentor = getMentor(authorizationHeader);
-        TeamMentoring teamMentoring = teamMentoringRepository.findById(applyId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링 신청입니다."));
-        User leader = userRepository.findById(teamMentoring.getTeam().getLeaderID()).orElseThrow(() -> new UserNotFoundException("찾을 수 없는 리더입니다."));
+        TeamMentoring teamMentoring = teamMentoringRepository.findTeamMentoringJoinTeamAndMentoringById(applyId)
+                .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND, "찾을 수 없는 멘토링 신청 입니다."));
+        User leader = userRepository.findById(teamMentoring.getTeam().getLeaderID())
+                .orElseThrow(() -> new UserNotFoundException("찾을 수 없는 리더 입니다."));
 
         isAvailableAcceptOrRefuseMentoring(mentor, teamMentoring);
 
         teamMentoring.acceptMentoring();
 
-        alertCreateService.acceptMentoringCreateAlert(teamMentoring.getMentoring(), comment, leader);
+        alertCreateService.acceptMentoringCreateAlert(teamMentoring.getMentoring(), teamMentoring.getTeam(), leader);
     }
 
     @Transactional
