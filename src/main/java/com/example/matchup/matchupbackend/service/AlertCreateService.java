@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.matchup.matchupbackend.entity.AlertType.ETC;
 import static com.example.matchup.matchupbackend.entity.AlertType.MENTORING;
 import static com.example.matchup.matchupbackend.error.ErrorCode.NOT_PERMITTED;
 
@@ -424,5 +425,19 @@ public class AlertCreateService {
 
     private boolean isDuplicateSuggest(Team team, User sender, User receiver) {
         return inviteTeamRepository.existsByReceiverAndSenderAndTeam(receiver, sender, team);
+    }
+
+    /**
+     * 기업 인증 상태 변경 시 알림 전송
+     */
+    public void enterpriseVerifyAlert(User user, boolean isEnterprise){
+        Alert alert = Alert.builder()
+                .title("기업 인증 상태 변경")
+                .content(isEnterprise ? "기업 인증이 완료 되었습니다." : "기업 인증이 취소 되었습니다.")
+                .redirectUrl("/project")
+                .alertType(ETC)
+                .build();
+        alert.setUser(user);
+        alertRepository.save(alert);
     }
 }
