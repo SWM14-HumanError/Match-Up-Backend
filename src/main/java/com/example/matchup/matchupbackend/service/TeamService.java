@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.service;
 
 import com.example.matchup.matchupbackend.dto.Member;
 import com.example.matchup.matchupbackend.dto.UploadFile;
-import com.example.matchup.matchupbackend.dto.mentoring.MentoringCardResponse;
+import com.example.matchup.matchupbackend.dto.response.team.MentoringCardResponse;
 import com.example.matchup.matchupbackend.dto.request.team.TeamCreateRequest;
 import com.example.matchup.matchupbackend.dto.request.team.TeamSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.mentoring.MentoringSearchResponse;
