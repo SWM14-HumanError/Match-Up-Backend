@@ -36,6 +36,7 @@ jobs:
             host: ${{ secrets.EC2_HOST }}
             username: ${{ secrets.EC2_USERNAME }}
             key: ${{ secrets.EC2_PRIVATE_KEY }}
+            port: 22
             source: sidematch.jar
             target: /home/ubuntu/Match-Up-Backend/tobe
 
@@ -45,12 +46,13 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
           script_stop: true
           script: |
-            rm -rf /home/ubuntu//current
+            rm -rf /home/ubuntu/Match-Up-Backend/current
             mkdir /home/ubuntu/Match-Up-Backend/current
             mv /home/ubuntu/Match-Up-Backend/tobe/sidematch.jar /home/ubuntu/Match-Up-Backend/current/sidematch.jar
             cd /home/ubuntu/Match-Up-Backend/current
             sudo fuser -k -n tcp 8080 || true
             nohup java -jar sidematch.jar > ./output.log 2>&1 & 
-            rm -rf /home/ubuntu/Match-Up-Backend/tobe
+            rm -rf /home/ubuntu/Match-Up-Backend/tobe 

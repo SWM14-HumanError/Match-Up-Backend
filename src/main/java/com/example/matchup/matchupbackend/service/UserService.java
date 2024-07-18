@@ -117,14 +117,6 @@ public class UserService {
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
-
-//            String accessToken = Arrays.stream(cookies)
-//                    .filter(cookie -> cookie.getName().equals("token"))
-//                    .map(Cookie::getValue)
-//                    .findFirst()
-//                    .orElse(null);
-
-//            String newAccessToken = tokenService.createNewAccessToken(refreshToken, accessToken);
             String newAccessToken = tokenService.createNewAccessToken(refreshToken);
             CookieUtil.deleteCookie(request, response, "token");
             CookieUtil.addCookie(response, "token", newAccessToken, 2 * 60 * 60);
@@ -230,9 +222,5 @@ public class UserService {
 
     private boolean notDuplicateSuggestTeam(Set<Team> inviteTeamsSet, Team team) {
         return !inviteTeamsSet.contains(team);
-    }
-
-    private Position getPosition(List<UserPosition> userPositions) {
-        return userPositions != null && !userPositions.isEmpty() ? Position.from(userPositions.get(0)) : new Position();
     }
 }

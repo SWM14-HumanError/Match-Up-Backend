@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.mentoring;
+package com.example.matchup.matchupbackend.dto.response.team;
 
 import com.example.matchup.matchupbackend.dto.Position;
 import com.example.matchup.matchupbackend.entity.Mentoring;
