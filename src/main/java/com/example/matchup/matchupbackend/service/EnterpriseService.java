@@ -28,6 +28,7 @@ public class EnterpriseService {
 
     private final UserRepository userRepository;
     private final EnterpriseVerifyRepository enterpriseVerifyRepository;
+    private final AlertCreateService alertCreateService;
 
     /**
      * 기업 인증 신청
@@ -66,8 +67,10 @@ public class EnterpriseService {
         User user = enterpriseVerify.getUser();
         if (enterpriseStateRequest.getIsAccepted()) {
             user.changeRoleToUser();
+            alertCreateService.enterpriseVerifyAlert(user, false);
         } else {
             user.changeRoleToEnterprise();
+            alertCreateService.enterpriseVerifyAlert(user, true);
         }
         return user;
     }
