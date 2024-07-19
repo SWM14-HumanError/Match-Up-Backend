@@ -55,4 +55,4 @@ jobs:
             cd /home/ubuntu/Match-Up-Backend/current
             sudo fuser -k -n tcp 8080 || true
             nohup java -jar sidematch.jar > ./output.log 2>&1 & 
-            rm -rf /home/ubuntu/Match-Up-Backend/tobe 
+            rm -rf /home/ubuntu/Match-Up-Backend/tobe
