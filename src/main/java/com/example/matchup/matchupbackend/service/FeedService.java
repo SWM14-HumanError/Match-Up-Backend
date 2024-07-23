@@ -185,8 +185,9 @@ public class FeedService {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new UserNotFoundException("deleteFeed 중에 존재하지 않는 피드에 접근했습니다."));
         Long userId = tokenProvider.getUserId(token, "deleteFeed 중에 훼손된 토큰을 받았습니다.");
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("updateFeed 중에 존재하지 않는 유저에 접근했습니다."));
-
+        List<Comment> commentsByFeed = commentRepository.findAllByFeed(feed);
         if (feed.getUser().equals(user)) {
+            commentRepository.deleteAll(commentsByFeed);
             feedRepository.delete(feed);
             return true;
         }
@@ -275,7 +276,7 @@ public class FeedService {
         }
         likeRepository.save(Likes.builder().user(user).feed(feed).build());
         if (isNotFeedOfUser(user, feed)) {
-            alertCreateService.saveFeedLikeAlert(user, feed, feed.getLikes().size() + 1);
+            alertCreateService.saveFeedLikeAlert(user, feed, feed.getLikes().size());
         }
         return userId;
     }
