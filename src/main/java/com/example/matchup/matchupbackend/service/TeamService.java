@@ -433,6 +433,7 @@ public class TeamService {
     /**
      * 팀장이 팀을 끝냄
      */
+    @Transactional
     public void finishTeam(String token ,Long teamId) {
         Long leaderID = tokenProvider.getUserId(token, "finishTeam");
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamNotFoundException("존재하지 않는 팀입니다."));
