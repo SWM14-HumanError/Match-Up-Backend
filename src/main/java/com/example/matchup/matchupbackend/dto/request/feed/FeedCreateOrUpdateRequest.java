@@ -18,7 +18,6 @@ public class FeedCreateOrUpdateRequest {
     private String title;
 
     @NotBlank(message = "내용은 필수 입력 값입니다.")
-    @Size(max = 700, message = "피드의 내용은 700글자를 넘길 수 없습니다.")
     private String content;
 
     private String imageName;
