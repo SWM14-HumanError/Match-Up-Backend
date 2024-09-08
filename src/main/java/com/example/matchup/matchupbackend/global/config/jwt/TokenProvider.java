@@ -130,6 +130,30 @@ public class TokenProvider {
         return user.getId();
     }
 
+    public User getUser(String authorizationHeader, String callBack) {
+        if (authorizationHeader != null && Arrays.asList(environment.getActiveProfiles()).contains("local") && authorizationHeader.startsWith("test")) {
+            return userRepository.findUserByNickname(authorizationHeader).orElseThrow(() -> new UserNotFoundException("테스트 유저가 없습니다."));
+        }
+
+        String token = getAccessToken(authorizationHeader);
+
+        if (token == null) return null;
+        if (validToken(token) == TokenStatus.INVALID_OTHER) {
+            throw new AuthorizeException(callBack);
+        } else if (validToken(token) == TokenStatus.EXPIRED) {
+            throw new ExpiredTokenException(callBack);
+        }
+
+        Claims claims = getClaims(token);
+        Long userId = claims.get("id", Long.class);
+        String tokenId = claims.get("tokenId", String.class);
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new UserNotFoundException("존재하지 않은 아이디를 가진 토큰으로 접근했습니다."));
+        if (!user.getTokenId().equals(tokenId)) {
+            throw new ExpiredTokenException("관리자에 의해 만료된 토큰입니다.");
+        }
+        return user;
+    }
+
     public Long getUserId(String authorizationHeader) {
         return getUserId(authorizationHeader, "");
     }
@@ -142,16 +166,6 @@ public class TokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
-//    public Boolean getUnknown(String authorizationHeader, String callBack) {
-//        String token = getAccessToken(authorizationHeader);
-//
-//        if (token == null) return null;
-//        if (validToken(token) == TokenStatus.INVALID_OTHER) throw new AuthorizeException(callBack);
-//
-//        Claims claims = getClaims(token);
-//        return claims.get("unknown", Boolean.class);
-//    }
 
     /**
      * Authorization in Header에서 Bearer을 제거하여 토큰만 추출
