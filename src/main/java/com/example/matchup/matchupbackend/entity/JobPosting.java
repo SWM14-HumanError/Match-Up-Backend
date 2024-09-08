@@ -24,6 +24,10 @@ public class JobPosting {
 
     private LocalDateTime deadLine;
 
+    private String imgName;
+
+    private String imgUrl; // S3 URL
+
     private String applyLink;
 
     @Enumerated(EnumType.STRING)

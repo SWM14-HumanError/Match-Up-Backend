@@ -47,7 +47,7 @@ public enum ErrorCode {
     INVALID_LIKE(HttpStatus.BAD_REQUEST, "L-S-002", "잘못된 좋아요입니다."),
     INVALID_CHATTING_ROOM(HttpStatus.BAD_REQUEST, "CHAT-001", "잘못된 채팅방입니다."),
     ADMIN_ONLY(HttpStatus.UNAUTHORIZED, "ADMIN-001", "ADMIN 만 가능 합니다."),
-    INVALID_ENTERPRISE_VERIFY(HttpStatus.BAD_REQUEST, "E-S-001", "잘못된 기업 인증 상태 변경 요청 입니다."),;
+    INVALID_ENTERPRISE_VERIFY(HttpStatus.BAD_REQUEST, "E-S-001", "잘못된 기업 인증 상태 변경 요청 입니다.");
 
 
     private HttpStatus status;
