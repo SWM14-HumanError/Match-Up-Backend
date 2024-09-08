@@ -6,5 +6,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum JobPosition {
-    FRONTEND, BACKEND, FULLSTACK, DEVOPS, DESIGNER, PLANNER, MARKETING, ETC
+    FRONTEND, BACKEND, FULLSTACK, DEVOPS, DESIGNER, PM, MARKETING, BUSINESS, ETC
 }
