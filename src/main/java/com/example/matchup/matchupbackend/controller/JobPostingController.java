@@ -1,6 +1,8 @@
 package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingRequest;
+import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingPageResponse;
 import com.example.matchup.matchupbackend.entity.Role;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.AdminOnlyPermitException;
@@ -9,6 +11,7 @@ import com.example.matchup.matchupbackend.service.JobPostingService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +25,13 @@ public class JobPostingController {
 
     private final TokenProvider tokenProvider;
     private final JobPostingService jobPostingService;
+
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "채용 공고 목록을 검색 하는 API")
+    public JobPostingPageResponse searchJobPosting(JobPostingSearchRequest jobPostingSearchRequest, Pageable pageable) {
+        return jobPostingService.searchJobPosting(jobPostingSearchRequest, pageable);
+    }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
