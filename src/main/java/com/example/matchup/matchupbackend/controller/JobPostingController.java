@@ -2,6 +2,7 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingRequest;
 import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingPageResponse;
 import com.example.matchup.matchupbackend.entity.Role;
 import com.example.matchup.matchupbackend.entity.User;
@@ -43,5 +44,12 @@ public class JobPostingController {
         }
         jobPostingService.saveJobPosting(jobPostingRequest);
         return jobPostingRequest.getCompanyName() + "의 채용 공고가 등록 되었습니다.";
+    }
+
+    @GetMapping("/{jobPostingId}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "채용 공고 상세 정보를 조회 하는 API")
+    public JobPostingDetailResponse getDetailJobPosting(@PathVariable Long jobPostingId) {
+        return jobPostingService.getDetailJobPosting(jobPostingId);
     }
 }

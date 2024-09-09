@@ -3,6 +3,7 @@ package com.example.matchup.matchupbackend.service;
 import com.example.matchup.matchupbackend.dto.UploadFile;
 import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingRequest;
 import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingSearchRequest;
+import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingPageResponse;
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingResponse;
 import com.example.matchup.matchupbackend.entity.JobPosting;
@@ -52,5 +53,14 @@ public class JobPostingService {
         } else {
             jobPostingRepository.save(JobPosting.from(jobPostingRequest));
         }
+    }
+
+    /**
+     * 채용 공고 세부 사항을 조회 한다.
+     */
+    public JobPostingDetailResponse getDetailJobPosting(Long jobPostingId) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채용 공고 입니다."));
+        return JobPostingDetailResponse.fromEntity(jobPosting);
     }
 }
