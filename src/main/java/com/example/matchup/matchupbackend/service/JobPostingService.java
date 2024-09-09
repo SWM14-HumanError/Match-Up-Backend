@@ -7,6 +7,8 @@ import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingDeta
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingPageResponse;
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingResponse;
 import com.example.matchup.matchupbackend.entity.JobPosting;
+import com.example.matchup.matchupbackend.error.ErrorCode;
+import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.ResourceNotFoundException;
 import com.example.matchup.matchupbackend.repository.jobposting.JobPostingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +62,18 @@ public class JobPostingService {
      */
     public JobPostingDetailResponse getDetailJobPosting(Long jobPostingId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채용 공고 입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.NOT_FOUND, "존재하지 않는 채용 공고 입니다."));
         return JobPostingDetailResponse.fromEntity(jobPosting);
+    }
+
+    /**
+     * 채용 공고를 삭제 한다.
+     */
+    @Transactional
+    public String deleteJobPosting(Long jobPostingId) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.NOT_FOUND, "존재하지 않는 채용 공고 입니다."));
+        jobPostingRepository.delete(jobPosting);
+        return jobPosting.getTitle() + " - 채용 공고가 삭제 되었습니다.";
     }
 }
