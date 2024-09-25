@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.repository.userprofile;
+package com.example.matchup.matchupbackend.repository;
 
 import com.example.matchup.matchupbackend.entity.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -2,9 +2,9 @@ package com.example.matchup.matchupbackend.controller;
 
 import com.example.matchup.matchupbackend.dto.request.feed.FeedCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.request.feed.FeedSearchRequest;
-import com.example.matchup.matchupbackend.dto.request.feed.comment.FeedCommentCreateOrUpdateRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.FeedCommentCreateOrUpdateRequest;
 import com.example.matchup.matchupbackend.dto.response.feed.FeedSliceResponse;
-import com.example.matchup.matchupbackend.dto.response.feed.comment.FeedCommentSliceResponse;
+import com.example.matchup.matchupbackend.dto.response.feed.FeedCommentSliceResponse;
 import com.example.matchup.matchupbackend.entity.Comment;
 import com.example.matchup.matchupbackend.entity.Feed;
 import com.example.matchup.matchupbackend.service.FeedService;

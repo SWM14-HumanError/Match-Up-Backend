@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.dto.request.feed;
 
 import com.example.matchup.matchupbackend.dto.FeedSearchType;
 import com.example.matchup.matchupbackend.entity.ProjectDomain;
-import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
+import com.example.matchup.matchupbackend.error.annotation.Enum;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 

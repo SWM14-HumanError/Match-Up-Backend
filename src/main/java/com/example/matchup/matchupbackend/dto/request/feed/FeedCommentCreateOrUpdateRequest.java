@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.request.feed.comment;
+package com.example.matchup.matchupbackend.dto.request.feed;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

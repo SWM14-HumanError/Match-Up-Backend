@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.dto.request.alert;
 
 import com.example.matchup.matchupbackend.entity.AlertType;
-import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
+import com.example.matchup.matchupbackend.error.annotation.Enum;
 import lombok.Data;
 
 @Data

@@ -13,7 +13,7 @@ import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.LikeRepository;
 import com.example.matchup.matchupbackend.repository.mentoring.*;
 import com.example.matchup.matchupbackend.repository.team.TeamRepository;
-import com.example.matchup.matchupbackend.repository.teamuser.TeamUserRepository;
+import com.example.matchup.matchupbackend.repository.TeamUserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
