@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.repository.teamuser;
+package com.example.matchup.matchupbackend.repository;
 
 import com.example.matchup.matchupbackend.entity.Team;
 import com.example.matchup.matchupbackend.entity.TeamUser;

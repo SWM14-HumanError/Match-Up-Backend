@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.dto.response.feed.comment;
+package com.example.matchup.matchupbackend.dto.response.feed;
 
 import lombok.Data;
 

@@ -6,7 +6,7 @@ import com.example.matchup.matchupbackend.entity.ServiceCenter;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.UserNotFoundException;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
-import com.example.matchup.matchupbackend.repository.servicecenter.ServiceCenterRepository;
+import com.example.matchup.matchupbackend.repository.ServiceCenterRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

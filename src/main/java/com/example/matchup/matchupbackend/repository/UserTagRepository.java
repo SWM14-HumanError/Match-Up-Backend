@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.repository.usertag;
+package com.example.matchup.matchupbackend.repository;
 
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.entity.UserTag;
