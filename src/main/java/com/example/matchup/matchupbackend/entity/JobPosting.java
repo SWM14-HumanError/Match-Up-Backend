@@ -29,8 +29,10 @@ public class JobPosting extends BaseEntity {
 
     private String imgName;
 
+    @Column(length = 512)
     private String imgUrl; // S3 URL
 
+    @Column(length = 512)
     private String applyLink;
 
     @Enumerated(EnumType.STRING)
