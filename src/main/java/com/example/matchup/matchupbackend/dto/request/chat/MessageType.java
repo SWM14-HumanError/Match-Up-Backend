@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.global.annotation;
+package com.example.matchup.matchupbackend.dto.request.chat;
 
 import lombok.Getter;
 

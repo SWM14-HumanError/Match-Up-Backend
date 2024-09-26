@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.repository.servicecenter;
+package com.example.matchup.matchupbackend.repository;
 
 import com.example.matchup.matchupbackend.entity.ServiceCenter;
 import org.springframework.data.domain.Pageable;

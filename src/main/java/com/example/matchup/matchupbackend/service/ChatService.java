@@ -15,7 +15,7 @@ import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.ChatRoomRepository;
 import com.example.matchup.matchupbackend.repository.UserChatRoomRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
-import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
+import com.example.matchup.matchupbackend.repository.UserPositionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;

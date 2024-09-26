@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.global.annotation.validation;
+package com.example.matchup.matchupbackend.error.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

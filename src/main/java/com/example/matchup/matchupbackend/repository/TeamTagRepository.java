@@ -1,4 +1,4 @@
-package com.example.matchup.matchupbackend.repository.teamtag;
+package com.example.matchup.matchupbackend.repository;
 
 import com.example.matchup.matchupbackend.entity.TeamTag;
 import org.springframework.data.jpa.repository.JpaRepository;

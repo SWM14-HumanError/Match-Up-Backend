@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.dto.request.mentoring;
 
 import com.example.matchup.matchupbackend.entity.Career;
 import com.example.matchup.matchupbackend.global.RoleType;
-import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
+import com.example.matchup.matchupbackend.error.annotation.Enum;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

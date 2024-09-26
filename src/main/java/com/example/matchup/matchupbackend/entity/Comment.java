@@ -1,6 +1,6 @@
 package com.example.matchup.matchupbackend.entity;
 
-import com.example.matchup.matchupbackend.dto.request.feed.comment.FeedCommentCreateOrUpdateRequest;
+import com.example.matchup.matchupbackend.dto.request.feed.FeedCommentCreateOrUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,10 +19,6 @@ public class Comment extends BaseEntity{
 
     @Column(name = "comment_content")
     private String content;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "links_id")
-    private Links links;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")

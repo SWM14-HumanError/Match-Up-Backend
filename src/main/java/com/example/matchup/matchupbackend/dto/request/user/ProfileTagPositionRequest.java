@@ -1,7 +1,7 @@
 package com.example.matchup.matchupbackend.dto.request.user;
 
 import com.example.matchup.matchupbackend.global.RoleType;
-import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
+import com.example.matchup.matchupbackend.error.annotation.Enum;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Range;

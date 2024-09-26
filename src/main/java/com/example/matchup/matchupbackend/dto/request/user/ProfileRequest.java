@@ -2,7 +2,7 @@ package com.example.matchup.matchupbackend.dto.request.user;
 
 import com.example.matchup.matchupbackend.entity.MeetingType;
 import com.example.matchup.matchupbackend.global.RoleType;
-import com.example.matchup.matchupbackend.global.annotation.validation.Enum;
+import com.example.matchup.matchupbackend.error.annotation.Enum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

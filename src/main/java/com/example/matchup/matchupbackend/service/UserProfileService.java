@@ -15,11 +15,11 @@ import com.example.matchup.matchupbackend.error.exception.ResourceNotFoundEx.Use
 import com.example.matchup.matchupbackend.global.RoleType;
 import com.example.matchup.matchupbackend.global.config.jwt.TokenProvider;
 import com.example.matchup.matchupbackend.repository.feedback.FeedbackRepository;
-import com.example.matchup.matchupbackend.repository.tag.TagRepository;
+import com.example.matchup.matchupbackend.repository.TagRepository;
 import com.example.matchup.matchupbackend.repository.user.UserRepository;
 import com.example.matchup.matchupbackend.repository.user.UserSnsLinkRepository;
-import com.example.matchup.matchupbackend.repository.userposition.UserPositionRepository;
-import com.example.matchup.matchupbackend.repository.usertag.UserTagRepository;
+import com.example.matchup.matchupbackend.repository.UserPositionRepository;
+import com.example.matchup.matchupbackend.repository.UserTagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
