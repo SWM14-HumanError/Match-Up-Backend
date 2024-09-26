@@ -4,6 +4,7 @@ import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingReque
 import com.example.matchup.matchupbackend.dto.request.jobposting.JobPostingSearchRequest;
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingDetailResponse;
 import com.example.matchup.matchupbackend.dto.response.jobposting.JobPostingPageResponse;
+import com.example.matchup.matchupbackend.entity.JobPosting;
 import com.example.matchup.matchupbackend.entity.Role;
 import com.example.matchup.matchupbackend.entity.User;
 import com.example.matchup.matchupbackend.error.exception.ResourceNotPermitEx.AdminOnlyPermitException;
@@ -42,8 +43,8 @@ public class JobPostingController {
         if (!user.getRole().equals(Role.ADMIN)) {
             throw new AdminOnlyPermitException("채용 공고는 관리자만 등록할 수 있습니다.");
         }
-        jobPostingService.saveJobPosting(jobPostingRequest);
-        return jobPostingRequest.getCompanyName() + "의 채용 공고가 등록 되었습니다.";
+        JobPosting jobPosting = jobPostingService.saveJobPosting(jobPostingRequest);
+        return "채용 공고 ID : " + jobPosting.getId();
     }
 
     @GetMapping("/{jobPostingId}")

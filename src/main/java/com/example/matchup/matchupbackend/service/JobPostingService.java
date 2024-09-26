@@ -48,12 +48,14 @@ public class JobPostingService {
      * ADMIN이 채용 공고를 저장한다.
      */
     @Transactional
-    public void saveJobPosting(JobPostingRequest jobPostingRequest) {
+    public JobPosting saveJobPosting(JobPostingRequest jobPostingRequest) {
         if(jobPostingRequest.getImageBase64() != null) {
             UploadFile uploadFile = fileService.storeBase64ToFile(jobPostingRequest.getImageBase64(), jobPostingRequest.getImageName());
-            jobPostingRepository.save(JobPosting.from(uploadFile, jobPostingRequest));
+            JobPosting save = jobPostingRepository.save(JobPosting.from(uploadFile, jobPostingRequest));
+            return save;
         } else {
-            jobPostingRepository.save(JobPosting.from(jobPostingRequest));
+            JobPosting save = jobPostingRepository.save(JobPosting.from(jobPostingRequest));
+            return save;
         }
     }
 
