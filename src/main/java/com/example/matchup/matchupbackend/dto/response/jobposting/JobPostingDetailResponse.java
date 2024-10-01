@@ -26,7 +26,7 @@ public class JobPostingDetailResponse {
                 .companyName(jobPosting.getCompanyName())
                 .title(jobPosting.getTitle())
                 .description(jobPosting.getDescription())
-                .imgUrl(jobPosting.getImgUrl())
+                .imgUrl(jobPosting.getImgUrl().equals("null") ? null : jobPosting.getImgUrl())
                 .applyLink(jobPosting.getApplyLink())
                 .jobPosition(jobPosting.getJobPosition())
                 .jobType(jobPosting.getJobType())
